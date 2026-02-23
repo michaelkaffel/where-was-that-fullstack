@@ -1,0 +1,57 @@
+{
+  "name": "where-was-that",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@fortawesome/fontawesome-free": "^7.1.0",
+    "@fortawesome/fontawesome-svg-core": "^7.1.0",
+    "@fortawesome/free-brands-svg-icons": "^7.1.0",
+    "@fortawesome/free-regular-svg-icons": "^7.1.0",
+    "@fortawesome/free-solid-svg-icons": "^7.1.0",
+    "@fortawesome/react-fontawesome": "^3.1.1",
+    "@reduxjs/toolkit": "^1.8.1",
+    "bootstrap": "^5.3.8",
+    "bootstrap-social": "^5.1.1",
+    "cra-template-redux": "2.0.0",
+    "font-awesome": "^4.7.0",
+    "formik": "^2.2.9",
+    "react": "^18.3.1",
+    "react-bootstrap": "^2.10.10",
+    "react-dom": "^18.3.1",
+    "react-redux": "^8.0.1",
+    "react-router-dom": "^6.2.1",
+    "react-scripts": "5.0.1",
+    "react-spring": "^9.4.5-beta.1",
+    
+    "redux-logger": "^3.0.6",
+    "typeface-lobster": "^1.1.13",
+    "typeface-open-sans": "^1.1.13"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "firebase-tools": "^15.0.0"
+  }
+}

@@ -1,0 +1,17 @@
+# React dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# React testing
+/coverage
+
+# React production build
+/build
+dist/
+
+# React environment overrides
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local

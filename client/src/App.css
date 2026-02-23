@@ -1,0 +1,43 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    /* border: solid red 1px; */
+}
+
+body {
+    padding-top: 80px
+}
+
+.navbar-styles {
+    color: green;
+}
+
+.hero-title {
+    font-size: 5rem;
+}
+
+.hero-subtitle {
+    font-size: 2rem;
+}
+
+.hero-row {
+    margin-top: 20%;
+}
+
+.home-page-row-btns {
+    min-width: 100px;
+}
+
+.comment-close-icon {
+    cursor: pointer;
+    color: 'red';
+}
+
+.comment-close-icon:hover {
+    color: red;
+}
+
+.pointer-effect {
+    cursor: pointer
+}
