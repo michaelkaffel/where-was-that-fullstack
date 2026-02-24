@@ -1,5 +1,5 @@
-const express = require('express');
-const Place = require('../models/places');
+import express from 'express';
+import Place from '../models/places.js';
 
 
 const placeRouter = express.Router();
@@ -115,4 +115,4 @@ placeRouter.route('/:placeId/notes')
     });
 
 
-module.exports = placeRouter;
+export default placeRouter;
