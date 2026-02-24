@@ -6,18 +6,23 @@ import { verifyUser } from '../authenticate.js';
 const placeRouter = express.Router();
 
 placeRouter.route('/')
-    .get((req, res, next) => {
-        Place.find()
+    .get(verifyUser, (req, res, next) => {
+        Place.find({ owner: req.user._id})
+            .populate('owner')
             .then(places => {
                 res.status(200).json(places);
             })
             .catch(err => next(err));
     })
     .post(verifyUser, (req, res, next) => {
+        req.body.owner = req.user._id;
+
         Place.create(req.body)
             .then(place => {
-                console.log(`${req.body.kindOfPlace} created`, place);
-                res.status(200).json(place);
+                return Place.findById(place._id).populate('owner', 'username')
+            })
+            .then(populatedPlace => {
+                res.status(200).json(populatedPlace);
             })
             .catch(err => next(err));
     })
@@ -165,7 +170,7 @@ placeRouter.route('/:placeId/notes/:noteId')
             .then(place => {
                 if (place && place.notes.id(req.params.noteId)) {
                     place.notes.id(req.params.noteId).deleteOne()
-                    campsite.save()
+                    place.save()
                         .then(place => {
                             res.status(200).json(place);
                         })
