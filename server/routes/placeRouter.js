@@ -1,5 +1,6 @@
 import express from 'express';
-import Place from '../models/places.js';
+import Place from '../models/place.js';
+import { verifyUser } from '../authenticate.js';
 
 
 const placeRouter = express.Router();
@@ -12,7 +13,7 @@ placeRouter.route('/')
             })
             .catch(err => next(err));
     })
-    .post((req, res, next) => {
+    .post(verifyUser, (req, res, next) => {
         Place.create(req.body)
             .then(place => {
                 console.log(`${req.body.kindOfPlace} created`, place);
@@ -38,7 +39,7 @@ placeRouter.route('/:placeId')
     .post((req, res) => {
         res.status(403).end(`POST operation not supported on /places/${req.params.placeId}`)
     })
-    .put((req, res, next) => {
+    .put(verifyUser, (req, res, next) => {
         Place.findByIdAndUpdate(req.params.placeId, {
             $set: req.body
         }, { new: true })
@@ -47,7 +48,7 @@ placeRouter.route('/:placeId')
             })
             .catch(err => next(err));
     })
-    .delete((req, res, next) => {
+    .delete(verifyUser, (req, res, next) => {
         Place.findByIdAndDelete(req.params.placeId)
             .then(response => {
                 res.status(200).json(response);
@@ -69,7 +70,7 @@ placeRouter.route('/:placeId/notes')
             })
             .catch(err => next(err));
     })
-    .post((req, res, next) => {
+    .post(verifyUser, (req, res, next) => {
         Place.findById(req.params.placeId)
             .then(place => {
                 if (place) {
@@ -93,7 +94,7 @@ placeRouter.route('/:placeId/notes')
     .patch((req, res) => {
         res.status(403).end(`PATCH operation not supported on /places/${req.params.placeId}`)
     })
-    .delete((req, res, next) => {
+    .delete(verifyUser, (req, res, next) => {
         Place.findById(req.params.placeId)
             .then(place => {
                 if (place) {

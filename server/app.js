@@ -3,11 +3,15 @@ dotenv.config({ quiet: true });
 import createError from 'http-errors';
 import express from 'express';
 import path from 'path';
-import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 import mongoose from 'mongoose';
-
+import passport from 'passport';
+import authenticate from './authenticate.js'
 import { fileURLToPath } from 'url';
+
+import indexRouter from './routes/index.js';
+import usersRouter from './routes/users.js';
+import placeRouter from './routes/placeRouter.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -19,9 +23,7 @@ connect.then(() => console.log('Connected correctly to server'),
     err => console.log(err)
 );
 
-import indexRouter from './routes/index.js';
-import usersRouter from './routes/users.js';
-import placeRouter from './routes/placeRouter.js';
+
 
 
 var app = express();
@@ -33,11 +35,13 @@ app.set('view engine', 'pug');
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+
+app.use(passport.initialize())
 app.use('/places', placeRouter);
 
 // catch 404 and forward to error handler
