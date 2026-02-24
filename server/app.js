@@ -1,20 +1,27 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
-const mongoose = require('mongoose');
+import dotenv from 'dotenv';
+dotenv.config({ quiet: true });
+import createError from 'http-errors';
+import express from 'express';
+import path from 'path';
+import cookieParser from 'cookie-parser';
+import logger from 'morgan';
+import mongoose from 'mongoose';
 
-const url = 'mongodb://127.0.0.1:27017/wherewasthat';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const url = process.env.MONGO_URL;
 const connect = mongoose.connect(url, {});
 
 connect.then(() => console.log('Connected correctly to server'),
     err => console.log(err)
 );
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-const placeRouter = require('./routes/placeRouter');
+import indexRouter from './routes/index.js';
+import usersRouter from './routes/users.js';
+import placeRouter from './routes/placeRouter.js';
 
 
 var app = express();
@@ -49,4 +56,4 @@ app.use(function (err, req, res, next) {
     res.render('error');
 });
 
-module.exports = app;
+export default app;
