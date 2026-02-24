@@ -5,26 +5,53 @@ import { verifyUser } from '../authenticate.js';
 
 const placeRouter = express.Router();
 
-placeRouter.route('/')
-    .get(verifyUser, (req, res, next) => {
-        Place.find({ owner: req.user._id})
-            .populate('owner')
-            .then(places => {
-                res.status(200).json(places);
-            })
-            .catch(err => next(err));
-    })
-    .post(verifyUser, (req, res, next) => {
-        req.body.owner = req.user._id;
+const verifyPlaceOwner = async (req, res, next) => {
+    try {
+        const place = await Place.findById(req.params.placeId);
 
-        Place.create(req.body)
-            .then(place => {
-                return Place.findById(place._id).populate('owner', 'username')
-            })
-            .then(populatedPlace => {
-                res.status(200).json(populatedPlace);
-            })
-            .catch(err => next(err));
+        if (!place) {
+            const err = new Error('Place not found');
+            err.status = 404;
+            return next(err);
+        }
+
+        if (!place.owner || !place.owner.equals(req.user._id)) {
+            const err = new Error('Not authorized');
+            err.status = 403;
+            return next(err);
+        }
+
+        req.place = place;
+        next();
+    } catch(err) {
+        next(err);
+    }
+};
+
+placeRouter.route('/')
+    .get(verifyUser, async (req, res, next) => {
+        try {
+            const places = await Place.find({ owner: req.user._id})
+                .populate('owner', 'username');
+            
+            res.status(200).json(places);
+        } catch (err) {
+            next(err);
+        }
+    })
+    .post(verifyUser, async (req, res, next) => {
+        try {
+            req.body.owner = req.user._id;
+
+            const place = await Place.create(req.body);
+
+            const populated = await Place.findById(place._id)
+                .populate('owner', 'username');
+
+            res.status(201).json(populated);
+        } catch (err) {
+            next(err);
+        }
     })
     .put((req, res) => {
         res.status(403).end('PUT operation not supported on /places');
@@ -33,65 +60,53 @@ placeRouter.route('/')
         res.status(403).end('DELETE operation not supported');
     })
 
-placeRouter.route('/:placeId')
-    .get((req, res, next) => {
-        Place.findById(req.params.placeId)
-            .then(place => {
-                res.status(200).json(place)
-            })
-            .catch(err => next(err));
+placeRouter.route('/:placeId') //RECHECK THIS ONE
+    .get(verifyUser, verifyPlaceOwner, async (req, res) => {
+        const populated = await req.place.populate('owner', 'username');
+        res.status(200).json(populated);
     })
     .post((req, res) => {
         res.status(403).end(`POST operation not supported on /places/${req.params.placeId}`)
     })
-    .put(verifyUser, (req, res, next) => {
-        Place.findByIdAndUpdate(req.params.placeId, {
-            $set: req.body
-        }, { new: true })
-            .then(place => {
-                res.status(200).json(place)
-            })
-            .catch(err => next(err));
+    .put((req, res) => {
+        res.status(403).end(`PUT operation not supported on /places/${req.params.placeId}`)
     })
-    .delete(verifyUser, (req, res, next) => {
-        Place.findByIdAndDelete(req.params.placeId)
-            .then(response => {
-                res.status(200).json(response);
-            })
-            .catch(err => next(err));
+    .patch(verifyUser, verifyPlaceOwner, async (req, res, next) => {
+        try {
+            if (Object.keys(req.body).length !== 1 || typeof req.body.favorite !== 'boolean') {
+                return res.status(400).json({ message: 'Only favorite boolean may be updated'});
+            }
+
+            req.place.favorite = req.body.favorite;
+
+            const updated = await req.place.save();
+            
+            res.status(200).json(updated);
+        } catch (err) {
+            next(err);
+        }
+    })
+    .delete(verifyUser, verifyPlaceOwner, async (req, res, next) => {
+        try {
+            await req.place.deleteOne();
+            res.status(200).json({ message: 'Place deleted' });
+        } catch (err) {
+            next(err);
+        }
     });
 
 placeRouter.route('/:placeId/notes')
-    .get((req, res, next) => {
-        Place.findById(req.params.placeId)
-            .then(place => {
-                if (place) {
-                    res.status(200).json(place.notes)
-                } else {
-                    const err = new Error(`Place: ${req.params.placeId} not fount`);
-                    err.status = 404;
-                    return next(err);
-                }
-            })
-            .catch(err => next(err));
+    .get(verifyUser, verifyPlaceOwner, async (req, res, next) => {
+        res.status(200).json(req.place.notes);
     })
-    .post(verifyUser, (req, res, next) => {
-        Place.findById(req.params.placeId)
-            .then(place => {
-                if (place) {
-                    place.notes.push(req.body);
-                    place.save()
-                        .then(place => {
-                            res.status(200).json(place);
-                        })
-                        .catch(err => next(err));
-                } else {
-                    const err = new Error(`Place: ${req.params.placeId} not found`);
-                    err.status = 404;
-                    return next(err);
-                }
-            })
-            .catch(err => next(err));
+    .post(verifyUser, verifyPlaceOwner, async (req, res, next) => {
+        try {
+            req.place.notes.push(req.body);
+            const updated = await req.place.save();
+            res.status(201).json(updated);
+        } catch (err) {
+            next(err);
+        }
     })
     .put((req, res) => {
         res.status(403).end(`PUT operation not supported on /places/${req.params.placeId}`)
@@ -99,94 +114,74 @@ placeRouter.route('/:placeId/notes')
     .patch((req, res) => {
         res.status(403).end(`PATCH operation not supported on /places/${req.params.placeId}`)
     })
-    .delete(verifyUser, (req, res, next) => {
-        Place.findById(req.params.placeId)
-            .then(place => {
-                if (place) {
-                    for (let i = (place.notes.length - 1); i >= 0; i--) {
-                        place.notes.id(place.notes[i]._id).deleteOne();
-                    }
-                    place.save()
-                        .then(place => {
-                            res.status(200).json(place);
-                        })
-                        .catch(err => next(err))
-                } else {
-                    const err = new Error(`Place: ${req.params.placeId} not found`);
-                    err.status = 404;
-                    return next(err);
-                }
-            })
-            .catch(err => next(err));
+    .delete(verifyUser, verifyPlaceOwner, async (req, res, next) => {
+        try {
+            req.place.notes = [];
+            const updated = await req.place.save();
+            res.status(200).json(updated);
+        } catch (err) {
+            next(err);
+        }
     });
 
 placeRouter.route('/:placeId/notes/:noteId')
-    .get((req, res, next) => {
-        Place.findById(req.params.placeId)
-            .then(place => {
-                if (place && place.notes.id(req.params.noteId)) {
-                    res.status(200).json(place.notes.id(req.params.noteId))
-                } else if (!place) {
-                    const err = new Error(`Place: ${req.params.placeId} not found`);
-                    err.status = 404;
-                    return next(err);
-                } else {
-                    const err = new Error(`Note ${req.params.noteId} not found`);
-                    err.status = 404;
-                    return next(err);
-                }
-            })
-            .catch(err => next(err));
+    .get(verifyUser, verifyPlaceOwner, async (req, res, next) => {
+        const note = req.place.notes.id(req.params.noteId);
+
+        if (!note) {
+            const err = new Error('Note not found');
+            err.status = 404;
+            return next(err);
+        }
+
+        res.status(200).json(note);
     })
     .post((req, res) => {
         res.status(403).end(`POST operation not supported on /places/${req.params.placeId}/notes/${req.params.noteId}`);
     })
-    .put((req, res, next) => {
-        Place.findById(req.params.placeId)
-            .then(place => {
-                if (place && place.notes.id(req.params.noteId)) {
-                    if (req.body.text) {
-                        place.notes.id(req.params.noteId).text = req.body.text;
-                    }
-                    place.save()
-                        .then(place => {
-                            res.status(200).json(place)
-                        })
-                        .catch(err => next(err));
-                } else if (!place) {
-                    const err = new Error(`Place: ${req.params.placeId} not found`);
-                    err.status = 404
-                    return next(err);
-                } else {
-                    const err = new Error(`Note ${req.params.noteId} not found`);
-                    err.status = 404;
-                    return next(err);
-                }
-            })
-            .catch(err => next(err));
+    .put((req, res) => {
+        res.status(403).end(`PUT operation not supported on /places/${req.params.placeId}/notes/${req.params.noteId}`);
     })
-    .delete((req, res, next) => {
-        Place.findById(req.params.placeId)
-            .then(place => {
-                if (place && place.notes.id(req.params.noteId)) {
-                    place.notes.id(req.params.noteId).deleteOne()
-                    place.save()
-                        .then(place => {
-                            res.status(200).json(place);
-                        })
-                        .catch(err => next(err));
-                } else if (!place) {
-                    const err = new Error(`Place: ${req.params.placeId} not found`);
-                    err.status = 404
-                    return next(err);
-                } else {
-                    const err = new Error(`Note ${req.params.noteId} not found`);
-                    err.status = 404;
-                    return next(err);
-                }
-            })
-            .catch(err => next(err));
+    .patch(verifyUser, verifyPlaceOwner, async (req, res, next) => {
+        try {
+            const note = req.place.notes.id(req.params.noteId);
+
+            if (!note) {
+                const err = new Error('Note not found');
+                err.status = 404;
+                return next(err);
+            }
+
+            if (typeof req.body.text !== 'string' || req.body.text.trim() === '') {
+                return res.status(400).json({ message: 'Text must be a non-empty string'});
+            }
+
+            note.text = req.body.text;
+            const updated = await req.place.save();
+
+            res.status(200).json(updated);
+
+        } catch (err) {
+            next(err);
+        }
     })
+    .delete(verifyUser, verifyPlaceOwner, async (req, res, next) => {
+        try {
+            const note = req.place.notes.id(req.params.noteId);
+
+            if (!note) {
+                const err = new Error('Note not found');
+                err.status = 404;
+                return next(err);
+            }
+
+            note.deleteOne();
+            const updated = await req.place.save();
+            res.status(200).json({ message: 'Note deleted' });
+        } catch (err) {
+            next(err);
+        }
+    });
 
 
 
