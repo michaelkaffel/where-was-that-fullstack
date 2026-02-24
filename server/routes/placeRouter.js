@@ -97,7 +97,7 @@ placeRouter.route('/:placeId/notes')
         Place.findById(req.params.placeId)
             .then(place => {
                 if (place) {
-                    for (let i = (place.notes.length -1 ); i >= 0; i--) {
+                    for (let i = (place.notes.length - 1); i >= 0; i--) {
                         place.notes.id(place.notes[i]._id).deleteOne();
                     }
                     place.save()
@@ -110,9 +110,78 @@ placeRouter.route('/:placeId/notes')
                     err.status = 404;
                     return next(err);
                 }
-            }) 
+            })
             .catch(err => next(err));
     });
+
+placeRouter.route('/:placeId/notes/:noteId')
+    .get((req, res, next) => {
+        Place.findById(req.params.placeId)
+            .then(place => {
+                if (place && place.notes.id(req.params.noteId)) {
+                    res.status(200).json(place.notes.id(req.params.noteId))
+                } else if (!place) {
+                    const err = new Error(`Place: ${req.params.placeId} not found`);
+                    err.status = 404;
+                    return next(err);
+                } else {
+                    const err = new Error(`Note ${req.params.noteId} not found`);
+                    err.status = 404;
+                    return next(err);
+                }
+            })
+            .catch(err => next(err));
+    })
+    .post((req, res) => {
+        res.status(403).end(`POST operation not supported on /places/${req.params.placeId}/notes/${req.params.noteId}`);
+    })
+    .put((req, res, next) => {
+        Place.findById(req.params.placeId)
+            .then(place => {
+                if (place && place.notes.id(req.params.noteId)) {
+                    if (req.body.text) {
+                        place.notes.id(req.params.noteId).text = req.body.text;
+                    }
+                    place.save()
+                        .then(place => {
+                            res.status(200).json(place)
+                        })
+                        .catch(err => next(err));
+                } else if (!place) {
+                    const err = new Error(`Place: ${req.params.placeId} not found`);
+                    err.status = 404
+                    return next(err);
+                } else {
+                    const err = new Error(`Note ${req.params.noteId} not found`);
+                    err.status = 404;
+                    return next(err);
+                }
+            })
+            .catch(err => next(err));
+    })
+    .delete((req, res, next) => {
+        Place.findById(req.params.placeId)
+            .then(place => {
+                if (place && place.notes.id(req.params.noteId)) {
+                    place.notes.id(req.params.noteId).deleteOne()
+                    campsite.save()
+                        .then(place => {
+                            res.status(200).json(place);
+                        })
+                        .catch(err => next(err));
+                } else if (!place) {
+                    const err = new Error(`Place: ${req.params.placeId} not found`);
+                    err.status = 404
+                    return next(err);
+                } else {
+                    const err = new Error(`Note ${req.params.noteId} not found`);
+                    err.status = 404;
+                    return next(err);
+                }
+            })
+            .catch(err => next(err));
+    })
+
 
 
 export default placeRouter;
