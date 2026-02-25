@@ -7,6 +7,13 @@ import 'dotenv/config'
 import app from '../app.js';
 import debugLib from 'debug';
 import http from 'http';
+import https from 'https';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const debug = debugLib('server:server');
 
@@ -16,6 +23,7 @@ const debug = debugLib('server:server');
 
 const port = normalizePort(process.env.PORT);
 app.set('port', port);
+app.set('secPort', port + 443)
 
 /**
  * Create HTTP server.
@@ -30,6 +38,28 @@ const server = http.createServer(app);
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
+
+/**
+ * Create HTTPS server
+ */
+
+
+  const key = fs.readFileSync(process.env.SSL_KEY_PATH)
+  const cert = fs.readFileSync(process.env.SSL_CERT_PATH)
+
+
+const secureServer = https.createServer({ key, cert }, app)
+
+/**
+ * Listen on provided port, on all network interfaces
+ */
+
+secureServer.listen(app.get('secPort'), () => {
+  console.log('Server listening on port', app.get('secPort'))
+});
+secureServer.on('error', onError);
+secureServer.on('listening', onListening);
+
 
 /**
  * Normalize a port into a number, string, or false.
