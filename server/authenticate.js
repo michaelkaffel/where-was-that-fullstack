@@ -34,4 +34,13 @@ passport.use(
 
 export const verifyUser = passport.authenticate('jwt', { session: false });
 
+export const verifyAdmin = (req, res, next) => {
+    if (!req.user.admin) {
+        return res.status(403).json({
+            message: 'Admin access required'
+        });
+    }
+    next();
+};
+
 export default passport;

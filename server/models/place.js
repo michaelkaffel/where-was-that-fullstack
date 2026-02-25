@@ -1,4 +1,7 @@
 import mongoose from 'mongoose';
+import fs from 'fs';
+import path from 'path';
+
 const Schema = mongoose.Schema;
 
 const notesSchema = new Schema({
@@ -13,6 +16,8 @@ const notesSchema = new Schema({
 }, {
     timestamps: true
 });
+
+const PLACE_TYPE = ['campsite', 'hike', 'overlook'];
 
 const placeSchema = new Schema({
     title: {
@@ -43,7 +48,8 @@ const placeSchema = new Schema({
     },
     kindOfPlace: {
         type: String,
-        required: true
+        required: true,
+        enum: PLACE_TYPE
     },
     owner: {
         type: mongoose.Schema.Types.ObjectId,
@@ -54,6 +60,28 @@ const placeSchema = new Schema({
 }, {
     timestamps: true
 });
+
+placeSchema.pre('deleteOne', { document: true, query: false }, async function (next) {
+        try {
+            if (this.imageUrl) {
+                try {
+                    const imagePath = path.join(
+                        process.cwd(),
+                        'public',
+                        this.imageUrl
+                    );
+
+                    fs.unlinkSync(imagePath);
+                } catch (err) {
+                    console.log('Image delete error:', err.message);
+                }
+            }
+            next()
+        } catch (err) {
+            next(err);
+        }
+    }
+);
 
 const Place = mongoose.model('Place', placeSchema);
 

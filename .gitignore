@@ -23,3 +23,6 @@ yarn-error.log*
 
 # Firebase
 client/.firebase/
+
+# Public Images
+server/public/images/
