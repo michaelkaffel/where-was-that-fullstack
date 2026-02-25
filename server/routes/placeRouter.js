@@ -1,58 +1,88 @@
 import express from 'express';
+import multer from 'multer';
+import path from 'path';
 import Place from '../models/place.js';
 import { verifyUser } from '../authenticate.js';
+import { verifyPlaceOwner } from '../middleware.js';
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'public/images');
+    },
+    filename: (req, file, cb) => {
+        const uniqueName = Date.now() + path.extname(file.originalname);
+        cb(null, uniqueName);
+    }
+});
+
+const imageFileFilter = (req, file, cb) => {
+    if (!file.mimetype.startsWith('image/')) {
+        return cb(new Error('Only image files allowed'), false);
+    }
+    cb(null, true);
+};
+
+const upload = multer({
+    storage,
+    fileFilter: imageFileFilter,
+    limits: {
+        fileSize: 10 * 1240 * 1240,
+        files: 1
+    }
+});
 
 
 const placeRouter = express.Router();
 
-const verifyPlaceOwner = async (req, res, next) => {
-    try {
-        const place = await Place.findById(req.params.placeId);
 
-        if (!place) {
-            const err = new Error('Place not found');
-            err.status = 404;
-            return next(err);
-        }
-
-        if (!place.owner || !place.owner.equals(req.user._id)) {
-            const err = new Error('Not authorized');
-            err.status = 403;
-            return next(err);
-        }
-
-        req.place = place;
-        next();
-    } catch(err) {
-        next(err);
-    }
-};
 
 placeRouter.route('/')
     .get(verifyUser, async (req, res, next) => {
         try {
-            const places = await Place.find({ owner: req.user._id})
+            const places = await Place.find({ owner: req.user._id })
                 .populate('owner', 'username');
-            
+
             res.status(200).json(places);
         } catch (err) {
             next(err);
         }
     })
-    .post(verifyUser, async (req, res, next) => {
-        try {
-            req.body.owner = req.user._id;
+    .post(
+        verifyUser,
+        (req, res, next) => {
+            upload.single('image')(req, res, function (err) {
+                if (err instanceof multer.MulterError) {
+                    if (err.code === 'LIMIT_FILE_SIZE') {
+                        return res.status(400).json({
+                            message: 'Image must be under 10MB'
+                        });
+                    }
+                    return res.status(400).json({ message: err.message });
+                } else if (err) {
+                    return res.status(400).json({ message: err.message });
+                }
+                next();
+            });
+        },
+        async (req, res, next) => {
+            try {
+                req.body.owner = req.user._id;
 
-            const place = await Place.create(req.body);
+                if (req.file) {
+                    req.body.imageUrl = `images/${req.file.filename}`;
+                }
 
-            const populated = await Place.findById(place._id)
-                .populate('owner', 'username');
+                const place = await Place.create(req.body);
 
-            res.status(201).json(populated);
-        } catch (err) {
-            next(err);
+                const populated = await Place.findById(place._id)
+                    .populate('owner', 'username');
+
+                res.status(201).json(populated);
+            } catch (err) {
+                next(err);
+            }
         }
-    })
+    )
     .put((req, res) => {
         res.status(403).end('PUT operation not supported on /places');
     })
@@ -74,13 +104,13 @@ placeRouter.route('/:placeId') //RECHECK THIS ONE
     .patch(verifyUser, verifyPlaceOwner, async (req, res, next) => {
         try {
             if (Object.keys(req.body).length !== 1 || typeof req.body.favorite !== 'boolean') {
-                return res.status(400).json({ message: 'Only favorite boolean may be updated'});
+                return res.status(400).json({ message: 'Only favorite boolean may be updated' });
             }
 
             req.place.favorite = req.body.favorite;
 
             const updated = await req.place.save();
-            
+
             res.status(200).json(updated);
         } catch (err) {
             next(err);
@@ -153,7 +183,7 @@ placeRouter.route('/:placeId/notes/:noteId')
             }
 
             if (typeof req.body.text !== 'string' || req.body.text.trim() === '') {
-                return res.status(400).json({ message: 'Text must be a non-empty string'});
+                return res.status(400).json({ message: 'Text must be a non-empty string' });
             }
 
             note.text = req.body.text;
