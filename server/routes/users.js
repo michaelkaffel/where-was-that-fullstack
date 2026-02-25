@@ -1,13 +1,14 @@
 import express from 'express';
 import User from '../models/user.js'
 import passport from 'passport';
+import { corsWithOptions } from './cors.js';
 import { getToken } from '../authenticate.js';
 import { verifyUser, verifyAdmin } from '../authenticate.js';
 
 const router = express.Router();
 
 /* GET users listing. */
-router.get('/', verifyUser, verifyAdmin, async (req, res, next) => {
+router.get('/', corsWithOptions, verifyUser, verifyAdmin, async (req, res, next) => {
     try {
         const users = await User.find()
             .select('_id username firstname lastname admin');
@@ -19,7 +20,7 @@ router.get('/', verifyUser, verifyAdmin, async (req, res, next) => {
     }
 });
 
-router.post('/signup', async (req, res, next) => {
+router.post('/signup', corsWithOptions,  async (req, res, next) => {
     try {
         const user = new User({
             username: req.body.username,
@@ -47,7 +48,7 @@ router.post('/signup', async (req, res, next) => {
     }
 });
 
-router.post('/login', passport.authenticate('local', { session: false }), (req, res) => {
+router.post('/login', corsWithOptions,  passport.authenticate('local', { session: false }), (req, res) => {
     const token = getToken({ _id: req.user._id });
     res.status(200).json({
         success: true,
@@ -62,7 +63,7 @@ router.post('/login', passport.authenticate('local', { session: false }), (req, 
     })
 });
 
-router.delete('/:userId', verifyUser, verifyAdmin, async (req, res, next) => {
+router.delete('/:userId', corsWithOptions,  verifyUser, verifyAdmin, async (req, res, next) => {
     try {
         const user = await User.findById(req.params.userId);
 
@@ -80,7 +81,7 @@ router.delete('/:userId', verifyUser, verifyAdmin, async (req, res, next) => {
     }
 })
 
-router.get('/logout', (req, res) => {
+router.get('/logout', corsWithOptions,  (req, res) => {
     res.status(200).json({
         success: true,
         status: 'JWT logout handles client-side'

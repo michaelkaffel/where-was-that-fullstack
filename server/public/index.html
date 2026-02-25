@@ -1,9 +1,210 @@
-<html>
-  <head>
-    <title>This is index.html</title>
-  </head>
-  <body>
-    <h1>Index</h1>
-    <p>This is the content of index.html.</p>
-  </body>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Welcome • Where Was That</title>
+</head>
+
+<body style="
+  margin:0;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Inter,Arial,sans-serif;
+  color:#0b1220;
+  background:
+    radial-gradient(1200px 800px at 20% 20%, rgba(99,102,241,.22), transparent 60%),
+    radial-gradient(1000px 700px at 80% 30%, rgba(16,185,129,.18), transparent 55%),
+    radial-gradient(900px 600px at 60% 85%, rgba(245,158,11,.14), transparent 55%),
+    linear-gradient(180deg, #0b1020 0%, #0a0f1c 100%);
+">
+
+  <main style="
+    width:min(920px, 92vw);
+    border-radius:24px;
+    padding:28px;
+    background:rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.18);
+    box-shadow:0 20px 60px rgba(0,0,0,.35);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  ">
+
+    <!-- top row -->
+    <div style="display:flex;align-items:center;gap:14px;justify-content:space-between;flex-wrap:wrap;">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div aria-hidden="true" style="
+          width:44px;height:44px;border-radius:14px;
+          background:linear-gradient(135deg, rgba(99,102,241,.9), rgba(16,185,129,.9));
+          box-shadow:0 10px 24px rgba(0,0,0,.25);
+          display:flex;align-items:center;justify-content:center;
+          color:white;font-weight:800;
+        ">WW</div>
+
+        <div>
+          <div style="font-size:14px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.75);">
+            Where Was That
+          </div>
+          <div style="font-size:18px;font-weight:650;color:white;line-height:1.15;">
+            Welcome back
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <span style="
+          padding:8px 12px;border-radius:999px;
+          background:rgba(255,255,255,.08);
+          border:1px solid rgba(255,255,255,.14);
+          color:rgba(255,255,255,.85);
+          font-size:13px;
+        ">Server: <span style="font-weight:650;">Online</span></span>
+
+        <span style="
+          padding:8px 12px;border-radius:999px;
+          background:rgba(255,255,255,.08);
+          border:1px solid rgba(255,255,255,.14);
+          color:rgba(255,255,255,.85);
+          font-size:13px;
+        ">API: <span style="font-weight:650;">v1</span></span>
+      </div>
+    </div>
+
+    <!-- hero -->
+    <section style="margin-top:18px;border-radius:22px;padding:28px;
+      background:linear-gradient(135deg, rgba(255,255,255,.10), rgba(255,255,255,.06));
+      border:1px solid rgba(255,255,255,.16);
+    ">
+      <h1 style="
+        margin:0 0 10px 0;
+        font-size:34px;
+        line-height:1.12;
+        color:white;
+        letter-spacing:-0.02em;
+      ">
+        Capture places you loved —<br />
+        <span style="color:rgba(255,255,255,.82);font-weight:600;">and find them again fast.</span>
+      </h1>
+
+      <p style="
+        margin:0;
+        max-width:62ch;
+        font-size:16px;
+        line-height:1.6;
+        color:rgba(255,255,255,.78);
+      ">
+        This is your backend welcome screen. If you can see this page, your server is running and
+        your static assets are being served correctly.
+      </p>
+
+      <div style="margin-top:18px;display:flex;gap:12px;flex-wrap:wrap;">
+        <a href="/health" style="
+          display:inline-flex;align-items:center;gap:10px;
+          padding:12px 14px;border-radius:14px;
+          background:rgba(99,102,241,.88);
+          color:white;text-decoration:none;font-weight:650;font-size:14px;
+          border:1px solid rgba(255,255,255,.18);
+          box-shadow:0 14px 30px rgba(0,0,0,.25);
+        ">
+          <span aria-hidden="true" style="font-size:16px;">✅</span>
+          Check health
+        </a>
+
+        <a href="/docs" style="
+          display:inline-flex;align-items:center;gap:10px;
+          padding:12px 14px;border-radius:14px;
+          background:rgba(255,255,255,.08);
+          color:rgba(255,255,255,.92);
+          text-decoration:none;font-weight:650;font-size:14px;
+          border:1px solid rgba(255,255,255,.18);
+        ">
+          <span aria-hidden="true" style="font-size:16px;">📚</span>
+          View API docs
+        </a>
+
+        <a href="/api/v1" style="
+          display:inline-flex;align-items:center;gap:10px;
+          padding:12px 14px;border-radius:14px;
+          background:rgba(255,255,255,.08);
+          color:rgba(255,255,255,.92);
+          text-decoration:none;font-weight:650;font-size:14px;
+          border:1px solid rgba(255,255,255,.18);
+        ">
+          <span aria-hidden="true" style="font-size:16px;">🧭</span>
+          Go to API root
+        </a>
+      </div>
+    </section>
+
+    <!-- cards -->
+    <section style="margin-top:18px;display:grid;grid-template-columns:repeat(3, minmax(0,1fr));gap:12px;">
+      <div style="
+        border-radius:18px;
+        padding:16px;
+        background:rgba(255,255,255,.07);
+        border:1px solid rgba(255,255,255,.14);
+      ">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+          <span aria-hidden="true" style="font-size:18px;">🗺️</span>
+          <strong style="color:white;font-size:14px;">Places</strong>
+        </div>
+        <p style="margin:0;color:rgba(255,255,255,.75);font-size:13px;line-height:1.5;">
+          Save restaurants, hikes, viewpoints, and “what was that spot?” memories with tags and notes.
+        </p>
+      </div>
+
+      <div style="
+        border-radius:18px;
+        padding:16px;
+        background:rgba(255,255,255,.07);
+        border:1px solid rgba(255,255,255,.14);
+      ">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+          <span aria-hidden="true" style="font-size:18px;">📍</span>
+          <strong style="color:white;font-size:14px;">Search</strong>
+        </div>
+        <p style="margin:0;color:rgba(255,255,255,.75);font-size:13px;line-height:1.5;">
+          Find entries by location, date, people, category, or whatever “I remember…” fragment you have.
+        </p>
+      </div>
+
+      <div style="
+        border-radius:18px;
+        padding:16px;
+        background:rgba(255,255,255,.07);
+        border:1px solid rgba(255,255,255,.14);
+      ">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+          <span aria-hidden="true" style="font-size:18px;">🔒</span>
+          <strong style="color:white;font-size:14px;">Auth-ready</strong>
+        </div>
+        <p style="margin:0;color:rgba(255,255,255,.75);font-size:13px;line-height:1.5;">
+          Built to grow into login, user accounts, and sync across web + mobile when you’re ready.
+        </p>
+      </div>
+    </section>
+
+    <!-- footer -->
+    <footer style="margin-top:18px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center;">
+      <div style="color:rgba(255,255,255,.55);font-size:12px;">
+        Tip: add <code style="color:rgba(255,255,255,.85);background:rgba(255,255,255,.08);padding:2px 6px;border-radius:8px;border:1px solid rgba(255,255,255,.14);">/health</code>
+        and <code style="color:rgba(255,255,255,.85);background:rgba(255,255,255,.08);padding:2px 6px;border-radius:8px;border:1px solid rgba(255,255,255,.14);">/docs</code>
+        routes later.
+      </div>
+
+      <div style="display:flex;align-items:center;gap:10px;color:rgba(255,255,255,.65);font-size:12px;">
+        <span>© <span id="year"></span> Where Was That</span>
+        <span aria-hidden="true">•</span>
+        <span>Built with Node + Express</span>
+      </div>
+    </footer>
+
+  </main>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
 </html>

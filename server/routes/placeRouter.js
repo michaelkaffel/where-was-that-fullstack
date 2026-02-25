@@ -4,6 +4,7 @@ import path from 'path';
 import Place from '../models/place.js';
 import { verifyUser } from '../authenticate.js';
 import { verifyPlaceOwner } from '../middleware.js';
+import { corsMiddleware, corsWithOptions } from './cors.js';
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -37,7 +38,8 @@ const placeRouter = express.Router();
 
 
 placeRouter.route('/')
-    .get(verifyUser, async (req, res, next) => {
+    .options(corsWithOptions, (req, res) => res.sendStatus(200))
+    .get(corsWithOptions, verifyUser, async (req, res, next) => {
         try {
             const places = await Place.find({ owner: req.user._id })
                 .populate('owner', 'username');
@@ -48,6 +50,7 @@ placeRouter.route('/')
         }
     })
     .post(
+        corsWithOptions, 
         verifyUser,
         (req, res, next) => {
             upload.single('image')(req, res, function (err) {
@@ -83,25 +86,26 @@ placeRouter.route('/')
             }
         }
     )
-    .put((req, res) => {
+    .put(corsMiddleware, (req, res) => {
         res.status(403).end('PUT operation not supported on /places');
     })
-    .delete((req, res) => {
+    .delete(corsMiddleware, (req, res) => {
         res.status(403).end('DELETE operation not supported');
     })
 
-placeRouter.route('/:placeId') //RECHECK THIS ONE
-    .get(verifyUser, verifyPlaceOwner, async (req, res) => {
+placeRouter.route('/:placeId')
+    .options(corsWithOptions, (req, res) => res.sendStatus(200))
+    .get(corsWithOptions, verifyUser, verifyPlaceOwner, async (req, res) => {
         const populated = await req.place.populate('owner', 'username');
         res.status(200).json(populated);
     })
-    .post((req, res) => {
+    .post(corsMiddleware, (req, res) => {
         res.status(403).end(`POST operation not supported on /places/${req.params.placeId}`)
     })
-    .put((req, res) => {
+    .put(corsMiddleware, (req, res) => {
         res.status(403).end(`PUT operation not supported on /places/${req.params.placeId}`)
     })
-    .patch(verifyUser, verifyPlaceOwner, async (req, res, next) => {
+    .patch(corsWithOptions, verifyUser, verifyPlaceOwner, async (req, res, next) => {
         try {
             if (Object.keys(req.body).length !== 1 || typeof req.body.favorite !== 'boolean') {
                 return res.status(400).json({ message: 'Only favorite boolean may be updated' });
@@ -116,7 +120,7 @@ placeRouter.route('/:placeId') //RECHECK THIS ONE
             next(err);
         }
     })
-    .delete(verifyUser, verifyPlaceOwner, async (req, res, next) => {
+    .delete(corsWithOptions, verifyUser, verifyPlaceOwner, async (req, res, next) => {
         try {
             await req.place.deleteOne();
             res.status(200).json({ message: 'Place deleted' });
@@ -126,10 +130,11 @@ placeRouter.route('/:placeId') //RECHECK THIS ONE
     });
 
 placeRouter.route('/:placeId/notes')
-    .get(verifyUser, verifyPlaceOwner, async (req, res, next) => {
+    .options(corsWithOptions, (req, res) => res.sendStatus(200))
+    .get(corsWithOptions, verifyUser, verifyPlaceOwner, async (req, res, next) => {
         res.status(200).json(req.place.notes);
     })
-    .post(verifyUser, verifyPlaceOwner, async (req, res, next) => {
+    .post(corsWithOptions, verifyUser, verifyPlaceOwner, async (req, res, next) => {
         try {
             req.place.notes.push(req.body);
             const updated = await req.place.save();
@@ -138,13 +143,13 @@ placeRouter.route('/:placeId/notes')
             next(err);
         }
     })
-    .put((req, res) => {
+    .put(corsMiddleware, (req, res) => {
         res.status(403).end(`PUT operation not supported on /places/${req.params.placeId}`)
     })
-    .patch((req, res) => {
+    .patch(corsMiddleware, (req, res) => {
         res.status(403).end(`PATCH operation not supported on /places/${req.params.placeId}`)
     })
-    .delete(verifyUser, verifyPlaceOwner, async (req, res, next) => {
+    .delete(corsWithOptions, verifyUser, verifyPlaceOwner, async (req, res, next) => {
         try {
             req.place.notes = [];
             const updated = await req.place.save();
@@ -155,7 +160,8 @@ placeRouter.route('/:placeId/notes')
     });
 
 placeRouter.route('/:placeId/notes/:noteId')
-    .get(verifyUser, verifyPlaceOwner, async (req, res, next) => {
+    .options(corsWithOptions, (req, res) => res.sendStatus(200))
+    .get(corsWithOptions, verifyUser, verifyPlaceOwner, async (req, res, next) => {
         const note = req.place.notes.id(req.params.noteId);
 
         if (!note) {
@@ -166,13 +172,13 @@ placeRouter.route('/:placeId/notes/:noteId')
 
         res.status(200).json(note);
     })
-    .post((req, res) => {
+    .post(corsMiddleware, (req, res) => {
         res.status(403).end(`POST operation not supported on /places/${req.params.placeId}/notes/${req.params.noteId}`);
     })
-    .put((req, res) => {
+    .put(corsMiddleware, (req, res) => {
         res.status(403).end(`PUT operation not supported on /places/${req.params.placeId}/notes/${req.params.noteId}`);
     })
-    .patch(verifyUser, verifyPlaceOwner, async (req, res, next) => {
+    .patch(corsWithOptions, verifyUser, verifyPlaceOwner, async (req, res, next) => {
         try {
             const note = req.place.notes.id(req.params.noteId);
 
@@ -195,7 +201,7 @@ placeRouter.route('/:placeId/notes/:noteId')
             next(err);
         }
     })
-    .delete(verifyUser, verifyPlaceOwner, async (req, res, next) => {
+    .delete(corsWithOptions, verifyUser, verifyPlaceOwner, async (req, res, next) => {
         try {
             const note = req.place.notes.id(req.params.noteId);
 
