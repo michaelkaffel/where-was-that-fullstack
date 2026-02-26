@@ -5,6 +5,7 @@ import { corsWithOptions } from './cors.js';
 import { getToken } from '../authenticate.js';
 import { verifyUser, verifyAdmin } from '../authenticate.js';
 
+
 const router = express.Router();
 
 /* GET users listing. */
@@ -20,7 +21,7 @@ router.get('/', corsWithOptions, verifyUser, verifyAdmin, async (req, res, next)
     }
 });
 
-router.post('/signup', corsWithOptions,  async (req, res, next) => {
+router.post('/signup', corsWithOptions, async (req, res, next) => {
     try {
         const user = new User({
             username: req.body.username,
@@ -44,11 +45,11 @@ router.post('/signup', corsWithOptions,  async (req, res, next) => {
             }
         })
     } catch (err) {
-        res.status(400).json({message: err.message});
+        res.status(400).json({ message: err.message });
     }
 });
 
-router.post('/login', corsWithOptions,  passport.authenticate('local', { session: false }), (req, res) => {
+router.post('/login', corsWithOptions, passport.authenticate('local', { session: false }), (req, res) => {
     const token = getToken({ _id: req.user._id });
     res.status(200).json({
         success: true,
@@ -63,7 +64,29 @@ router.post('/login', corsWithOptions,  passport.authenticate('local', { session
     })
 });
 
-router.delete('/:userId', corsWithOptions,  verifyUser, verifyAdmin, async (req, res, next) => {
+router.get('/auth/google', passport.authenticate('google', {
+    scope: ['profile', 'email'],
+    session: false
+}));
+
+router.get('/auth/google/callback',
+    passport.authenticate('google', { session: false }),
+    (req, res) => {
+        const token = getToken({ _id: req.user._id });
+
+        res.status(200).setHeader('Content-Type', 'application/json').json({
+            success: true,
+            token: token,
+            user: {
+                _id: req.user._id,
+                username: req.user.firstname,
+                lastname: req.user.lastname
+            }
+        });
+    }
+);
+
+router.delete('/:userId', corsWithOptions, verifyUser, verifyAdmin, async (req, res, next) => {
     try {
         const user = await User.findById(req.params.userId);
 
@@ -75,13 +98,13 @@ router.delete('/:userId', corsWithOptions,  verifyUser, verifyAdmin, async (req,
 
         await user.deleteOne();
 
-        res.status(200).json({ message: 'User and associated data deleted'})
+        res.status(200).json({ message: 'User and associated data deleted' })
     } catch (err) {
         next(err);
     }
 })
 
-router.get('/logout', corsWithOptions,  (req, res) => {
+router.get('/logout', corsWithOptions, (req, res) => {
     res.status(200).json({
         success: true,
         status: 'JWT logout handles client-side'
