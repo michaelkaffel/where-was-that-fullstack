@@ -46,6 +46,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('images', express.static(path.join(process.cwd(), 'public/images')))
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);

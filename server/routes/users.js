@@ -26,7 +26,8 @@ router.post('/signup', corsWithOptions, async (req, res, next) => {
         const user = new User({
             username: req.body.username,
             firstname: req.body.firstname,
-            lastname: req.body.lastname
+            lastname: req.body.lastname,
+            email: req.body.email
         });
 
         const registeredUser = await User.register(user, req.body.password);
@@ -41,7 +42,8 @@ router.post('/signup', corsWithOptions, async (req, res, next) => {
                 _id: registeredUser._id,
                 username: registeredUser.username,
                 firstname: registeredUser.firstname,
-                lastname: registeredUser.lastname
+                lastname: registeredUser.lastname,
+                email: registeredUser.email
             }
         })
     } catch (err) {

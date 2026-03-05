@@ -7,13 +7,25 @@ import path from 'path';
 const Schema = mongoose.Schema;
 
 const userSchema = new Schema({
+    username: {
+        type: String,
+        required: true,
+        unique: true
+    },
     firstname: {
         type: String,
-        default: ''
+        default: '',
+        required: true
     },
     lastname: {
         type: String,
-        default: ''
+        default: '',
+        required: true,
+    },
+    email: {
+        type: String,
+        default: '',
+        required: true
     },
     googleId: String,
     admin: {

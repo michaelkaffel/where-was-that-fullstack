@@ -1,24 +1,41 @@
 import express from 'express';
 import multer from 'multer';
 import path from 'path';
+import fs from 'fs';
+import crypto from 'crypto';
 import Place from '../models/place.js';
 import { verifyUser } from '../authenticate.js';
 import { verifyPlaceOwner } from '../middleware.js';
 import { corsMiddleware, corsWithOptions } from './cors.js';
 
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'public/images');
+    destination: function (req, file, cb) {
+        const uploadPath = path.join(process.cwd(), 'public', 'images');
+
+        fs.mkdirSync(uploadPath, { recursive: true })
+
+        cb(null, uploadPath);
     },
-    filename: (req, file, cb) => {
-        const uniqueName = Date.now() + path.extname(file.originalname);
-        cb(null, uniqueName);
+    filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now() + '-' + crypto.randomBytes(6).toString('hex');
+        
+        cb(null, uniqueSuffix + path.extname(file.originalname));
     }
 });
 
+const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+const allowedExtensions = ['.jpg', '.jpeg', '.png', '.webp'];
+
 const imageFileFilter = (req, file, cb) => {
-    if (!file.mimetype.startsWith('image/')) {
-        return cb(new Error('Only image files allowed'), false);
+
+    const ext = path.extname(file.originalname).toLowerCase();
+
+    if (!allowedExtensions.includes(ext)) {
+        return cb(new Error('Invalid file extension'), false);
+    }
+
+    if (!allowedTypes.includes(file.mimetype)) {
+        return cb(new Error('Only JPG, PNG, and WEBP images allowed'), false);
     }
     cb(null, true);
 };
@@ -27,7 +44,7 @@ const upload = multer({
     storage,
     fileFilter: imageFileFilter,
     limits: {
-        fileSize: 10 * 1240 * 1240,
+        fileSize: 10 * 1024 * 1024,
         files: 1
     }
 });
@@ -72,7 +89,7 @@ placeRouter.route('/')
                 req.body.owner = req.user._id;
 
                 if (req.file) {
-                    req.body.imageUrl = `images/${req.file.filename}`;
+                    req.body.imageUrl = `${req.protocol}://${req.headers.host}/images/${req.file.filename}`;
                 }
 
                 const place = await Place.create(req.body);

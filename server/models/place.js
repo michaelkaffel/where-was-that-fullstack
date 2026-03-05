@@ -38,7 +38,7 @@ const placeSchema = new Schema({
         required: true
     },
     dateVisited: {
-        type: String,
+        type: Date,
         required: true
     },
     favorite: {
@@ -61,14 +61,21 @@ const placeSchema = new Schema({
     timestamps: true
 });
 
+placeSchema.index({ owner: 1 });
+placeSchema.index({ kindOfPlace: 1 });
+placeSchema.index({ owner: 1, kindOfPlace: 1 });
+placeSchema.index({ title: 'text', description: 'text'})
+
 placeSchema.pre('deleteOne', { document: true, query: false }, async function (next) {
         try {
             if (this.imageUrl) {
                 try {
+                    const filename = path.basename(this.imageUrl);
                     const imagePath = path.join(
                         process.cwd(),
                         'public',
-                        this.imageUrl
+                        'images',
+                        filename
                     );
 
                     fs.unlinkSync(imagePath);

@@ -31,6 +31,10 @@ function Navigationbar() {
             <FontAwesomeIcon icon="fa-solid fa-house" size="lg"  />
             Home
             </Nav.Link>
+            <Nav.Link as={Link} to="/">
+            <FontAwesomeIcon icon="fa-solid fa-user" size="lg"  />
+            Login
+            </Nav.Link>
             <Nav.Link as={Link} to="/add-locations">
                <FontAwesomeIcon icon='fa-solid fa-file' size='lg' />
                  Add Locations
