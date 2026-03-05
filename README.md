@@ -33,7 +33,8 @@ This project is structured as a full client/server application with clean separa
 - HTTPS (self-signed SSL for local development)
 
 ### Development Environment
-- MongoDB (local via Homebrew)  
+- MongoDB (local via Homebrew) 
+- MongoDB Atlas
 - MongoDB Compass  
 - Git + GitHub  
 
@@ -160,7 +161,7 @@ npm start
 Backend runs on:
 
 ```
-https://localhost:3001
+https://localhost:3444
 ```
 
 > You may need to accept the self-signed certificate warning in your browser.
