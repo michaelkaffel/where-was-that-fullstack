@@ -82,14 +82,26 @@ Notes are embedded inside each place document and are not shared between users.
 
 ## 🔧 Environment Setup (Required)
 
-Create a `.env` file inside `/server`:
+Create a `.env` file inside `/server` based on `.env.example`:
 
 ```
+PNODE_ENV=development
+# environments: hotspot, development
+
 PORT=3001
-MONGO_URL=mongodb://127.0.0.1:27017/wherewasthat
+
+MONGO_ATLAS=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/<dbname>
+MONGO_HOTSPOT=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/<dbname>
+
+CLIENT_URL=http://localhost:<port>
+
 SECRET_KEY=your_jwt_secret_here
+
 SSL_KEY_PATH=./bin/server.key
 SSL_CERT_PATH=./bin/server.cert
+
+GOOGLE_CLIENT_ID=your_google_client_id_here
+GOOGLE_CLIENT_SECRET=your_google_client_secret_here
 ```
 
 > SSL files are intentionally excluded from version control.
@@ -134,7 +146,7 @@ http://localhost:3000
 This allows secure communication between:
 
 - Frontend: `http://localhost:3000`
-- Backend: `https://localhost:3001`
+- Backend: `https://localhost:3444`
 
 ---
 
