@@ -12,7 +12,7 @@ const router = express.Router();
 router.get('/', corsWithOptions, verifyUser, verifyAdmin, async (req, res, next) => {
     try {
         const users = await User.find()
-            .select('_id username firstname lastname admin');
+            .select('username firstname lastname admin');
 
         res.status(200).json(users)
 
@@ -38,13 +38,7 @@ router.post('/signup', corsWithOptions, async (req, res, next) => {
             success: true,
             token: token,
             status: 'Registration Successful, you are now loggen in!',
-            user: {
-                _id: registeredUser._id,
-                username: registeredUser.username,
-                firstname: registeredUser.firstname,
-                lastname: registeredUser.lastname,
-                email: registeredUser.email
-            }
+            user: registeredUser.toObject()
         })
     } catch (err) {
         res.status(400).json({ message: err.message });
@@ -57,12 +51,7 @@ router.post('/login', corsWithOptions, passport.authenticate('local', { session:
         success: true,
         token: token,
         status: 'You are successfully logged in!',
-        user: {
-            _id: req.user._id,
-            username: req.user.username,
-            firstname: req.user.firstname,
-            lastname: req.user.lastname
-        }
+        user: req.user.toObject()
     })
 });
 
@@ -76,14 +65,16 @@ router.get('/auth/google/callback',
     (req, res) => {
         const token = getToken({ _id: req.user._id });
 
+        console.log(process.env.FRONTEND_URL)
+
+        const redirectUrl = `${process.env.FRONTEND_URL}/oauth-success` + `?token=${token}`;
+
+        res.redirect(redirectUrl);
+
         res.status(200).setHeader('Content-Type', 'application/json').json({
             success: true,
             token: token,
-            user: {
-                _id: req.user._id,
-                username: req.user.firstname,
-                lastname: req.user.lastname
-            }
+            user: req.user.toObject()
         });
     }
 );

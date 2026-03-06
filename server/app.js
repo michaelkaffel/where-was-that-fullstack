@@ -16,17 +16,36 @@ import placeRouter from './routes/placeRouter.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const url = process.env.MONGO_URL;
-const connect = mongoose.connect(url, {});
+let url; 
 
-connect.then(() => console.log('Connected correctly to server'),
+if (process.env.NODE_END === 'development') {
+    url = process.env.MONGO_ATLAS
+    
+} else {
+    url = process.env.MONGO_HOTSPOT
+    
+}
+
+const connect = mongoose.connect(url, {
+    serverSelectionTimeoutMS: 5000,
+    socketTimeoutMS: 45000
+});
+
+connect.then(() => {
+    console.log('Connected correctly to server');
+    console.log(`MongoDB: ${mongoose.connection.host}/${mongoose.connection.name}`);
+},
     err => console.log(err)
 );
 
+mongoose.connection.on('error', err => {
+    console.error('MongoDB connection error:', err);
+})
 
 
 
-var app = express();
+
+const app = express();
 
 app.all('*', (req, res, next) => {
     if (req.secure) {
@@ -46,12 +65,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 app.use(express.static(path.join(__dirname, 'public')));
-app.use('images', express.static(path.join(process.cwd(), 'public/images')))
+app.use('/images', express.static(path.join(process.cwd(), 'public/images')))
+
+app.use(passport.initialize());
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-
-app.use(passport.initialize())
 app.use('/places', placeRouter);
 
 // catch 404 and forward to error handler

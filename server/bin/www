@@ -37,7 +37,7 @@ const server = http.createServer(app);
 
 server.listen(port);
 server.on('error', onError);
-server.on('listening', onListening);
+server.on('listening', onHttpListening);
 
 /**
  * Create HTTPS server
@@ -58,7 +58,7 @@ secureServer.listen(app.get('secPort'), () => {
   console.log('Server listening on port', app.get('secPort'))
 });
 secureServer.on('error', onError);
-secureServer.on('listening', onListening);
+secureServer.on('listening', onHttpsListening);
 
 
 /**
@@ -113,10 +113,32 @@ function onError(error) {
  * Event listener for HTTP server "listening" event.
  */
 
-function onListening() {
+function onHttpListening() {
   const addr = server.address();
-  const bind = typeof addr === 'string'
-    ? 'pipe ' + addr
-    : 'port ' + addr.port;
-  debug('Listening on ' + bind);
+  const port = typeof addr === 'string' ? addr : addr.port;
+
+  console.log(`HTTP redirect server running on port ${port}`);
 }
+
+function onHttpsListening() {
+  const addr = secureServer.address();
+  const port = typeof addr === 'string' ? addr : addr.port;
+
+  const env = process.env.NODE_ENV || 'development';
+  const protocol = 'https';
+  const host = process.env.HOST || 'localhost';
+
+console.log('\n──────────────────────────────');
+  console.log('Where Was That API');
+  console.log(`Environment: ${env}`);
+  console.log(`Hosting at: ${protocol}://${host}:${port}/`);
+  console.log('──────────────────────────────\n');
+
+  
+}
+
+// const addr = server.address();
+  // const bind = typeof addr === 'string'
+ // //   ? 'pipe ' + addr
+  //   : 'port ' + addr.port;
+  // debug('Listening on ' + bind);

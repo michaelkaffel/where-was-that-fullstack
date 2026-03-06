@@ -24,34 +24,63 @@ const userSchema = new Schema({
     },
     email: {
         type: String,
-        default: '',
-        required: true
+        required: true,
+        unique: true,
+        lowercase: true,
+        trim: true
     },
-    googleId: String,
+    googleId: {
+        type: String,
+        index: true
+    },
     admin: {
         type: Boolean,
         default: false
     }
+}, {
+    timestamps: true
 });
 
 userSchema.plugin(passportLocalMongoose);
 
+const transform = (doc, ret) => {
+
+    ret.id = ret._id.toString();
+
+    delete ret._id;
+    delete ret.__v;
+    delete ret.hash;
+    delete ret.salt;
+
+    return ret
+};
+
+userSchema.set('toJSON', { transform });
+userSchema.set('toObject', { transform });
+
+userSchema.index({ email: 1 }, { unique: true });
+
+
+
 userSchema.pre(
     'deleteOne', {
-        document: true,
-        query: false
-    },
+    document: true,
+    query: false
+},
     async function (next) {
         try {
-            const places = await Place.find({ owner: this._id});
+            const places = await Place.find({ owner: this._id });
 
             for (const place of places) {
                 if (place.imageUrl) {
                     try {
+                        const filename = path.basename(place.imageUrl);
+
                         const imagePath = path.join(
                             process.cwd(),
                             'public',
-                            place.imageUrl
+                            'images',
+                            filename
                         );
                         fs.unlinkSync(imagePath);
                     } catch (err) {
