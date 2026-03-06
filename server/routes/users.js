@@ -77,6 +77,22 @@ router.get('/auth/google/callback',
     }
 );
 
+router.get('/me', corsWithOptions, verifyUser, async (req, res, next) => {
+    try {
+        const user = await User.findById(req.user._id);
+
+        if (!user) {
+            const err = new Error('User not found');
+            err.status = 404;
+            return next(err);
+        }
+
+        res.status(200).json(user.toObject());
+    } catch (err) {
+        next(err);
+    }
+});
+
 router.get('/:userId', corsWithOptions, verifyUser, async (req, res, next) => {
 
     try {
@@ -97,7 +113,7 @@ router.get('/:userId', corsWithOptions, verifyUser, async (req, res, next) => {
     }
     
     
-})
+});
 
 router.delete('/:userId', corsWithOptions, verifyUser, verifyAdmin, async (req, res, next) => {
     try {
@@ -115,7 +131,7 @@ router.delete('/:userId', corsWithOptions, verifyUser, verifyAdmin, async (req, 
     } catch (err) {
         next(err);
     }
-})
+});
 
 router.get('/logout', corsWithOptions, verifyUser, (req, res) => {
     res.status(200).json({
