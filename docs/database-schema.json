@@ -1,0 +1,129 @@
+{
+  "project": "Where Was That API",
+  "type": "database-schema",
+  "database": "MongoDB Atlas",
+  "databaseName": "wwtdb",
+  "lastUpdated": "2026-03-05",
+
+  "collections": {
+
+    "users": {
+      "description": "Application users. Supports both local authentication and Google OAuth.",
+      "fields": {
+        "id": "ObjectId (normalized to id in API responses)",
+        "username": "String (unique)",
+        "firstname": "String",
+        "lastname": "String",
+        "email": "String (unique, indexed)",
+        "googleId": "String (optional, used for Google OAuth)",
+        "admin": "Boolean",
+        "createdAt": "Date",
+        "updatedAt": "Date",
+        "hash": "String (passport-local-mongoose)",
+        "salt": "String (passport-local-mongoose)"
+      },
+      "indexes": [
+        "email unique",
+        "username unique",
+        "googleId"
+      ],
+      "relationships": {
+        "places": {
+          "type": "one-to-many",
+          "targetCollection": "places",
+          "foreignKey": "owner"
+        }
+      },
+      "cascadeDeletes": {
+        "description": "When a user is deleted, all owned places and associated images are removed.",
+        "implementation": "userSchema.pre('deleteOne')"
+      }
+    },
+
+    "places": {
+      "description": "User-owned locations including campsites, hikes, and overlooks.",
+      "fields": {
+        "id": "ObjectId (normalized to id in API responses)",
+        "title": "String (unique)",
+        "description": "String",
+        "imageUrl": "String",
+        "location": "String",
+        "dateVisited": "Date",
+        "favorite": "Boolean",
+        "kindOfPlace": "Enum [campsite, hike, overlook]",
+        "owner": "ObjectId reference to users",
+        "notes": "Embedded note documents",
+        "createdAt": "Date",
+        "updatedAt": "Date"
+      },
+      "indexes": [
+        "owner",
+        "kindOfPlace",
+        "owner + kindOfPlace",
+        "text index on title + description"
+      ],
+      "relationships": {
+        "owner": {
+          "type": "many-to-one",
+          "targetCollection": "users"
+        },
+        "notes": {
+          "type": "embedded-subdocuments"
+        }
+      },
+      "cascadeDeletes": {
+        "description": "Deleting a place removes its associated image file.",
+        "implementation": "placeSchema.pre('deleteOne')"
+      }
+    },
+
+    "notes": {
+      "type": "embedded-subdocument",
+      "parentCollection": "places",
+      "description": "User notes attached to a place.",
+      "fields": {
+        "id": "ObjectId (auto-generated)",
+        "text": "String",
+        "date": "String",
+        "createdAt": "Date",
+        "updatedAt": "Date"
+      },
+      "indexes": [
+        "createdAt descending"
+      ]
+    }
+
+  },
+
+  "dataRelationships": [
+    {
+      "type": "User owns Places",
+      "relationship": "one-to-many",
+      "source": "users.id",
+      "target": "places.owner"
+    },
+    {
+      "type": "Place contains Notes",
+      "relationship": "embedded",
+      "source": "places.id",
+      "target": "places.notes[]"
+    }
+  ],
+
+  "normalizationRules": {
+    "description": "API responses normalize MongoDB documents.",
+    "rules": [
+      "_id converted to id",
+      "__v removed",
+      "password hash and salt removed",
+      "nested note ids normalized"
+    ]
+  },
+
+  "fileStorage": {
+    "type": "local filesystem",
+    "directory": "public/images",
+    "urlFormat": "https://host/images/<filename>",
+    "cleanup": "Images removed when place or user is deleted"
+  }
+}

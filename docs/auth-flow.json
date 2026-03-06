@@ -1,0 +1,124 @@
+{
+  "project": "Where Was That API",
+  "type": "authentication-flow",
+  "lastUpdated": "2026-03-05",
+
+  "authenticationMethods": [
+    "JWT",
+    "Passport Local",
+    "Google OAuth"
+  ],
+
+  "tokens": {
+    "type": "JWT",
+    "storage": "Client localStorage",
+    "headerFormat": "Authorization: Bearer <token>",
+    "payload": {
+      "_id": "User ObjectId"
+    }
+  },
+
+  "flows": {
+
+    "localSignup": {
+      "description": "User creates an account using username, email, and password.",
+      "steps": [
+        "Client sends POST /users/signup",
+        "Express route validates request body",
+        "passport-local-mongoose hashes password",
+        "User document created in MongoDB",
+        "JWT token generated with getToken()",
+        "Server returns token and normalized user object",
+        "Frontend stores token in localStorage"
+      ]
+    },
+
+    "localLogin": {
+      "description": "User logs in with username and password.",
+      "steps": [
+        "Client sends POST /users/login",
+        "passport.authenticate('local') verifies credentials",
+        "User document loaded from database",
+        "JWT token generated",
+        "Server returns token and normalized user object",
+        "Frontend stores token in localStorage"
+      ]
+    },
+
+    "googleOAuth": {
+      "description": "User logs in with Google account.",
+      "steps": [
+        "Client navigates to GET /users/auth/google",
+        "Passport redirects user to Google login page",
+        "User authenticates with Google",
+        "Google redirects to /users/auth/google/callback",
+        "Passport GoogleStrategy receives profile",
+        "Server searches for existing user by googleId",
+        "If not found, new user is created using profile data",
+        "JWT token generated",
+        "Server redirects to frontend /oauth-success with token"
+      ],
+      "profileFieldsUsed": [
+        "profile.id",
+        "profile.displayName",
+        "profile.name.givenName",
+        "profile.name.familyName",
+        "profile.emails[0].value"
+      ]
+    }
+
+  },
+
+  "protectedRouteAccess": {
+    "middleware": "verifyUser",
+    "steps": [
+      "Client sends request with Authorization header",
+      "verifyUser middleware extracts JWT",
+      "JWT verified using passport-jwt strategy",
+      "User loaded from database",
+      "req.user attached to request",
+      "Route handler executes"
+    ]
+  },
+
+  "authorizationChecks": {
+    "verifyAdmin": {
+      "description": "Ensures user has admin privileges.",
+      "check": "req.user.admin === true"
+    },
+    "verifyPlaceOwner": {
+      "description": "Ensures user owns requested place.",
+      "check": "req.place.owner.equals(req.user._id)"
+    }
+  },
+
+  "frontendAuthHandling": {
+    "tokenStorage": "localStorage",
+    "usage": [
+      "Stored after login/signup/OAuth redirect",
+      "Attached to all API requests"
+    ],
+    "exampleRequest": {
+      "headers": {
+        "Authorization": "Bearer <token>"
+      }
+    }
+  },
+
+  "tokenLifecycle": {
+    "creation": "getToken() generates JWT during login/signup",
+    "verification": "verifyUser middleware checks token",
+    "expiration": "Defined in JWT configuration",
+    "logout": [
+      "Client removes token from localStorage",
+      "Server does not maintain sessions"
+    ]
+  },
+
+  "securityConsiderations": [
+    "JWT stored client-side",
+    "HTTPS required for production",
+    "Owner-based access control for places",
+    "Admin-only access for user management routes"
+  ]
+}

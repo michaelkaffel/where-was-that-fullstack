@@ -1,0 +1,216 @@
+{
+  "project": "Where Was That API",
+  "type": "architecture-map",
+  "lastUpdated": "2026-03-05",
+
+  "stack": {
+    "runtime": "Node.js",
+    "framework": "Express",
+    "database": "MongoDB Atlas",
+    "orm": "Mongoose",
+    "authentication": [
+      "JWT",
+      "Passport Local",
+      "Passport Google OAuth"
+    ],
+    "fileUploads": "Multer",
+    "security": [
+      "HTTPS local dev server",
+      "JWT authentication",
+      "Owner-based resource protection"
+    ]
+  },
+
+  "serverStructure": {
+    "root": {
+      "client": "React frontend",
+      "server": "Express backend"
+    },
+    "server": {
+      "app.js": "Main Express configuration",
+      "bin/www": "HTTP + HTTPS server bootstrap",
+      "routes": [
+        "index.js",
+        "users.js",
+        "placeRouter.js",
+        "cors.js"
+      ],
+      "models": [
+        "user.js",
+        "place.js"
+      ],
+      "middleware": [
+        "middleware.js",
+        "authenticate.js"
+      ],
+      "public": {
+        "images": "Uploaded place images"
+      }
+    }
+  },
+
+  "databaseModels": {
+    "User": {
+      "fields": [
+        "username",
+        "firstname",
+        "lastname",
+        "email",
+        "googleId",
+        "admin"
+      ],
+      "plugins": [
+        "passportLocalMongoose"
+      ],
+      "indexes": [
+        "email unique"
+      ],
+      "timestamps": true,
+      "relationships": {
+        "places": "one-to-many (Place.owner)"
+      }
+    },
+
+    "Place": {
+      "fields": [
+        "title",
+        "description",
+        "imageUrl",
+        "location",
+        "dateVisited",
+        "favorite",
+        "kindOfPlace",
+        "owner",
+        "notes"
+      ],
+      "indexes": [
+        "owner",
+        "kindOfPlace",
+        "owner + kindOfPlace",
+        "text search on title + description"
+      ],
+      "relationships": {
+        "owner": "ref User",
+        "notes": "embedded subdocuments"
+      }
+    },
+
+    "Note": {
+      "type": "embedded subdocument",
+      "fields": [
+        "text",
+        "date"
+      ],
+      "timestamps": true
+    }
+  },
+
+  "authenticationFlow": {
+    "localSignup": [
+      "POST /users/signup",
+      "User.register() hashes password",
+      "JWT token generated",
+      "token returned to client"
+    ],
+
+    "localLogin": [
+      "POST /users/login",
+      "passport.authenticate('local')",
+      "JWT token generated",
+      "token returned to client"
+    ],
+
+    "googleOAuth": [
+      "GET /users/auth/google",
+      "redirect to Google login",
+      "Google redirects to callback",
+      "passport-google-oauth20 strategy runs",
+      "user found or created",
+      "JWT token generated",
+      "redirect to frontend /oauth-success"
+    ],
+
+    "protectedRoutes": [
+      "verifyUser middleware reads JWT",
+      "token verified",
+      "req.user populated"
+    ]
+  },
+
+  "authorizationFlow": {
+    "verifyUser": "Ensures JWT is valid and user is authenticated",
+    "verifyAdmin": "Allows admin-only routes",
+    "verifyPlaceOwner": "Ensures user owns the requested place"
+  },
+
+  "placeApi": {
+    "baseRoute": "/places",
+
+    "routes": {
+      "GET /places": "Return places owned by authenticated user",
+      "POST /places": "Create new place with optional image upload",
+
+      "GET /places/:placeId": "Return single place if owned by user",
+
+      "PATCH /places/:placeId": "Update favorite status",
+
+      "DELETE /places/:placeId": "Delete place and associated image"
+    }
+  },
+
+  "notesApi": {
+    "routes": {
+      "GET /places/:placeId/notes": "List notes for a place",
+
+      "POST /places/:placeId/notes": "Create note",
+
+      "DELETE /places/:placeId/notes": "Delete all notes",
+
+      "GET /places/:placeId/notes/:noteId": "Get single note",
+
+      "PATCH /places/:placeId/notes/:noteId": "Edit note",
+
+      "DELETE /places/:placeId/notes/:noteId": "Delete note"
+    }
+  },
+
+  "fileUploadFlow": {
+    "library": "multer",
+    "storage": "diskStorage",
+    "uploadPath": "public/images",
+    "securityChecks": [
+      "file extension whitelist",
+      "mime type whitelist",
+      "10MB size limit"
+    ],
+    "imageUrlFormat": "https://host/images/filename"
+  },
+
+  "dataNormalization": {
+    "approach": "Mongoose schema transforms",
+    "changes": [
+      "_id converted to id",
+      "__v removed",
+      "password hash and salt removed",
+      "nested note ids normalized"
+    ]
+  },
+
+  "requestLifecycle": [
+    "Client sends request",
+    "CORS middleware runs",
+    "JWT verifyUser middleware runs",
+    "Route handler executes",
+    "Database query via Mongoose",
+    "Document normalized via transform",
+    "JSON response returned"
+  ],
+
+  "securityFeatures": [
+    "HTTPS development server",
+    "JWT-based authentication",
+    "Owner-only data access",
+    "Image upload validation",
+    "Automatic image cleanup on deletion"
+  ]
+}

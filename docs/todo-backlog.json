@@ -1,0 +1,172 @@
+{
+  "project": "Where Was That API",
+  "lastUpdated": "2026-03-05",
+  "tasks": [
+    {
+      "id": "redux-architecture-refactor",
+      "priority": "highest",
+      "title": "Redux architecture refactor",
+      "goal": "Restructure Redux store to mirror the backend data model and simplify state management.",
+      "description": "Refactor frontend Redux store into two primary slices: userSlice and placesSlice. Notes should remain embedded inside places instead of having a separate notes slice.",
+      "targetArchitecture": {
+        "store": {
+          "userSlice": {
+            "state": [
+              "user",
+              "token",
+              "isAuthenticated",
+              "loading",
+              "error"
+            ],
+            "responsibilities": [
+              "login",
+              "signup",
+              "google oauth login",
+              "logout",
+              "token persistence"
+            ]
+          },
+          "placesSlice": {
+            "state": [
+              "items",
+              "selectedPlaceId",
+              "filters",
+              "loading",
+              "error"
+            ],
+            "filters": [
+              "favoritesOnly",
+              "placeType"
+            ],
+            "structure": "places.items[].notes[]"
+          }
+        }
+      },
+      "reason": "Keeps Redux aligned with MongoDB data structure and prevents synchronization issues between notes and places."
+    },
+    {
+      "id": "id-normalization",
+      "priority": "high",
+      "title": "MongoDB ID normalization",
+      "goal": "Ensure all API responses return id instead of _id and remove __v.",
+      "description": "Use Mongoose schema transforms to convert _id to id and remove internal MongoDB fields.",
+      "implementation": [
+        "Use schema transform functions in placeSchema and userSchema",
+        "Convert _id to id using toString()",
+        "Delete _id and __v fields",
+        "Normalize nested documents like owner and notes"
+      ],
+      "thingsToVerifyLater": [
+        "populated owner objects",
+        "nested note documents",
+        "arrays returned from queries",
+        "aggregation results"
+      ],
+      "expectedApiOutputExample": {
+        "id": "objectIdString",
+        "title": "Example place",
+        "owner": {
+          "id": "objectIdString",
+          "username": "exampleUser"
+        }
+      }
+    },
+    {
+      "id": "multer-upload-improvements",
+      "priority": "medium",
+      "title": "Improve image upload handling",
+      "goal": "Make file uploads safer and more scalable.",
+      "description": "Enhance multer configuration to better support production environments.",
+      "improvements": [
+        "sanitize uploaded filenames",
+        "validate extensions and MIME types",
+        "optionally create year/month folder structure",
+        "add image compression using sharp",
+        "generate thumbnails"
+      ],
+      "exampleFutureStructure": {
+        "images": {
+          "2026": {
+            "03": {
+              "exampleImage": "image.jpg"
+            }
+          }
+        }
+      },
+      "reason": "Image uploads are a common source of production bugs and storage issues."
+    },
+    {
+      "id": "jwt-extraction-middleware",
+      "priority": "high",
+      "title": "JWT extraction middleware",
+      "goal": "Centralize token verification logic.",
+      "description": "Create middleware that extracts JWT from Authorization header, verifies it, and attaches the user to req.user.",
+      "flow": [
+        "read Authorization header",
+        "extract Bearer token",
+        "verify JWT",
+        "attach user to req.user",
+        "continue to protected routes"
+      ],
+      "benefits": [
+        "reduces duplicated authentication logic",
+        "simplifies route definitions",
+        "improves security by centralizing auth checks"
+      ]
+    },
+    {
+      "id": "express-response-helper",
+      "priority": "medium",
+      "title": "Global Express response helper",
+      "goal": "Remove repeated .toObject() calls across routes.",
+      "description": "Add middleware that provides res.api() helper which automatically converts Mongoose documents to normalized JSON.",
+      "exampleUsage": [
+        "res.api(place)",
+        "res.api(updatedPlace)",
+        "res.api(users)"
+      ],
+      "exampleMiddlewareConcept": "If data has .toObject(), call it automatically. If array, normalize each item.",
+      "benefits": [
+        "cleaner route code",
+        "centralized normalization logic",
+        "easier future refactoring"
+      ]
+    },
+    {
+      "id": "backend-api-hardening",
+      "priority": "future",
+      "title": "Backend API hardening",
+      "goal": "Improve security and reliability for production deployment.",
+      "improvements": [
+        {
+          "tool": "zod",
+          "purpose": "validate request bodies and inputs"
+        },
+        {
+          "tool": "express-rate-limit",
+          "purpose": "prevent brute-force attacks and API abuse"
+        },
+        {
+          "tool": "helmet",
+          "purpose": "add security headers"
+        },
+        {
+          "tool": "pino",
+          "purpose": "structured production logging"
+        }
+      ]
+    }
+  ],
+  "currentBackendStatus": {
+    "mongodbAtlas": true,
+    "mongooseModels": true,
+    "schemaNormalization": true,
+    "jwtAuthentication": true,
+    "googleOAuth": true,
+    "ownershipSecurity": true,
+    "notesSubdocuments": true,
+    "imageUploads": true,
+    "httpsDevelopmentServer": true,
+    "imageCleanupOnDelete": true
+  }
+}

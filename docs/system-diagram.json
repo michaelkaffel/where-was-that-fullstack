@@ -1,0 +1,147 @@
+{
+  "project": "Where Was That",
+  "type": "system-diagram",
+  "lastUpdated": "2026-03-05",
+
+  "nodes": [
+    {
+      "id": "react_client",
+      "label": "React Frontend",
+      "type": "client",
+      "description": "User interface. Stores JWT in localStorage and communicates with Express API."
+    },
+    {
+      "id": "express_api",
+      "label": "Express API",
+      "type": "server",
+      "description": "Node.js backend handling routes, authentication, and database interactions."
+    },
+    {
+      "id": "passport_auth",
+      "label": "Passport Authentication",
+      "type": "auth",
+      "description": "Handles local authentication and Google OAuth."
+    },
+    {
+      "id": "jwt_auth",
+      "label": "JWT Token System",
+      "type": "auth",
+      "description": "Creates and verifies tokens for authenticated API requests."
+    },
+    {
+      "id": "mongodb_atlas",
+      "label": "MongoDB Atlas",
+      "type": "database",
+      "description": "Primary data store containing users and places collections."
+    },
+    {
+      "id": "image_storage",
+      "label": "Image Storage",
+      "type": "storage",
+      "description": "Local filesystem storage in public/images for uploaded place photos."
+    },
+    {
+      "id": "google_oauth",
+      "label": "Google OAuth",
+      "type": "external_service",
+      "description": "Third-party authentication provider."
+    }
+  ],
+
+  "connections": [
+
+    {
+      "from": "react_client",
+      "to": "express_api",
+      "type": "api_request",
+      "description": "React sends REST API requests to Express."
+    },
+
+    {
+      "from": "express_api",
+      "to": "jwt_auth",
+      "type": "authentication",
+      "description": "Express generates and verifies JWT tokens."
+    },
+
+    {
+      "from": "express_api",
+      "to": "passport_auth",
+      "type": "authentication",
+      "description": "Passport handles login and OAuth flows."
+    },
+
+    {
+      "from": "passport_auth",
+      "to": "google_oauth",
+      "type": "oauth_redirect",
+      "description": "User redirected to Google login and back to callback."
+    },
+
+    {
+      "from": "express_api",
+      "to": "mongodb_atlas",
+      "type": "database_query",
+      "description": "Express reads and writes user and place documents."
+    },
+
+    {
+      "from": "express_api",
+      "to": "image_storage",
+      "type": "file_upload",
+      "description": "Uploaded images saved to local filesystem via Multer."
+    },
+
+    {
+      "from": "react_client",
+      "to": "jwt_auth",
+      "type": "token_usage",
+      "description": "React sends JWT token in Authorization header."
+    }
+  ],
+
+  "dataFlows": {
+
+    "login_flow": [
+      "React sends POST /users/login",
+      "Express authenticates via Passport Local",
+      "JWT generated",
+      "Token returned to React",
+      "React stores token in localStorage"
+    ],
+
+    "google_oauth_flow": [
+      "React navigates to /users/auth/google",
+      "Passport redirects user to Google",
+      "User authenticates with Google",
+      "Google redirects to /users/auth/google/callback",
+      "User created or loaded",
+      "JWT generated",
+      "Server redirects to frontend /oauth-success with token"
+    ],
+
+    "authenticated_request_flow": [
+      "React sends API request with Authorization header",
+      "verifyUser middleware validates JWT",
+      "req.user populated",
+      "Route executes database query",
+      "Normalized JSON returned"
+    ],
+
+    "image_upload_flow": [
+      "User submits form with image",
+      "Multer processes multipart/form-data",
+      "Image saved to public/images",
+      "Image URL stored in MongoDB",
+      "API response returns image URL"
+    ]
+  },
+
+  "security_layers": [
+    "HTTPS development server",
+    "JWT authentication",
+    "Owner-based access control for places",
+    "Admin-only routes for user management",
+    "File type and size validation for uploads"
+  ]
+}

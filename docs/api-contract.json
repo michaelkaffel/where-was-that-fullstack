@@ -1,0 +1,220 @@
+{
+  "project": "Where Was That API",
+  "type": "api-contract",
+  "version": "1.0",
+  "baseUrl": "/",
+  "authentication": {
+    "method": "JWT",
+    "header": "Authorization: Bearer <token>"
+  },
+
+  "routes": {
+
+    "users": {
+
+      "POST /users/signup": {
+        "description": "Create a new local user account",
+        "authRequired": false,
+        "requestBody": {
+          "username": "string",
+          "firstname": "string",
+          "lastname": "string",
+          "email": "string",
+          "password": "string"
+        },
+        "response": {
+          "success": true,
+          "token": "jwt",
+          "user": {
+            "id": "string",
+            "username": "string",
+            "firstname": "string",
+            "lastname": "string",
+            "email": "string",
+            "admin": false
+          }
+        },
+        "statusCodes": [201, 400]
+      },
+
+      "POST /users/login": {
+        "description": "Login with username and password",
+        "authRequired": false,
+        "requestBody": {
+          "username": "string",
+          "password": "string"
+        },
+        "response": {
+          "success": true,
+          "token": "jwt",
+          "user": {
+            "id": "string",
+            "username": "string",
+            "firstname": "string",
+            "lastname": "string",
+            "email": "string",
+            "admin": false
+          }
+        },
+        "statusCodes": [200, 401]
+      },
+
+      "GET /users": {
+        "description": "List all users (admin only)",
+        "authRequired": true,
+        "adminRequired": true,
+        "response": [
+          {
+            "id": "string",
+            "username": "string",
+            "firstname": "string",
+            "lastname": "string",
+            "admin": false
+          }
+        ],
+        "statusCodes": [200, 403]
+      },
+
+      "DELETE /users/:userId": {
+        "description": "Delete user and all associated places/images",
+        "authRequired": true,
+        "adminRequired": true,
+        "statusCodes": [200, 404]
+      }
+    },
+
+    "oauth": {
+
+      "GET /users/auth/google": {
+        "description": "Start Google OAuth login flow",
+        "authRequired": false,
+        "response": "Redirect to Google"
+      },
+
+      "GET /users/auth/google/callback": {
+        "description": "OAuth callback from Google",
+        "authRequired": false,
+        "response": "Redirect to frontend /oauth-success with JWT token"
+      }
+
+    },
+
+    "places": {
+
+      "GET /places": {
+        "description": "Return all places belonging to the authenticated user",
+        "authRequired": true,
+        "response": [
+          {
+            "id": "string",
+            "title": "string",
+            "description": "string",
+            "imageUrl": "string",
+            "location": "string",
+            "dateVisited": "date",
+            "favorite": "boolean",
+            "kindOfPlace": "campsite | hike | overlook",
+            "owner": {
+              "id": "string",
+              "username": "string"
+            },
+            "notes": []
+          }
+        ],
+        "statusCodes": [200, 401]
+      },
+
+      "POST /places": {
+        "description": "Create a new place",
+        "authRequired": true,
+        "contentType": "multipart/form-data",
+        "requestBody": {
+          "title": "string",
+          "description": "string",
+          "location": "string",
+          "dateVisited": "date",
+          "kindOfPlace": "campsite | hike | overlook",
+          "image": "file"
+        },
+        "response": {
+          "id": "string",
+          "title": "string",
+          "imageUrl": "string"
+        },
+        "statusCodes": [201, 400]
+      },
+
+      "GET /places/:placeId": {
+        "description": "Return a single place owned by the user",
+        "authRequired": true,
+        "statusCodes": [200, 403, 404]
+      },
+
+      "PATCH /places/:placeId": {
+        "description": "Update favorite status",
+        "authRequired": true,
+        "requestBody": {
+          "favorite": "boolean"
+        },
+        "statusCodes": [200, 400]
+      },
+
+      "DELETE /places/:placeId": {
+        "description": "Delete place and associated image",
+        "authRequired": true,
+        "statusCodes": [200, 404]
+      }
+
+    },
+
+    "notes": {
+
+      "GET /places/:placeId/notes": {
+        "description": "Return notes for a place",
+        "authRequired": true,
+        "response": [
+          {
+            "id": "string",
+            "text": "string",
+            "date": "string",
+            "createdAt": "date",
+            "updatedAt": "date"
+          }
+        ]
+      },
+
+      "POST /places/:placeId/notes": {
+        "description": "Create a new note",
+        "authRequired": true,
+        "requestBody": {
+          "text": "string",
+          "date": "string"
+        },
+        "statusCodes": [201, 400]
+      },
+
+      "PATCH /places/:placeId/notes/:noteId": {
+        "description": "Update note text",
+        "authRequired": true,
+        "requestBody": {
+          "text": "string"
+        },
+        "statusCodes": [200, 400, 404]
+      },
+
+      "DELETE /places/:placeId/notes/:noteId": {
+        "description": "Delete a note",
+        "authRequired": true,
+        "statusCodes": [200, 404]
+      },
+
+      "DELETE /places/:placeId/notes": {
+        "description": "Delete all notes for a place",
+        "authRequired": true,
+        "statusCodes": [200]
+      }
+
+    }
+
+  }
+}
