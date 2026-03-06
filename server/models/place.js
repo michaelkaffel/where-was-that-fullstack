@@ -21,7 +21,16 @@ const notesSchema = new Schema({
     timestamps: true
 });
 
-notesSchema.index({ createdAt: -1 })
+notesSchema.index({ createdAt: -1 });
+
+notesSchema.set('toJSON', {
+    transform: (doc, ret) => {
+        ret.id = ret._id.toString();
+        delete ret._id;
+        delete ret.__v;
+        return ret
+    }
+});
 
 const PLACE_TYPE = ['campsite', 'hike', 'overlook'];
 
@@ -115,7 +124,7 @@ placeSchema.pre('deleteOne', { document: true, query: false }, async function (n
 
                 fs.unlinkSync(imagePath);
             } catch (err) {
-                console.log('Image delete error:', err.message);
+                if (err.code !== 'ENOENT') console.log('Image delete error:', err.message);
             }
         }
         next()

@@ -65,19 +65,39 @@ router.get('/auth/google/callback',
     (req, res) => {
         const token = getToken({ _id: req.user._id });
 
-        console.log(process.env.FRONTEND_URL)
-
-        const redirectUrl = `${process.env.FRONTEND_URL}/oauth-success` + `?token=${token}`;
+        const redirectUrl = `${process.env.FRONTEND_URL}/oauth-success?token=${token}`;
 
         res.redirect(redirectUrl);
 
-        res.status(200).setHeader('Content-Type', 'application/json').json({
-            success: true,
-            token: token,
-            user: req.user.toObject()
-        });
+        // res.status(200).setHeader('Content-Type', 'application/json').json({
+        //     success: true,
+        //     token: token,
+        //     user: req.user.toObject()
+        // });
     }
 );
+
+router.get('/:userId', corsWithOptions, verifyUser, async (req, res, next) => {
+
+    try {
+        const user = await User.findById(req.params.userId);
+
+        if (!user) {
+            const err = new Error('User not found');
+            err.status = 404;
+            return next(err);
+        }
+
+        if (user) {
+            res.status(200).json(user)
+        }
+
+    } catch (err) {
+        next(err);
+    }
+    
+    
+})
 
 router.delete('/:userId', corsWithOptions, verifyUser, verifyAdmin, async (req, res, next) => {
     try {
@@ -97,7 +117,7 @@ router.delete('/:userId', corsWithOptions, verifyUser, verifyAdmin, async (req, 
     }
 })
 
-router.get('/logout', corsWithOptions, (req, res) => {
+router.get('/logout', corsWithOptions, verifyUser, (req, res) => {
     res.status(200).json({
         success: true,
         status: 'JWT logout handles client-side'

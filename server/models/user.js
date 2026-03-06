@@ -84,9 +84,10 @@ userSchema.pre(
                         );
                         fs.unlinkSync(imagePath);
                     } catch (err) {
-                        console.log('Image delete error:', err.message);
+                        if (err.code !== 'ENOENT') console.log('IMage delete error', err.message)
                     }
                 }
+                place.imahgeUrl = null;
                 await place.deleteOne();
             }
             next();

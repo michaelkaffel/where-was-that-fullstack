@@ -188,7 +188,7 @@ placeRouter.route('/:placeId/notes/:noteId')
             return next(err);
         }
 
-        res.status(200).json(note.toObject());
+        res.status(200).json(note);
     })
     .post(corsMiddleware, (req, res) => {
         res.status(403).end(`POST operation not supported on /places/${req.params.placeId}/notes/${req.params.noteId}`);
