@@ -70,7 +70,7 @@ const userSlice = createSlice({
                 state.error = null;
             })
             .addCase(userSignup.fulfilled, (state, action) => {
-                state.isAuthenticated = true;
+                state.isAuthenticated = false;
                 state.token = action.payload.token;
                 state.currentUser = action.payload.user;
 
