@@ -37,7 +37,7 @@ router.post('/signup', corsWithOptions, async (req, res, next) => {
         res.status(201).json({
             success: true,
             token: token,
-            status: 'Registration Successful, you are now loggen in!',
+            status: 'Registration Successful, you are now logged in!',
             user: registeredUser.toObject()
         })
     } catch (err) {
@@ -65,15 +65,9 @@ router.get('/auth/google/callback',
     (req, res) => {
         const token = getToken({ _id: req.user._id });
 
-        const redirectUrl = `${process.env.FRONTEND_URL}/oauth-success?token=${token}`;
+        const redirectUrl = `${process.env.CLIENT_URL}/oauth-success?token=${token}`;
 
         res.redirect(redirectUrl);
-
-        // res.status(200).setHeader('Content-Type', 'application/json').json({
-        //     success: true,
-        //     token: token,
-        //     user: req.user.toObject()
-        // });
     }
 );
 
@@ -104,15 +98,15 @@ router.get('/:userId', corsWithOptions, verifyUser, async (req, res, next) => {
             return next(err);
         }
 
-        if (user) {
-            res.status(200).json(user)
-        }
+
+        res.status(200).json(user.toObject());
+
 
     } catch (err) {
         next(err);
     }
-    
-    
+
+
 });
 
 router.delete('/:userId', corsWithOptions, verifyUser, verifyAdmin, async (req, res, next) => {
