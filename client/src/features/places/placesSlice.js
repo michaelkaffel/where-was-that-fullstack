@@ -219,10 +219,10 @@ const placesSlice = createSlice({
                 state.loading = false;
                 state.error = action.payload || action.error.message;
             })
-            // .addCase(fetchPlaceById.pending, (state) => {
-            //     state.loading = true;
-            //     state.error = null;
-            // })
+            .addCase(fetchPlaceById.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
             .addCase(fetchPlaceById.fulfilled, (state, action) => {
                 const index = state.items.findIndex(p => p.id === action.payload.id);
                 if (index !== -1) {
@@ -248,8 +248,8 @@ const placesSlice = createSlice({
                 state.error = action.payload || action.error.message;
             })
             .addCase(patchFavorite.pending, (state, action) => {
-                state.loading = true,
-                state.error = null
+                state.loading = true;
+                state.error = null;
             })
             .addCase(patchFavorite.fulfilled, (state, action) => {
                 const index = state.items.findIndex(p => p.id === action.payload.id);
@@ -262,8 +262,8 @@ const placesSlice = createSlice({
                 state.error = action.payload || action.error.message;
             })
             .addCase(deletePlace.pending, (state) => {
-                state.loading = true,
-                state.error = null
+                state.loading = true;
+                state.error = null;
             })
             .addCase(deletePlace.fulfilled, (state, action) => {
                 state.items = state.items.filter(p => p.id !== action.payload);
@@ -296,7 +296,7 @@ const placesSlice = createSlice({
             })
             .addCase(deleteNote.pending, (state) => {
                 state.loading = true;
-                state.error = null
+                state.error = null;
             })
             .addCase(deleteNote.fulfilled, (state, action) => {
                 const place = state.items.find(p => p.id === action.payload.placeId);
@@ -309,8 +309,8 @@ const placesSlice = createSlice({
                 state.error = action.payload || action.error.message;
             })
             .addCase(deleteAllNotes.pending, (state) => {
-                state.loading = true,
-                state.error = null
+                state.loading = true;
+                state.error = null;
             })
             .addCase(deleteAllNotes.fulfilled, (state, action) => {
                 const place = state.items.find(p => p.id === action.payload);

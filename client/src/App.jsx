@@ -1,12 +1,8 @@
 
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { fetchCampsites } from './features/campsites/campsitesSlice';
-import { fetchOverlooks } from './features/overlooks/overlooksSlice';
-import { fetchHikes } from './features/hikes/hikesSlice';
-import { fetchCampsiteComments } from './features/campsites/campsitesCommentsSlice';
-import { fetchHikeComments } from './features/hikes/hikesCommentsSlice';
-import { fetchOverlookComments } from './features/overlooks/overlooksCommentsSlice';
+import { fetchPlaces } from './features/places/placesSlice';
+import { validateLogin } from './features/user/userSlice';
 import { Routes, Route } from 'react-router-dom';
 import NavigationBar from "./components/NavigationBar";
 import Home from './pages/HomePage';
@@ -26,12 +22,8 @@ function App() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(fetchCampsites());
-    dispatch(fetchOverlooks());
-    dispatch(fetchHikes());
-    dispatch(fetchCampsiteComments());
-    dispatch(fetchHikeComments());
-    dispatch(fetchOverlookComments())
+    dispatch(validateLogin());
+    dispatch(fetchPlaces())
   }, [dispatch]);
   
   return (
