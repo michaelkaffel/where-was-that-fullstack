@@ -4,36 +4,36 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Card from 'react-bootstrap/Card';
 import { useParams } from 'react-router-dom';
-import { selectOverlooksById } from '../features/overlooks/overlooksSlice';
+import { selectPlaceById, selectPlacesLoading, selectPlacesError } from '../features/places/placesSlice';
 import ItemDetails from '../components/ItemDetails';
-import SubHeaderOverlooks from '../components/SubHeaderOverlooks';
-import OverlooksCommentsList from '../features/overlooks/OverlooksCommentsList';
+import SubHeader from '../components/SubHeader';
+import NotesList from '../features/places/NotesList';
 import Error from '../components/Error';
 import Loading from '../components/Loading';
 
 const OverlookDetailPage = () => {
 
     const { id } = useParams();
-    const overlook = useSelector(selectOverlooksById(id));
+    const overlook = useSelector(selectPlaceById(id));
+    const isLoading = useSelector(selectPlacesLoading);
+    const errMsg = useSelector(selectPlacesError);
 
-    const isLoading = useSelector((state) => state.overlooks.isLoading);
-    const errMsg = useSelector((state) => state.overlooks.errMsg);
     let content = null;
 
     if (isLoading) {
         content = <Loading />
     } else if (errMsg) {
         content = <Error errMsg={errMsg} />
-    } else {
+    } else if (overlook) {
         content = (
             <>
                 <h2 className='text-center'>{overlook.title}</h2>
-                        <Card>
-                            <ItemDetails item={overlook} />
-                            <Card.Footer>
-                                <OverlooksCommentsList overlookId={id} />
-                            </Card.Footer>
-                        </Card>
+                <Card>
+                    <ItemDetails item={overlook} />
+                    <Card.Footer>
+                        <NotesList placeId={id} />
+                    </Card.Footer>
+                </Card>
             </>
         )
     }
@@ -43,7 +43,14 @@ const OverlookDetailPage = () => {
             <Container>
                 <Row>
                     <Col>
-                        {overlook && <SubHeaderOverlooks current={overlook.title} detail={true} />}
+                        {overlook && (
+                            <SubHeader
+                                current={overlook.title}
+                                listPath='/scenic-overlooks'
+                                listLabel='Scenic Overlooks'
+                                detail={true}
+                            />
+                        )}
                     </Col>
                 </Row>
                 <Row>

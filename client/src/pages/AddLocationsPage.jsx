@@ -3,41 +3,14 @@ import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Accordion from 'react-bootstrap/Accordion';
-import AddCampsiteForm from '../features/campsites/AddCampsiteForm';
-import AddHikeForm from '../features/hikes/AddHikeForm';
-import hikePlaceholderImg from '../app/images/hikesPlaceholder.png';
-import campsitePlaceholderImg from '../app/images/campsitesPlaceholder.png';
-import overlookPlaceholderImg from '../app/images/overlookPlaceholder.png';
-import imageOne from '../app/images/IMG_0117.jpeg';
-import imageTwo from '../app/images/IMG_4064.jpeg';
-import imageThree from '../app/images/IMG_2448.jpeg';
-import imageFour from '../app/images/IMG_2241.jpeg';
-import imageFive from '../app/images/IMG_2448.jpeg';
-import AddOverlookForm from '../features/overlooks/AddOverlookForm';
-
-const imageArray = [
-    hikePlaceholderImg,
-    campsitePlaceholderImg,
-    overlookPlaceholderImg,
-    imageOne,
-    imageTwo,
-    imageThree,
-    imageFour,
-    imageFive
-]
-
-
+import AddPlaceForm from '../features/places/AddPlaceForm';
+import heroImage from '../app/images/IMG_0117.jpeg'
 
 
 const AddLocationsPage = () => {
 
-
-    const imageToShow = imageArray[Math.floor(Math.random() * imageArray.length)]
-
-
-
     return (
-        <>
+        
             <Container>
                 <Row>
                     <Col>
@@ -45,28 +18,43 @@ const AddLocationsPage = () => {
                             <Accordion.Item eventKey='0'>
                                 <Accordion.Header>Add a Hike!</Accordion.Header>
                                 <Accordion.Body>
-                                    <AddHikeForm />
+                                    <AddPlaceForm
+                                        kindOfPlace='hike'
+                                        titlePlaceholder='Name of your hike...'
+                                        descriptionPlaceholder='Describe your hike...'
+                                        submitLabel='Add Hike!'
+                                    />
                                 </Accordion.Body>
                             </Accordion.Item>
                             <Accordion.Item eventKey='1'>
                                 <Accordion.Header>Add a Campsite!</Accordion.Header>
                                 <Accordion.Body>
-                                    <AddCampsiteForm />
+                                    <AddPlaceForm
+                                        kindOfPlace='campsite'
+                                        titlePlaceholder='Name of your campground...'
+                                        descriptionPlaceholder='Describe your campsite...'
+                                        submitLabel='Add Campsite!'
+                                    />
                                 </Accordion.Body>
                             </Accordion.Item>
                             <Accordion.Item eventKey='2'>
                                 <Accordion.Header>Add an Overlook!</Accordion.Header>
                                 <Accordion.Body>
-                                    <AddOverlookForm />
+                                    <AddPlaceForm
+                                        kindOfPlace='overlook'
+                                        titlePlaceholder='Name of your overlook...'
+                                        descriptionPlaceholder='Describe your overlook...'
+                                        submitLabel='Add Overlook!'
+                                    />
                                 </Accordion.Body>
                             </Accordion.Item>
                         </Accordion>
-                        <img className='img-fluid mt-3 rounded' alt='Beautiful scenery' src={imageToShow} />
+                        <img className='img-fluid mt-3 rounded' alt='Beautiful scenery' src={heroImage} />
                     </Col>
                 </Row>
             </Container>
 
-        </>
+        
     )
 };
 

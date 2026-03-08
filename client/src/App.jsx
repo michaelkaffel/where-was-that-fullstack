@@ -1,15 +1,12 @@
 
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { fetchCampsites } from './features/campsites/campsitesSlice';
-import { fetchOverlooks } from './features/overlooks/overlooksSlice';
-import { fetchHikes } from './features/hikes/hikesSlice';
-import { fetchCampsiteComments } from './features/campsites/campsitesCommentsSlice';
-import { fetchHikeComments } from './features/hikes/hikesCommentsSlice';
-import { fetchOverlookComments } from './features/overlooks/overlooksCommentsSlice';
+import { fetchPlaces } from './features/places/placesSlice';
+import { validateLogin } from './features/user/userSlice';
 import { Routes, Route } from 'react-router-dom';
 import NavigationBar from "./components/NavigationBar";
 import Home from './pages/HomePage';
+import OAuthSuccessPage from './pages/OAuthSuccessPage';
 import AddLocationsPage from './pages/AddLocationsPage';
 import HikingTrailsPage from './pages/HikingTrailsPage';
 import CampingSpotsPage from './pages/CampingSpotsPage';
@@ -26,12 +23,8 @@ function App() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(fetchCampsites());
-    dispatch(fetchOverlooks());
-    dispatch(fetchHikes());
-    dispatch(fetchCampsiteComments());
-    dispatch(fetchHikeComments());
-    dispatch(fetchOverlookComments())
+    dispatch(validateLogin());
+    dispatch(fetchPlaces())
   }, [dispatch]);
   
   return (
@@ -40,6 +33,7 @@ function App() {
       <NavigationBar />
       <Routes>
         <Route path='/' element={<Home />}/>
+        <Route path='oauth-success' element={<OAuthSuccessPage />}/>
         <Route path='add-locations' element={<AddLocationsPage/>}/>
         <Route path='hiking-trails' element={<HikingTrailsPage />}/>
         <Route path='hiking-trails/:id' element={<HikingDetailPage />}/>

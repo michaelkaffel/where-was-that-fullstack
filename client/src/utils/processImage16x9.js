@@ -34,10 +34,10 @@ export const processImage16x9 = (
           cropY = (img.height - cropHeight) / 2;
         }
 
-        const outputHeight = Math.round(outputWidth / aspectRatio);
+        
 
         canvas.width = outputWidth;
-        canvas.height = outputHeight;
+        canvas.height = Math.round(outputWidth / aspectRatio);
 
         ctx.drawImage(
           img,
@@ -47,12 +47,12 @@ export const processImage16x9 = (
           cropHeight,
           0,
           0,
-          outputWidth,
-          outputHeight
+          canvas.width,
+          canvas.height
         );
 
         // ✅ compressed + cropped result
-        resolve(canvas.toDataURL('image/jpeg', quality));
+        canvas.toBlob((blob) => resolve(blob), 'image/jpeg', quality)
       };
     };
   });
