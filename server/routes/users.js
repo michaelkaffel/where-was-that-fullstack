@@ -21,6 +21,10 @@ router.get('/', corsWithOptions, verifyUser, verifyAdmin, async (req, res, next)
     }
 });
 
+router.options('/login', corsWithOptions);
+router.options('/signup', corsWithOptions);
+router.options('/me', corsWithOptions);
+
 router.post('/signup', corsWithOptions, async (req, res, next) => {
     try {
         const user = new User({

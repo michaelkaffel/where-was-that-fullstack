@@ -1,15 +1,15 @@
 import cors from 'cors';
 
-const whitelist = ['http://localhost:3000', 'https://localhost:3443', process.env.CLIENT_URL];
+const whitelist = ['http://localhost:3000', process.env.CLIENT_URL];
 
 const corsOptionsDelegate = (req, callback) => {
     let corsOptions;
     // console.log('Origin:', req.header('Origin') || 'none');
     console.log(`${req.method} ${req.originalUrl} Origin: ${req.header.origin || 'none'}`);
     if(whitelist.indexOf(req.header('Origin')) !== -1) {
-        corsOptions = { orgin: true };
+        corsOptions = { origin: true, credentials: true };
     } else {
-        corsOptions = { origin: false};
+        corsOptions = { origin: false, credentials: true};
     }
     callback(null, corsOptions)
 };
