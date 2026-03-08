@@ -31,7 +31,7 @@ const PreviewCard = ({ item }) => {
             <Card.Img variant='top' alt={title} src={imageSrc}/>
             <Card.Body>
                 <Card.Title tag="h2">{title}</Card.Title>
-                <Card.Subtitle className="mb-2 text-muted" tag="h6">
+                <Card.Subtitle as='h6' className="mb-2 text-muted">
                     {location}
                 </Card.Subtitle>
                 <Card.Text>{description}</Card.Text>

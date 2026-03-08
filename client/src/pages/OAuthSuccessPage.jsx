@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { loginWithOAuthToken, selectCurrentUser } from '../features/user/userSlice';
+import { loginWithOAuthToken } from '../features/user/userSlice';
 import { validateLogin } from '../features/user/userSlice';
 import Spinner from 'react-bootstrap/Spinner';
 
