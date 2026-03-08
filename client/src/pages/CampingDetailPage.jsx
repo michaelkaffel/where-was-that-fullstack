@@ -4,10 +4,10 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Card from 'react-bootstrap/Card';
 import { useParams } from 'react-router-dom';
-import { selectCampsiteById } from '../features/campsites/campsitesSlice';
+import { selectPlaceById, selectPlacesLoading, selectPlacesError } from '../features/places/placesSlice';
 import ItemDetails from '../components/ItemDetails';
-import SubHeaderCampsites from '../components/SubHeaderCampsites';
-import CampsitesCommentsList from '../features/campsites/CampsitesCommentsList';
+import SubHeader from '../components/SubHeader';
+import NotesList from '../features/places/NotesList';
 import Error from '../components/Error';
 import Loading from '../components/Loading';
 
@@ -15,29 +15,28 @@ import Loading from '../components/Loading';
 const CampingDetailPage = () => {
 
     const { id } = useParams();
-    const campsite = useSelector(selectCampsiteById(id));
-    
+    const campsite = useSelector(selectPlaceById(id));
+    const isLoading = useSelector(selectPlacesLoading)
+    const errMsg = useSelector(selectPlacesError);
 
-    const isLoading = useSelector((state) => state.campsites.isLoading);
-    const errMsg = useSelector((state) => state.campsites.errMsg);
     let content = null;
 
     if (isLoading) {
         content = <Loading />
     } else if (errMsg) {
         content = <Error errMsg={errMsg} />
-    } else {
+    } else if (campsite) {
         content = (
             <>
                 <h2 className='text-center'>{campsite.title}</h2>
                 <Card>
                     <ItemDetails item={campsite} />
                     <Card.Footer>
-                        <CampsitesCommentsList campsiteId={id} />
+                        <NotesList placeId={id} />
                     </Card.Footer>
                 </Card>
             </>
-        )
+        );
     }
 
 
@@ -47,7 +46,14 @@ const CampingDetailPage = () => {
             <Container>
                 <Row>
                     <Col>
-                        {campsite && <SubHeaderCampsites current={campsite.title} detail={true} />}
+                        {campsite && (
+                            <SubHeader
+                                current={campsite.title} 
+                                listPath='/camping-spots'
+                                listLabel='Camping Spots'
+                                detail={true}
+                            />
+                        )}
                     </Col>
                 </Row>
 
@@ -59,7 +65,7 @@ const CampingDetailPage = () => {
                 </Row>
             </Container>
         </>
-    )
-}
+    );
+};
 
 export default CampingDetailPage;
