@@ -353,4 +353,10 @@ export const selectFavoritePlacesByType = (type) => (state) =>
 export const selectNotesByPlaceId = (placeId) => (state) => {
     const place = state.places.items.find(p => p.id === placeId);
     return place ? place.notes : [];
-}
+};
+
+export const selectRandomPlaceByType = (type) => (state) => {
+    const places = state.places.items.filter(p => p.kindOfPlace === type);
+    if (!places.length) return null;
+    return places[Math.floor(Math.random() * places.length)]
+};

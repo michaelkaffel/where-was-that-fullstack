@@ -6,28 +6,29 @@ import overlookPlaceholderImg from '../app/images/overlookPlaceholder.png'
 
 
 const PreviewCard = ({ item }) => {
-    const { image, title, description, location, kindOfPlace } = item
+    const { imageUrl, title, description, location, kindOfPlace } = item
 
-    let imageInsert;
+    let imageSrc;
 
-    if (!image || image === "http://localhost:3001/null") {
+    if (!imageUrl) {
         switch(kindOfPlace) {
             case 'campsite':
-                imageInsert = campsitePlaceholderImg;
+                imageSrc = campsitePlaceholderImg;
                 break;
             case 'hike':
-                imageInsert = hikePlaceholderImg;
+                imageSrc = hikePlaceholderImg;
                 break;
             case 'overlook':
-                imageInsert = overlookPlaceholderImg;
+                imageSrc = overlookPlaceholderImg;
                 break;
             default:
+                imageSrc = campsitePlaceholderImg;
         }   
-    } else imageInsert = image
+    } else imageSrc = imageUrl
 
     return (
         <Card className='m-3'>
-            <Card.Img variant='top' alt={title} src={imageInsert}/>
+            <Card.Img variant='top' alt={title} src={imageSrc}/>
             <Card.Body>
                 <Card.Title tag="h2">{title}</Card.Title>
                 <Card.Subtitle className="mb-2 text-muted" tag="h6">
