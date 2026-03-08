@@ -3,12 +3,11 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Button from 'react-bootstrap/Button';
 import { useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
 import { selectRandomPlaceByType } from '../features/places/placesSlice';
 import { selectIsAuthenticated } from '../features/user/userSlice'
 import PreviewCard from './PreviewCard';
 
-const PreviewDisplay = () => {
+const PreviewDisplay = ({ onShowLogin, onShowSignup }) => {
 
     const isAuthenticated = useSelector(selectIsAuthenticated);
     const campsite = useSelector(selectRandomPlaceByType('campsite'));
@@ -23,43 +22,39 @@ const PreviewDisplay = () => {
                     Save your hiking trails, camping spots, and scenic overlooks - complete with photos and notes.
                 </p>
                 <div className='d-flex justify-content-center gap-3 mt-3'>
-                    <Link to='/login'>
-                        <Button variant='primary'>Log In</Button>
-                    </Link>
-                    <Link to='/signup'>
-                        <Button variant='outline-primary'>Sign Up</Button>
-                    </Link>
+                    <Button variant='primary' onClick={onShowLogin} >Log In</Button>
+                    <Button variant='outline-primary' onClick={onShowSignup} >Sign Up</Button>
                 </div>
             </Container>
         )
     }
 
     return (
-        
-            
-            <Container>
-                
-                <Row>
-                     <Col md='4'>
-                        {hike ? <PreviewCard item={hike}/> : <h4 className='text-center mt-3'>Add some hikes!</h4>}
-                        
-                    </Col>
-
-                    <Col md='4'>
-                        
-                        {campsite ? <PreviewCard item={campsite}/> : <h4 className='text-center mt-3'>Add some campsites!</h4>}
-                    </Col>
-                   
-                    <Col md='4'>
-                        
-                        {overlook ? <PreviewCard item={overlook}/> : <h4 className='text-center mt-3'>Add some overlooks!</h4>}
-                    </Col>
-
-                </Row>
-            </Container>
 
 
-        
+        <Container>
+
+            <Row>
+                <Col md='4'>
+                    {hike ? <PreviewCard item={hike} /> : <h4 className='text-center mt-3'>Add some hikes!</h4>}
+
+                </Col>
+
+                <Col md='4'>
+
+                    {campsite ? <PreviewCard item={campsite} /> : <h4 className='text-center mt-3'>Add some campsites!</h4>}
+                </Col>
+
+                <Col md='4'>
+
+                    {overlook ? <PreviewCard item={overlook} /> : <h4 className='text-center mt-3'>Add some overlooks!</h4>}
+                </Col>
+
+            </Row>
+        </Container>
+
+
+
     );
 };
 
