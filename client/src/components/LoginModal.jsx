@@ -5,7 +5,7 @@ import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import { Formik, Field, Form as FForm, ErrorMessage } from 'formik';
 import { userLogin } from '../features/user/userSlice';
-import { userLogin, selectUserError, selectUserLoading } from '../features/user/userSlice';
+import { selectCurrentUser, selectUserError, selectUserLoading } from '../features/user/userSlice';
 
 const LoginSchema = Yup.object({
     username: Yup.string().required('Required'),
@@ -18,7 +18,7 @@ const LoginModal = ({ show, onHide }) => {
     const isLoading = useSelector(selectUserLoading);
 
     const handleSubmit = async (values, { resetForm }) => {
-        const result = await dispatch(userLogin(values));
+        const result = await dispatch(selectCurrentUser(values));
         if (result.meta.requestStatus === 'fulfilled') {
             resetForm()
             onHide();

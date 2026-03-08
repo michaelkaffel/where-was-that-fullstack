@@ -6,6 +6,7 @@ import { validateLogin } from './features/user/userSlice';
 import { Routes, Route } from 'react-router-dom';
 import NavigationBar from "./components/NavigationBar";
 import Home from './pages/HomePage';
+import OAuthSuccessPage from './pages/OAuthSuccessPage';
 import AddLocationsPage from './pages/AddLocationsPage';
 import HikingTrailsPage from './pages/HikingTrailsPage';
 import CampingSpotsPage from './pages/CampingSpotsPage';
@@ -32,6 +33,7 @@ function App() {
       <NavigationBar />
       <Routes>
         <Route path='/' element={<Home />}/>
+        <Route path='oauth-success' element={<OAuthSuccessPage />}/>
         <Route path='add-locations' element={<AddLocationsPage/>}/>
         <Route path='hiking-trails' element={<HikingTrailsPage />}/>
         <Route path='hiking-trails/:id' element={<HikingDetailPage />}/>

@@ -5,12 +5,13 @@ import Col from 'react-bootstrap/Col';
 import homePageHero from '../app/images/IMG_5647.jpeg';
 import PreviewDisplay from '../components/PreviewDisplay';
 import { Link } from 'react-router-dom';
-
-
-
-
+import { useSelector } from 'react-redux';
+import { selectIsAuthenticated } from '../features/user/userSlice';
 
 const Home = () => {
+
+    const isAuthenticated = useSelector(selectIsAuthenticated);
+
     return (
         <>
             <Container>
@@ -24,7 +25,9 @@ const Home = () => {
                         <img className='img-fluid rounded' alt='A scenic view overlooking a mountain' src={homePageHero} />
                     </Col>
                 </Row>
-                <Row className='mt-3'>
+
+                {isAuthenticated && (
+                    <Row className='mt-3'>
                     <Col className='text-center mb-2'>
                         <Link to='/hiking-trails'>
                             <Button variant="primary" className='home-page-row-btns'>
@@ -47,13 +50,15 @@ const Home = () => {
                         </Link>
                     </Col>
                 </Row>
+                )}
+                
                 <Row>
                     <PreviewDisplay />
                 </Row>
             </Container>
 
         </>
-    )
-}
+    );
+};
 
 export default Home;

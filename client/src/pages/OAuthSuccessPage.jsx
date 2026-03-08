@@ -1,7 +1,8 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { loginWithOAuthToken } from '../features/user/userSlice';
+import { loginWithOAuthToken, selectCurrentUser } from '../features/user/userSlice';
+import { validateLogin } from '../features/user/userSlice';
 import Spinner from 'react-bootstrap/Spinner';
 
 const OAuthSuccessPage = () => {
@@ -14,6 +15,7 @@ const OAuthSuccessPage = () => {
             const token = params.get('token');
             if (token) {
                 dispatch(loginWithOAuthToken(token));
+                await dispatch(validateLogin())
             }
             navigate('/', { replace: true });
         };
