@@ -46,7 +46,7 @@ export const validateLogin = createAsyncThunk(
     async(_, { getState, rejectWithValue }) => {
         const token = getState().user.token;
 
-        if (!token) return rejectWithValue('No token found');
+        if (!token) return rejectWithValue(null);
 
         const response = await fetch(baseUrl + 'users/me', {
             headers: {
@@ -141,7 +141,7 @@ const userSlice = createSlice({
                 state.isAuthenticated = false;
                 state.token = null;
                 state.currentUser = null;
-                state.error = action.payload || action.error.message;
+                state.error = action.payload ? action.error.message : null;
                 localStorage.removeItem('token');
             })
     }

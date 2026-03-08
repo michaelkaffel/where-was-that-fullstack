@@ -214,6 +214,7 @@ const placesSlice = createSlice({
             .addCase(fetchPlaces.fulfilled, (state, action) => {
                 state.loading = false;
                 state.items = action.payload;
+                state.error = null;
             })
             .addCase(fetchPlaces.rejected, (state, action) => {
                 state.loading = false;
@@ -224,6 +225,8 @@ const placesSlice = createSlice({
                 state.error = null;
             })
             .addCase(fetchPlaceById.fulfilled, (state, action) => {
+                state.loading = false;
+                state.error = null;
                 const index = state.items.findIndex(p => p.id === action.payload.id);
                 if (index !== -1) {
                     state.items[index] = action.payload;
@@ -242,6 +245,7 @@ const placesSlice = createSlice({
             .addCase(postPlace.fulfilled, (state, action) => {
                 state.loading = false;
                 state.items.push(action.payload);
+                state.error = null;
             })
             .addCase(postPlace.rejected, (state, action) => {
                 state.loading = false;
@@ -252,6 +256,8 @@ const placesSlice = createSlice({
                 state.error = null;
             })
             .addCase(patchFavorite.fulfilled, (state, action) => {
+                state.loading = false;
+                state.error = null;
                 const index = state.items.findIndex(p => p.id === action.payload.id);
                 if (index !== -1) {
                     state.items[index].favorite = action.payload.favorite;
@@ -266,9 +272,12 @@ const placesSlice = createSlice({
                 state.error = null;
             })
             .addCase(deletePlace.fulfilled, (state, action) => {
+                state.loading = false;
                 state.items = state.items.filter(p => p.id !== action.payload);
+                state.error = null;
             })
             .addCase(deletePlace.rejected, (state, action) => {
+                state.loading = false;
                 state.error = action.payload || action.error.message;
             })
             .addCase(postNote.pending, (state, action) => {
@@ -276,10 +285,13 @@ const placesSlice = createSlice({
                 state.error = null;
             })
             .addCase(postNote.fulfilled, (state, action) => {
+                state.loading = false;
+                state.error = null;
                 const place = state.items.find(p => p.id === action.payload.placeId);
                 if (place) place.notes = action.payload.notes
             })
             .addCase(postNote.rejected, (state, action) => {
+                state.loading = false;
                 state.error = action.payload || action.error.message;
             })
             .addCase(patchNote.pending, (state) => {
@@ -287,6 +299,8 @@ const placesSlice = createSlice({
                 state.error = null;
             })
             .addCase(patchNote.fulfilled, (state, action) => {
+                state.loading = false;
+                state.error = null;
                 const place = state.items.find(p => p.id === action.payload.placeId);
                 if (place) place.notes = action.payload.notes
             })
@@ -299,6 +313,8 @@ const placesSlice = createSlice({
                 state.error = null;
             })
             .addCase(deleteNote.fulfilled, (state, action) => {
+                state.loading = null;
+                state.error = null;
                 const place = state.items.find(p => p.id === action.payload.placeId);
                 if (place) {
                     place.notes = place.notes.filter(n => n.id !== action.payload.noteId);

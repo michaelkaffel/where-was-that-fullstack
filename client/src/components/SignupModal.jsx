@@ -3,7 +3,7 @@ import * as Yup from 'yup';
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import { useDispatch, useSelector } from 'react-redux';
-import { selectCurrentUser, selectUserError, selectUserLoading } from '../features/user/userSlice';
+import { selectUserError, selectUserLoading, userSignup } from '../features/user/userSlice';
 
 const SignupSchema = Yup.object({
     username: Yup.string().required('Required'),
@@ -19,7 +19,7 @@ const SignupModal = ({ show, onHide }) => {
     const isLoading = useSelector(selectUserLoading);
 
     const handleSubmit = async (values, { resetForm }) => {
-        const result = await dispatch(selectCurrentUser(values));
+        const result = await dispatch(userSignup(values));
         if (result.meta.requestStatus === 'fulfilled') {
             resetForm();
             onHide();
