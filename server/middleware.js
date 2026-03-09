@@ -24,7 +24,9 @@ export const loadPlace = async (req, res, next) => {
 export const loadPlaces = async (req, res, next) => {
     console.log('loadPlaces - req.user._id:', req.user._id);
     try {
-        const places = await Place.find({ owner: req.user._id }).populate('owner');
+        const places = await Place.find({ owner: req.user._id })
+            .populate('owner')
+            .sort({ createdAt: -1 });
         console.log('loadPlaces - found places:', places.length);
         req.places = places;
         next();

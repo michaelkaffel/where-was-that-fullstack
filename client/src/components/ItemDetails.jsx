@@ -5,13 +5,13 @@ import campsitePlaceholderImg from '../app/images/campsitesPlaceholder.png';
 import overlookPlaceholderImg from '../app/images/overlookPlaceholder.png'
 
 const ItemDetails = ({ item }) => {
-    const { image, description, location, title, kindOfPlace, dateVisited } = item;
+    const { imageUrl, description, location, title, kindOfPlace, dateVisited } = item;
 
     const formattedDate = new Date(dateVisited).toLocaleDateString();
 
         let imageInsert;
 
-    if (!image || image === "http://localhost:3001/null") {
+    if (!imageUrl || imageUrl === "http://localhost:3001/null") {
         switch (kindOfPlace) {
             case 'campsite':
                 imageInsert = campsitePlaceholderImg;
@@ -24,7 +24,7 @@ const ItemDetails = ({ item }) => {
                 break;
             default:
         }
-    } else imageInsert = image
+    } else imageInsert = imageUrl
 
     return (
         <>
