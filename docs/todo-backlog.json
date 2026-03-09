@@ -1,122 +1,10 @@
 {
   "project": "Where Was That API",
-  "lastUpdated": "2026-03-05",
+  "lastUpdated": "2026-03-08",
   "tasks": [
     {
-      "id": "redux-architecture-refactor",
-      "priority": "highest",
-      "title": "Redux architecture refactor",
-      "goal": "Restructure Redux store to mirror the backend data model and simplify state management.",
-      "description": "Refactor frontend Redux store into two primary slices: userSlice and placesSlice. Notes should remain embedded inside places instead of having a separate notes slice.",
-      "targetArchitecture": {
-        "store": {
-          "userSlice": {
-            "state": [
-              "user",
-              "token",
-              "isAuthenticated",
-              "loading",
-              "error"
-            ],
-            "responsibilities": [
-              "login",
-              "signup",
-              "google oauth login",
-              "logout",
-              "token persistence"
-            ]
-          },
-          "placesSlice": {
-            "state": [
-              "items",
-              "selectedPlaceId",
-              "filters",
-              "loading",
-              "error"
-            ],
-            "filters": [
-              "favoritesOnly",
-              "placeType"
-            ],
-            "structure": "places.items[].notes[]"
-          }
-        }
-      },
-      "reason": "Keeps Redux aligned with MongoDB data structure and prevents synchronization issues between notes and places."
-    },
-    {
-      "id": "id-normalization",
-      "priority": "high",
-      "title": "MongoDB ID normalization",
-      "goal": "Ensure all API responses return id instead of _id and remove __v.",
-      "description": "Use Mongoose schema transforms to convert _id to id and remove internal MongoDB fields.",
-      "implementation": [
-        "Use schema transform functions in placeSchema and userSchema",
-        "Convert _id to id using toString()",
-        "Delete _id and __v fields",
-        "Normalize nested documents like owner and notes"
-      ],
-      "thingsToVerifyLater": [
-        "populated owner objects",
-        "nested note documents",
-        "arrays returned from queries",
-        "aggregation results"
-      ],
-      "expectedApiOutputExample": {
-        "id": "objectIdString",
-        "title": "Example place",
-        "owner": {
-          "id": "objectIdString",
-          "username": "exampleUser"
-        }
-      }
-    },
-    {
-      "id": "multer-upload-improvements",
-      "priority": "medium",
-      "title": "Improve image upload handling",
-      "goal": "Make file uploads safer and more scalable.",
-      "description": "Enhance multer configuration to better support production environments.",
-      "improvements": [
-        "sanitize uploaded filenames",
-        "validate extensions and MIME types",
-        "optionally create year/month folder structure",
-        "add image compression using sharp",
-        "generate thumbnails"
-      ],
-      "exampleFutureStructure": {
-        "images": {
-          "2026": {
-            "03": {
-              "exampleImage": "image.jpg"
-            }
-          }
-        }
-      },
-      "reason": "Image uploads are a common source of production bugs and storage issues."
-    },
-    {
-      "id": "jwt-extraction-middleware",
-      "priority": "high",
-      "title": "JWT extraction middleware",
-      "goal": "Centralize token verification logic.",
-      "description": "Create middleware that extracts JWT from Authorization header, verifies it, and attaches the user to req.user.",
-      "flow": [
-        "read Authorization header",
-        "extract Bearer token",
-        "verify JWT",
-        "attach user to req.user",
-        "continue to protected routes"
-      ],
-      "benefits": [
-        "reduces duplicated authentication logic",
-        "simplifies route definitions",
-        "improves security by centralizing auth checks"
-      ]
-    },
-    {
       "id": "express-response-helper",
-      "priority": "medium",
+      "priority": "high",
       "title": "Global Express response helper",
       "goal": "Remove repeated .toObject() calls across routes.",
       "description": "Add middleware that provides res.api() helper which automatically converts Mongoose documents to normalized JSON.",
@@ -133,40 +21,172 @@
       ]
     },
     {
+      "id": "audit-toObject-calls",
+      "priority": "high",
+      "title": "Audit .toObject() calls in routes",
+      "goal": "Catch serialization bugs caused by bypassing toJSON transforms.",
+      "description": "Search all route files for .toObject() usage. Replace with .toJSON() or rely on res.json() serialization. Consolidate once res.api() helper is implemented.",
+      "reason": ".toObject() bypasses Mongoose toJSON transforms, which can leak _id and __v fields into API responses."
+    },
+    {
+      "id": "multer-upload-improvements",
+      "priority": "medium",
+      "title": "Improve image upload handling",
+      "goal": "Make file uploads safer and more scalable.",
+      "description": "Enhance multer configuration to better support production environments.",
+      "improvements": [
+        "sanitize uploaded filenames",
+        "validate extensions and MIME types",
+        "optionally create year/month folder structure",
+        "add image compression using sharp",
+        "generate thumbnails"
+      ]
+    },
+    {
+      "id": "user-profile-page",
+      "priority": "medium",
+      "title": "User profile/settings page",
+      "goal": "Allow users to manage their own account.",
+      "description": "Add a profile page accessible from the navbar where users can update their own account details or delete their account.",
+      "features": [
+        "Change username",
+        "Change email",
+        "Change password (requires current password confirmation)",
+        "Delete account (with confirmation modal)"
+      ],
+      "backendRequirements": [
+        "PATCH /users/me — update username, email, or password",
+        "DELETE /users/me — delete own account and all associated places/images"
+      ],
+      "notes": "ObjectId is the source of truth — username and email can change freely. Password change should require the user to confirm their current password before setting a new one."
+    },
+    {
+      "id": "admin-panel",
+      "priority": "medium",
+      "title": "Admin panel",
+      "goal": "Allow admin users to manage all users from within the app.",
+      "description": "Add an Admin button to the navbar that is only visible when the logged-in user has admin: true. Links to an admin page with user management tools.",
+      "features": [
+        "List all users",
+        "Change any user's username or email",
+        "Toggle admin role on/off for any user",
+        "Delete any user (and their associated places/images)"
+      ],
+      "backendRequirements": [
+        "GET /users — admin only, returns all users",
+        "PATCH /users/:userId — admin only, update username/email/admin role",
+        "DELETE /users/:userId — admin only, delete user and cascade delete their places and images"
+      ],
+      "frontendNotes": "Admin button in navbar conditionally rendered based on currentUser.admin === true. Separate AdminPage component with a users table."
+    },
+    {
+      "id": "email-flows",
+      "priority": "future",
+      "title": "Transactional email flows",
+      "goal": "Add email notifications and password reset capability.",
+      "description": "Integrate a transactional email service (e.g. SendGrid or Nodemailer + SMTP) to support automated emails.",
+      "flows": [
+        {
+          "trigger": "Signup",
+          "email": "Welcome / registration confirmation email sent to the user's email address"
+        },
+        {
+          "trigger": "Forgot username or password",
+          "email": "Password reset email containing a time-limited signed link (JWT) that navigates the user to a ResetPasswordPage on the frontend"
+        },
+        {
+          "trigger": "Password reset",
+          "page": "ResetPasswordPage — accepts token from URL query param, verifies it server-side, allows user to set a new password"
+        }
+      ],
+      "backendRequirements": [
+        "POST /users/forgot-password — accepts email, sends reset link if email exists (always returns 200 to avoid user enumeration)",
+        "POST /users/reset-password — accepts token + new password, verifies token, updates password",
+        "Token should be a short-lived signed JWT (15-30 min expiry) or a hashed random token stored in DB"
+      ],
+      "securityNotes": [
+        "Never confirm whether an email exists in the forgot-password response",
+        "Reset tokens must be single-use — invalidate after use",
+        "Consider storing a passwordResetToken and passwordResetExpires field on the User model"
+      ]
+    },
+    {
+      "id": "location-phase-1",
+      "priority": "future",
+      "title": "Location support (Phase 1) — map pin + coordinates",
+      "goal": "Let users attach a geographic location to each place.",
+      "description": "Add a Leaflet map with a draggable pin to AddPlaceForm. Support geolocation via navigator.geolocation. Embed a Google Maps link on PlaceCard.",
+      "backendRequirements": [
+        "Add location: { name: String, lat: Number, lng: Number } to Place schema on a backend branch first"
+      ],
+      "frontendRequirements": [
+        "Leaflet map with draggable pin in AddPlaceForm",
+        "navigator.geolocation 'Find my location' button",
+        "Google Maps Embed or link on PlaceCard/ItemDetails"
+      ]
+    },
+    {
+      "id": "location-phase-2",
+      "priority": "future",
+      "title": "Location support (Phase 2) — address autocomplete",
+      "goal": "Let users search for a location by name using Nominatim.",
+      "description": "Add address autocomplete via the free Nominatim API (OpenStreetMap) to the place form location field.",
+      "notes": "Nominatim is free and requires no API key but has rate limiting — suitable for low-traffic dev/MVP use."
+    },
+    {
+      "id": "gcs-image-storage",
+      "priority": "future",
+      "title": "Google Cloud Storage for images",
+      "goal": "Move image storage off local disk to GCS bucket for production.",
+      "description": "Replace local Multer disk storage with GCS bucket integration. Update image URLs to point to GCS.",
+      "notes": "Frontend is deploying to Firebase, backend to Google Cloud — GCS fits naturally in this stack."
+    },
+    {
       "id": "backend-api-hardening",
       "priority": "future",
       "title": "Backend API hardening",
       "goal": "Improve security and reliability for production deployment.",
       "improvements": [
-        {
-          "tool": "zod",
-          "purpose": "validate request bodies and inputs"
-        },
-        {
-          "tool": "express-rate-limit",
-          "purpose": "prevent brute-force attacks and API abuse"
-        },
-        {
-          "tool": "helmet",
-          "purpose": "add security headers"
-        },
-        {
-          "tool": "pino",
-          "purpose": "structured production logging"
-        }
+        { "tool": "zod", "purpose": "validate request bodies and inputs" },
+        { "tool": "express-rate-limit", "purpose": "prevent brute-force attacks and API abuse" },
+        { "tool": "helmet", "purpose": "add security headers" },
+        { "tool": "pino", "purpose": "structured production logging" }
       ]
+    },
+    {
+      "id": "cypress-testing",
+      "priority": "future",
+      "title": "Cypress end-to-end testing",
+      "goal": "Cover critical user flows with automated tests.",
+      "description": "Set up Cypress at the project root. Write e2e tests for auth, places, and notes flows.",
+      "testFiles": [
+        "cypress/e2e/auth.cy.js",
+        "cypress/e2e/places.cy.js",
+        "cypress/e2e/notes.cy.js"
+      ],
+      "branch": "feature/cypress-setup"
     }
   ],
-  "currentBackendStatus": {
-    "mongodbAtlas": true,
-    "mongooseModels": true,
-    "schemaNormalization": true,
-    "jwtAuthentication": true,
-    "googleOAuth": true,
-    "ownershipSecurity": true,
-    "notesSubdocuments": true,
-    "imageUploads": true,
-    "httpsDevelopmentServer": true,
-    "imageCleanupOnDelete": true
-  }
+  "completedFeatures": [
+    "MongoDB Atlas",
+    "Mongoose models",
+    "Schema normalization (_id → id)",
+    "JWT authentication",
+    "Passport Local login",
+    "Google OAuth",
+    "Owner-scoped place loading",
+    "Notes as embedded subdocuments",
+    "Image uploads via Multer",
+    "Image cleanup on delete",
+    "HTTPS development server",
+    "Redux userSlice + placesSlice refactor",
+    "LoginModal + SignupModal with Formik validation",
+    "Google OAuth frontend flow (OAuthSuccessPage)",
+    "NavigationBar with auth-aware rendering",
+    "fetchPlaces after login/signup",
+    "Places sorted newest first (createdAt desc)",
+    "Placeholder images by kindOfPlace",
+    "Notes CRUD (add, delete)",
+    "Place CRUD (add, delete, favorites toggle)"
+  ]
 }

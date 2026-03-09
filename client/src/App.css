@@ -9,9 +9,17 @@ body {
     padding-top: 80px
 }
 
-.navbar-styles {
-    color: green;
+/* .navbar-styles .navbar-nav {
+    align-items: center
 }
+
+@media (min-width: 768px) {
+    .navbar-styles .navbar-collapse {
+        display: flex;
+        justify-content: space-between;
+        align-items: center
+    }
+} */
 
 .hero-title {
     font-size: 5rem;

@@ -36,7 +36,7 @@ function Navigationbar() {
     )
     return (
         <>
-            <Navbar expand="md" bg='dark' className='navbar-styles' data-bs-theme="dark" fixed="top" >
+            <Navbar expand="lg" bg='dark' className='navbar-styles' data-bs-theme="dark" fixed="top" >
                 <Container>
                     <Navbar.Brand to='/' as={Link} >Where Was That?</Navbar.Brand>
                     <Navbar.Toggle aria-controls="basic-navbar-nav" />

@@ -21,6 +21,20 @@ export const loadPlace = async (req, res, next) => {
     }
 };
 
+export const loadPlaces = async (req, res, next) => {
+    console.log('loadPlaces - req.user._id:', req.user._id);
+    try {
+        const places = await Place.find({ owner: req.user._id })
+            .populate('owner')
+            .sort({ createdAt: -1 });
+        console.log('loadPlaces - found places:', places.length);
+        req.places = places;
+        next();
+    } catch (err) {
+        next(err)
+    }
+};
+
 export const verifyPlaceOwner = (req, res, next) => {
     if (!req.place.owner.equals(req.user._id)) {
         const err = new Error('Not authorized, wrong user');
@@ -29,7 +43,9 @@ export const verifyPlaceOwner = (req, res, next) => {
     }
 
     next();
-}
+};
+
+
 
 // export const verifyPlaceOwner = async (req, res, next) => {
 //     try {

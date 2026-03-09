@@ -6,7 +6,7 @@ import path from 'path';
 import logger from 'morgan';
 import mongoose from 'mongoose';
 import passport from 'passport';
-import authenticate from './authenticate.js'
+import { corsMiddleware } from './routes/cors.js'
 import { fileURLToPath } from 'url';
 
 import indexRouter from './routes/index.js';
@@ -16,14 +16,14 @@ import placeRouter from './routes/placeRouter.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-let url; 
+let url;
 
 if (process.env.NODE_END === 'development') {
     url = process.env.MONGO_ATLAS
-    
+
 } else {
     url = process.env.MONGO_HOTSPOT
-    
+
 }
 
 const connect = mongoose.connect(url, {
@@ -64,8 +64,9 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+app.use(corsMiddleware);
+app.use('/images', corsMiddleware, express.static(path.join(process.cwd(), 'public/images')))
 app.use(express.static(path.join(__dirname, 'public')));
-app.use('/images', express.static(path.join(process.cwd(), 'public/images')))
 
 app.use(passport.initialize());
 
