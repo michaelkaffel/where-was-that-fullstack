@@ -2,7 +2,7 @@
 
 export const validateForm = (values) => {
     
-    const { title, location } = values;
+    const { title, location, image, description } = values;
     const errors = {}
 
     if (!title) {
@@ -19,6 +19,14 @@ export const validateForm = (values) => {
         errors.location = 'Please enter a full city and state.'
     } else if (location > 50) {
         errors.location = 'Maximum 50 characters'
+    }
+
+    if (!image) {
+        errors.image = 'Required'
+    }
+
+    if (!description) {
+        errors.image = 'Required'
     }
 
     

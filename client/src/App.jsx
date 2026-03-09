@@ -20,33 +20,39 @@ import './App.css';
 
 function App() {
 
-  const dispatch = useDispatch();
+    const dispatch = useDispatch();
 
-  useEffect(() => {
-    dispatch(validateLogin());
-    dispatch(fetchPlaces())
-  }, [dispatch]);
-  
-  return (
-    <>
-      
-      <NavigationBar />
-      <Routes>
-        <Route path='/' element={<Home />}/>
-        <Route path='oauth-success' element={<OAuthSuccessPage />}/>
-        <Route path='add-locations' element={<AddLocationsPage/>}/>
-        <Route path='hiking-trails' element={<HikingTrailsPage />}/>
-        <Route path='hiking-trails/:id' element={<HikingDetailPage />}/>
-        <Route path='camping-spots' element={<CampingSpotsPage />}/>
-        <Route path='camping-spots/:id' element={<CampingDetailPage />}/> 
+    useEffect(() => {
 
-        <Route path='scenic-overlooks' element={<OverlooksPage />}/>
-        <Route path='scenic-overlooks/:id' element={<OverlookDetailPage />}/>
-      </Routes>
-      <Footer fixed="bottom" />
-    </>
-      
-  );
+        const init = async () => {
+            const result = await dispatch(validateLogin())
+            if (result.meta.requestStatus === 'fulfilled') {
+                dispatch(fetchPlaces())
+            }
+        };
+        init();
+    }, [dispatch]);
+
+    return (
+        <>
+
+            <NavigationBar />
+            <Routes>
+                <Route path='/' element={<Home />} />
+                <Route path='oauth-success' element={<OAuthSuccessPage />} />
+                <Route path='add-locations' element={<AddLocationsPage />} />
+                <Route path='hiking-trails' element={<HikingTrailsPage />} />
+                <Route path='hiking-trails/:id' element={<HikingDetailPage />} />
+                <Route path='camping-spots' element={<CampingSpotsPage />} />
+                <Route path='camping-spots/:id' element={<CampingDetailPage />} />
+
+                <Route path='scenic-overlooks' element={<OverlooksPage />} />
+                <Route path='scenic-overlooks/:id' element={<OverlookDetailPage />} />
+            </Routes>
+            <Footer fixed="bottom" />
+        </>
+
+    );
 }
 
 export default App;

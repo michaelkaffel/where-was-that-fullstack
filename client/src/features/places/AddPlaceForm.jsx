@@ -59,10 +59,14 @@ const AddPlaceForm = ({ kindOfPlace, titlePlaceholder, descriptionPlaceholder, s
                         <Field name='dateVisited' type='date' className='form-control' />
                     </Form.Group>
                     <Form.Group>
+                        <ErrorMessage name='description'>
+                            {(msg) => <p className='text-danger'>{msg}</p>}
+                        </ErrorMessage>
                         <Form.Label htmlFor='description'>Description</Form.Label>
                         <Field name='description' as='textarea' placeholder={descriptionPlaceholder} className='form-control' />
+                        
                     </Form.Group>
-                    <Form.Group>
+                    <Form.Group className='mt-2'>
                         <Form.Label htmlFor='image'>Image</Form.Label>
                         <input 
                             type='file'
@@ -81,6 +85,9 @@ const AddPlaceForm = ({ kindOfPlace, titlePlaceholder, descriptionPlaceholder, s
                                 style={{ width: '50%', objectFit: 'cover', marginTop: 10 }}
                             />
                         )}
+                        <ErrorMessage name='image'>
+                            {(msg) => <p className='text-danger'>{msg}</p>}
+                        </ErrorMessage>
                     </Form.Group>
                     <Button className='mt-3' type='submit'>{submitLabel}</Button>
                 </FForm>

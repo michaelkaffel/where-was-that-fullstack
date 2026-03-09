@@ -4,6 +4,7 @@ import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectUserError, selectUserLoading, userSignup } from '../features/user/userSlice';
+import { fetchPlaces } from '../features/places/placesSlice';
 
 const SignupSchema = Yup.object({
     username: Yup.string().required('Required'),
@@ -21,6 +22,7 @@ const SignupModal = ({ show, onHide }) => {
     const handleSubmit = async (values, { resetForm }) => {
         const result = await dispatch(userSignup(values));
         if (result.meta.requestStatus === 'fulfilled') {
+            dispatch(fetchPlaces())
             resetForm();
             onHide();
         }

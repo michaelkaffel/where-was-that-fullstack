@@ -5,7 +5,7 @@ import fs from 'fs';
 import crypto from 'crypto';
 import Place from '../models/place.js';
 import { verifyUser } from '../authenticate.js';
-import { loadPlace, verifyPlaceOwner } from '../middleware.js';
+import { loadPlace, loadPlaces, verifyPlaceOwner } from '../middleware.js';
 import { corsMiddleware, corsWithOptions } from './cors.js';
 
 const storage = multer.diskStorage({
@@ -56,14 +56,11 @@ const placeRouter = express.Router();
 
 placeRouter.route('/')
     .options(corsWithOptions, (req, res) => res.sendStatus(200))
-    .get(corsWithOptions, verifyUser, async (req, res, next) => {
+    .get(corsWithOptions, verifyUser, loadPlaces, async (req, res, next) => {
         try {
-            const places = await Place.find({ owner: req.user._id })
-                .populate('owner', 'username');
-
-            res.status(200).json(places);
+            res.status(200).json(req.places.map(p => p.toObject()));
         } catch (err) {
-            next(err);
+            next(err)
         }
     })
     .post(

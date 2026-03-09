@@ -5,8 +5,8 @@ import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import { Formik, Field, Form as FForm, ErrorMessage } from 'formik';
-import { userLogin } from '../features/user/userSlice';
-import { selectUserError, selectUserLoading } from '../features/user/userSlice';
+import { userLogin, selectUserError, selectUserLoading } from '../features/user/userSlice';
+import { fetchPlaces } from '../features/places/placesSlice';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 const LoginSchema = Yup.object({
@@ -23,6 +23,7 @@ const LoginModal = ({ show, onHide }) => {
     const handleSubmit = async (values, { resetForm }) => {
         const result = await dispatch(userLogin(values));
         if (result.meta.requestStatus === 'fulfilled') {
+            dispatch(fetchPlaces())
             resetForm()
             onHide();
         }
