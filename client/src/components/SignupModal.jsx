@@ -1,10 +1,13 @@
-import { Formik, Form, Field, ErrorMessage } from 'formik';
+import { useState } from 'react';
+import { Formik, Form as FForm, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
+import Form from 'react-bootstrap/Form';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectUserError, selectUserLoading, userSignup } from '../features/user/userSlice';
 import { fetchPlaces } from '../features/places/placesSlice';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 const SignupSchema = Yup.object({
     username: Yup.string().required('Required'),
@@ -18,6 +21,7 @@ const SignupModal = ({ show, onHide }) => {
     const dispatch = useDispatch();
     const error = useSelector(selectUserError);
     const isLoading = useSelector(selectUserLoading);
+    const [showPassword, setShowPassword] = useState(false);
 
     const handleSubmit = async (values, { resetForm }) => {
         const result = await dispatch(userSignup(values));
@@ -40,21 +44,57 @@ const SignupModal = ({ show, onHide }) => {
                     validationSchema={SignupSchema}
                     onSubmit={handleSubmit}
                 >
-                    <Form>
-                        {['username', 'firstname', 'lastname', 'email', 'password'].map((field) => (
-                            <div className='mb-3' key={field}>
-                                <label htmlFor={field} className='form-label'>
-                                    {field.charAt(0).toUpperCase() + field.slice(1)}
-                                </label>
+                    <FForm>
+                        <Form.Group className='mb-3'>
+                            <Form.Label htmlFor='username'>Username</Form.Label>
+                            <Field name='username' type='text' className='form-control' />
+                            <ErrorMessage name='username'>
+                                {(msg) => <p className='text-danger small'>{msg}</p>}
+                            </ErrorMessage>
+                        </Form.Group>
+                        <Form.Group className='mb-3'>
+                            <Form.Label htmlFor='password'>Password</Form.Label>
+                            <div className='input-group'>
                                 <Field
-                                    name={field}
-                                    type={field === 'password' ? 'password' : field === 'email' ? 'email' : 'text'}
+                                    name='password'
+                                    type={showPassword ? 'text' : 'password'}
                                     className='form-control'
+                                    // placeholder='Enter password'
                                 />
-                                <ErrorMessage name={field} component='div' className='text-danger small'></ErrorMessage>
+                                <button
+                                    type='button'
+                                    className='btn btn-outline-secondary'
+                                    onClick={() => setShowPassword(!showPassword)}
+                                >
+                                    <FontAwesomeIcon icon={showPassword ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'} />
+                                </button>
                             </div>
-                        ))}
-                        <div className='d-grid gap-2'>
+                            <ErrorMessage name='password'>
+                                {(msg) => <p className='text-danger small'>{msg}</p>}
+                            </ErrorMessage>
+                        </Form.Group>
+                        <Form.Group className='mb-3'>
+                            <Form.Label htmlFor='firstname'>First Name</Form.Label>
+                            <Field name='firstname' type='text' className='form-control' />
+                            <ErrorMessage name='firstname'>
+                                {(msg) => <p className='text-danger small'>{msg}</p>}
+                            </ErrorMessage>
+                        </Form.Group>
+                        <Form.Group className='mb-3'>
+                            <Form.Label htmlFor='lastname'>Last Name</Form.Label>
+                            <Field name='lastname' type='text' className='form-control' />
+                            <ErrorMessage name='lastname'>
+                                {(msg) => <p className='text-danger small'>{msg}</p>}
+                            </ErrorMessage>
+                        </Form.Group>
+                        <Form.Group className='mb-3'>
+                            <Form.Label htmlFor='email'>Email</Form.Label>
+                            <Field name='email' type='text' className='form-control' />
+                            <ErrorMessage name='email'>
+                                {(msg) => <p className='text-danger small'>{msg}</p>}
+                            </ErrorMessage>
+                        </Form.Group>
+                        <Form.Group className='d-grid gap-2'>
                             <Button type='submit' variant='primary' disabled={isLoading}>
                                 {isLoading ? 'Creating account...' : 'Sign Up'}
                             </Button>
@@ -65,8 +105,8 @@ const SignupModal = ({ show, onHide }) => {
                             >
                                 Continue with Google
                             </Button>
-                        </div>
-                    </Form>
+                        </Form.Group>
+                    </FForm>
                 </Formik>
             </Modal.Body>
         </Modal>

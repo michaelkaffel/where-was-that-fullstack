@@ -244,8 +244,9 @@ const placesSlice = createSlice({
             })
             .addCase(postPlace.fulfilled, (state, action) => {
                 state.loading = false;
-                state.items.push(action.payload);
                 state.error = null;
+                state.items.push(action.payload);
+                state.items.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt))
             })
             .addCase(postPlace.rejected, (state, action) => {
                 state.loading = false;
