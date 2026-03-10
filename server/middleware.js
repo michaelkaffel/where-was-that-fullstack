@@ -45,6 +45,22 @@ export const verifyPlaceOwner = (req, res, next) => {
     next();
 };
 
+const normalizeDoc = (doc) => {
+    if (doc && typeof doc.toObject === 'function') {
+        return doc.toObject();
+    }
+}
+
+export const responseHelper = (req, res, next) => {
+    res.api = (data, statusCode = 200) => {
+        if (Array.isArray(data)) {
+            return res.status(statusCode).json(data.map(normalizeDoc));
+        }
+        return res.status(statusCode).json(normalizeDoc(data));
+    }
+    next();
+}
+
 
 
 // export const verifyPlaceOwner = async (req, res, next) => {

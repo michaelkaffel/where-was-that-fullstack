@@ -1,13 +1,14 @@
 import dotenv from 'dotenv';
 dotenv.config({ quiet: true });
 import createError from 'http-errors';
-import express from 'express';
+import express, { response } from 'express';
 import path from 'path';
 import logger from 'morgan';
 import mongoose from 'mongoose';
 import passport from 'passport';
 import { corsMiddleware } from './routes/cors.js'
 import { fileURLToPath } from 'url';
+import { responseHelper } from './middleware.js';
 
 import indexRouter from './routes/index.js';
 import usersRouter from './routes/users.js';
@@ -63,6 +64,7 @@ app.set('view engine', 'pug');
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(responseHelper);
 
 app.use(corsMiddleware);
 app.use('/images', corsMiddleware, express.static(path.join(process.cwd(), 'public/images')))
