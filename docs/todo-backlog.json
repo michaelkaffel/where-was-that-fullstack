@@ -1,33 +1,7 @@
 {
   "project": "Where Was That API",
-  "lastUpdated": "2026-03-08",
+  "lastUpdated": "2026-03-10",
   "tasks": [
-    {
-      "id": "express-response-helper",
-      "priority": "high",
-      "title": "Global Express response helper",
-      "goal": "Remove repeated .toObject() calls across routes.",
-      "description": "Add middleware that provides res.api() helper which automatically converts Mongoose documents to normalized JSON.",
-      "exampleUsage": [
-        "res.api(place)",
-        "res.api(updatedPlace)",
-        "res.api(users)"
-      ],
-      "exampleMiddlewareConcept": "If data has .toObject(), call it automatically. If array, normalize each item.",
-      "benefits": [
-        "cleaner route code",
-        "centralized normalization logic",
-        "easier future refactoring"
-      ]
-    },
-    {
-      "id": "audit-toObject-calls",
-      "priority": "high",
-      "title": "Audit .toObject() calls in routes",
-      "goal": "Catch serialization bugs caused by bypassing toJSON transforms.",
-      "description": "Search all route files for .toObject() usage. Replace with .toJSON() or rely on res.json() serialization. Consolidate once res.api() helper is implemented.",
-      "reason": ".toObject() bypasses Mongoose toJSON transforms, which can leak _id and __v fields into API responses."
-    },
     {
       "id": "multer-upload-improvements",
       "priority": "medium",
@@ -73,9 +47,9 @@
         "Delete any user (and their associated places/images)"
       ],
       "backendRequirements": [
-        "GET /users — admin only, returns all users",
+        "GET /users — admin only, returns all users (already implemented)",
         "PATCH /users/:userId — admin only, update username/email/admin role",
-        "DELETE /users/:userId — admin only, delete user and cascade delete their places and images"
+        "DELETE /users/:userId — admin only, delete user and cascade delete their places and images (already implemented)"
       ],
       "frontendNotes": "Admin button in navbar conditionally rendered based on currentUser.admin === true. Separate AdminPage component with a users table."
     },
@@ -83,31 +57,43 @@
       "id": "email-flows",
       "priority": "future",
       "title": "Transactional email flows",
-      "goal": "Add email notifications and password reset capability.",
-      "description": "Integrate a transactional email service (e.g. SendGrid or Nodemailer + SMTP) to support automated emails.",
+      "goal": "Add email notifications and account recovery capability.",
+      "description": "Integrate a transactional email service (e.g. SendGrid, Resend, or Nodemailer + SMTP) to support automated emails. Prototype locally with Nodemailer + Gmail SMTP before committing to a production service.",
       "flows": [
         {
           "trigger": "Signup",
           "email": "Welcome / registration confirmation email sent to the user's email address"
         },
         {
-          "trigger": "Forgot username or password",
-          "email": "Password reset email containing a time-limited signed link (JWT) that navigates the user to a ResetPasswordPage on the frontend"
+          "trigger": "Forgot username",
+          "email": "User submits their email address. If found, server sends an email containing their username. Always return 200 regardless of whether email exists (avoid user enumeration).",
+          "backendRoute": "POST /users/forgot-username"
+        },
+        {
+          "trigger": "Forgot password",
+          "email": "Password reset email containing a time-limited signed link (JWT or hashed token) that navigates the user to a ResetPasswordPage on the frontend",
+          "backendRoute": "POST /users/forgot-password"
         },
         {
           "trigger": "Password reset",
-          "page": "ResetPasswordPage — accepts token from URL query param, verifies it server-side, allows user to set a new password"
+          "page": "ResetPasswordPage — accepts token from URL query param, verifies it server-side, allows user to set a new password",
+          "backendRoute": "POST /users/reset-password"
         }
       ],
       "backendRequirements": [
-        "POST /users/forgot-password — accepts email, sends reset link if email exists (always returns 200 to avoid user enumeration)",
+        "POST /users/forgot-username — accepts email, sends username if found, always returns 200",
+        "POST /users/forgot-password — accepts email, sends reset link if email exists, always returns 200",
         "POST /users/reset-password — accepts token + new password, verifies token, updates password",
         "Token should be a short-lived signed JWT (15-30 min expiry) or a hashed random token stored in DB"
       ],
+      "userModelAdditions": [
+        "passwordResetToken: String",
+        "passwordResetExpires: Date"
+      ],
       "securityNotes": [
-        "Never confirm whether an email exists in the forgot-password response",
+        "Never confirm whether an email exists in forgot-password or forgot-username responses",
         "Reset tokens must be single-use — invalidate after use",
-        "Consider storing a passwordResetToken and passwordResetExpires field on the User model"
+        "Reset token should expire after 15-30 minutes"
       ]
     },
     {
@@ -115,7 +101,7 @@
       "priority": "future",
       "title": "Location support (Phase 1) — map pin + coordinates",
       "goal": "Let users attach a geographic location to each place.",
-      "description": "Add a Leaflet map with a draggable pin to AddPlaceForm. Support geolocation via navigator.geolocation. Embed a Google Maps link on PlaceCard.",
+      "description": "Add a Leaflet map with a draggable pin to AddPlaceForm. Support geolocation via navigator.geolocation. Embed a Google Maps link on PlaceCard/ItemDetails.",
       "backendRequirements": [
         "Add location: { name: String, lat: Number, lng: Number } to Place schema on a backend branch first"
       ],
@@ -123,7 +109,9 @@
         "Leaflet map with draggable pin in AddPlaceForm",
         "navigator.geolocation 'Find my location' button",
         "Google Maps Embed or link on PlaceCard/ItemDetails"
-      ]
+      ],
+      "privacyConsiderations": "User has expressed preference that raw coordinates never be stored on the server in readable form. Options to evaluate at implementation time: (1) Client-side AES-256 encryption before upload — server stores ciphertext, decryption happens in browser using password-derived key. (2) Browser-only storage (localStorage/IndexedDB) — coordinates never sent to server, lost if browser is cleared. (3) Text-only location description — no coordinates at all. Option 1 is the most complete but complex; decision should be made deliberately before implementation begins.",
+      "displayNotes": "For display cards, use free Google Maps Embed (requires API key) or a static Leaflet map (no API key needed). Leaflet keeps everything free and open source."
     },
     {
       "id": "location-phase-2",
@@ -187,6 +175,10 @@
     "Places sorted newest first (createdAt desc)",
     "Placeholder images by kindOfPlace",
     "Notes CRUD (add, delete)",
-    "Place CRUD (add, delete, favorites toggle)"
+    "Place CRUD (add, delete, favorites toggle)",
+    "res.api() responseHelper middleware",
+    "Audit and replace all .toObject() calls in routes",
+    "try/catch blocks added to all route handlers",
+    "Fixed /logout route ordering (was shadowed by /:userId wildcard)"
   ]
 }
