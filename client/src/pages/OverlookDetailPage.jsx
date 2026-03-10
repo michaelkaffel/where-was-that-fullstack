@@ -39,8 +39,8 @@ const OverlookDetailPage = () => {
     }
 
     return (
-        <>
-            <Container>
+        
+            <Container className='top-padding-adjustment'>
                 <Row>
                     <Col>
                         {overlook && (
@@ -59,7 +59,7 @@ const OverlookDetailPage = () => {
                     </Col>
                 </Row>
             </Container>
-        </>
+        
     )
 }
 

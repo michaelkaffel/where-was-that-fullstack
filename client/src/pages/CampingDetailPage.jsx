@@ -41,9 +41,9 @@ const CampingDetailPage = () => {
 
 
     return (
-        <>
+        
 
-            <Container>
+            <Container className='top-padding-adjustment'>
                 <Row>
                     <Col>
                         {campsite && (
@@ -64,7 +64,7 @@ const CampingDetailPage = () => {
                     </Col>
                 </Row>
             </Container>
-        </>
+        
     );
 };
 

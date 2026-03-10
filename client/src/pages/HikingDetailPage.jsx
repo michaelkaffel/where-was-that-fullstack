@@ -41,7 +41,7 @@ const HikingDetailPage = () => {
     return (
         <>
 
-            <Container>
+            <Container className='top-padding-adjustment'>
                 <Row>
                     <Col>
                         {hike && (

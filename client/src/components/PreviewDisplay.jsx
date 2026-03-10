@@ -17,7 +17,7 @@ const PreviewDisplay = ({ onShowLogin, onShowSignup }) => {
     if (!isAuthenticated) {
         return (
             <Container className='text-center mt-4'>
-                <h3>Keep track of all your favorite places</h3>
+                <h3 className='text-white'>LOG IN OR CREATE YOUR ACCOUNT</h3>
                 <p className='text-muted'>
                     Save your hiking trails, camping spots, and scenic overlooks - complete with photos and notes.
                 </p>
@@ -36,18 +36,18 @@ const PreviewDisplay = ({ onShowLogin, onShowSignup }) => {
 
             <Row>
                 <Col md='4'>
-                    {hike ? <PreviewCard item={hike} /> : <h4 className='text-center mt-3'>Add some hikes!</h4>}
+                    {hike ? <PreviewCard item={hike} /> : <h4 className='text-center mt-3 text-white'>Add some hikes!</h4>}
 
                 </Col>
 
                 <Col md='4'>
 
-                    {campsite ? <PreviewCard item={campsite} /> : <h4 className='text-center mt-3'>Add some campsites!</h4>}
+                    {campsite ? <PreviewCard item={campsite} /> : <h4 className='text-center mt-3 text-white'>Add some campsites!</h4>}
                 </Col>
 
                 <Col md='4'>
 
-                    {overlook ? <PreviewCard item={overlook} /> : <h4 className='text-center mt-3'>Add some overlooks!</h4>}
+                    {overlook ? <PreviewCard item={overlook} /> : <h4 className='text-center mt-3 text-white'>Add some overlooks!</h4>}
                 </Col>
 
             </Row>

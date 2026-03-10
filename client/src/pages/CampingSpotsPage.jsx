@@ -7,8 +7,8 @@ import campsitesPlaceholder from '../app/images/campsitesPlaceholder.png'
 
 const CampingSpotsPage = () => {
     return (
-        <>
-            <Container>
+        
+            <Container className='top-padding-adjustment'>
                 <SubHeader current='Camping Spots' listPath='/camping-spots' listLabel='Camping Spots'/>
                 <h2 className='text-center'>Camping Spots</h2>
                 <AccordionForPlaceForm 
@@ -27,7 +27,7 @@ const CampingSpotsPage = () => {
                     emptyFavsMessage='Favorite some campsites!'
                 />
             </Container>
-        </>
+       
     )
 };
 

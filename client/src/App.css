@@ -5,24 +5,24 @@
     /* border: solid red 1px; */
 }
 
-body {
-    padding-top: 80px
+.top-padding-adjustment {
+    padding-top: 70px;
 }
 
-/* .navbar-styles .navbar-nav {
-    align-items: center
+.hero {
+    min-height: 100vh;
+    width: 100%;
+    background-image: url('./app//images/IMG_5647.jpeg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    
 }
-
-@media (min-width: 768px) {
-    .navbar-styles .navbar-collapse {
-        display: flex;
-        justify-content: space-between;
-        align-items: center
-    }
-} */
 
 .hero-title {
     font-size: 5rem;
+    color: white;
+    text-shadow: 0 2px 8px rbga(0, 0, 0, 0.3)
 }
 
 .hero-subtitle {
@@ -30,11 +30,40 @@ body {
 }
 
 .hero-row {
-    margin-top: 20%;
+    padding-top: 10%;
 }
 
 .home-page-row-btns {
     min-width: 100px;
+}
+
+.hero-text-box {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 20px;;
+    padding: 2rem 3rem;
+    box-shadow: 
+        0 8px 32px rbga(0, 0, 0, 0.2)
+        inset 0 1px 0 rbga(255, 255, 255, 0.4);
+}
+
+.preview-display-row {
+    padding-top: 5%;
+    padding-bottom: 5%;
+}
+
+.preview-display-background {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 20px;;
+    padding: 2rem 3rem;
+    box-shadow: 
+        0 8px 32px rbga(0, 0, 0, 0.2)
+        inset 0 1px 0 rbga(255, 255, 255, 0.4);
 }
 
 .comment-close-icon {
