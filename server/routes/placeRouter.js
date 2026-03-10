@@ -18,7 +18,7 @@ const storage = multer.diskStorage({
     },
     filename: function (req, file, cb) {
         const uniqueSuffix = Date.now() + '-' + crypto.randomBytes(6).toString('hex');
-        
+
         cb(null, uniqueSuffix + path.extname(file.originalname));
     }
 });
@@ -58,14 +58,14 @@ placeRouter.route('/')
     .options(corsWithOptions, (req, res) => res.sendStatus(200))
     .get(corsWithOptions, verifyUser, loadPlaces, async (req, res, next) => {
         try {
-            res.status(200).json(req.places.map(p => p.toObject()));
+            res.api(req.places);
         } catch (err) {
             next(err)
         }
     })
     .post(
-        corsWithOptions, 
-        verifyUser, 
+        corsWithOptions,
+        verifyUser,
         (req, res, next) => {
             upload.single('image')(req, res, function (err) {
                 if (err instanceof multer.MulterError) {
@@ -94,7 +94,7 @@ placeRouter.route('/')
                 const populated = await Place.findById(place._id)
                     .populate('owner', 'username');
 
-                res.status(201).json(populated);
+                res.api(populated, 201);
             } catch (err) {
                 next(err);
             }
@@ -109,9 +109,13 @@ placeRouter.route('/')
 
 placeRouter.route('/:placeId')
     .options(corsWithOptions, (req, res) => res.sendStatus(200))
-    .get(corsWithOptions, verifyUser, loadPlace, verifyPlaceOwner, async (req, res) => {
-        
-        res.status(200).json(req.place.toObject());
+    .get(corsWithOptions, verifyUser, loadPlace, verifyPlaceOwner, async (req, res, next) => {
+        try {
+            res.api(req.place);
+        } catch (err) {
+            next(err)
+        }
+
     })
     .post(corsMiddleware, (req, res) => {
         res.status(403).end(`POST operation not supported on /places/${req.params.placeId}`)
@@ -129,7 +133,7 @@ placeRouter.route('/:placeId')
 
             const updated = await req.place.save();
 
-            res.status(200).json(updated.toObject());
+            res.api(updated);
         } catch (err) {
             next(err);
         }
@@ -146,14 +150,19 @@ placeRouter.route('/:placeId')
 placeRouter.route('/:placeId/notes')
     .options(corsWithOptions, (req, res) => res.sendStatus(200))
     .get(corsWithOptions, verifyUser, loadPlace, verifyPlaceOwner, async (req, res, next) => {
-        const place = req.place.toObject();
-        res.status(200).json(place.notes);
+        // const place = req.place.toObject();
+        try {
+            res.status(200).json(req.place.toJSON().notes);
+        } catch (err) {
+            next(err);
+        }
+
     })
     .post(corsWithOptions, verifyUser, loadPlace, verifyPlaceOwner, async (req, res, next) => {
         try {
             req.place.notes.push(req.body);
             const updated = await req.place.save();
-            res.status(201).json(updated.toObject());
+            res.api(updated);
         } catch (err) {
             next(err);
         }
@@ -168,7 +177,7 @@ placeRouter.route('/:placeId/notes')
         try {
             req.place.notes = [];
             const updated = await req.place.save();
-            res.status(200).json(updated.toObject());
+            res.api(updated);
         } catch (err) {
             next(err);
         }
@@ -177,15 +186,21 @@ placeRouter.route('/:placeId/notes')
 placeRouter.route('/:placeId/notes/:noteId')
     .options(corsWithOptions, (req, res) => res.sendStatus(200))
     .get(corsWithOptions, verifyUser, loadPlace, verifyPlaceOwner, async (req, res, next) => {
-        const note = req.place.notes.id(req.params.noteId);
 
-        if (!note) {
-            const err = new Error('Note not found');
-            err.status = 404;
-            return next(err);
+        try {
+            const note = req.place.notes.id(req.params.noteId);
+
+            if (!note) {
+                const err = new Error('Note not found');
+                err.status = 404;
+                return next(err);
+            }
+
+            res.status(200).json(note.toJSON());
+        } catch (err) {
+            next(err)
         }
-
-        res.status(200).json(note);
+        
     })
     .post(corsMiddleware, (req, res) => {
         res.status(403).end(`POST operation not supported on /places/${req.params.placeId}/notes/${req.params.noteId}`);
@@ -210,7 +225,7 @@ placeRouter.route('/:placeId/notes/:noteId')
             note.text = req.body.text;
             const updated = await req.place.save();
 
-            res.status(200).json(updated.toObject());
+            res.api(updated);
 
         } catch (err) {
             next(err);

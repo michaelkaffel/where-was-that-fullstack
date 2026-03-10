@@ -14,7 +14,7 @@ router.get('/', corsWithOptions, verifyUser, verifyAdmin, async (req, res, next)
         const users = await User.find()
             .select('username firstname lastname admin');
 
-        res.status(200).json(users)
+        res.api(users)
 
     } catch (err) {
         next(err);
@@ -42,21 +42,27 @@ router.post('/signup', corsWithOptions, async (req, res, next) => {
             success: true,
             token: token,
             status: 'Registration Successful, you are now logged in!',
-            user: registeredUser.toObject()
+            user: registeredUser
         })
     } catch (err) {
         res.status(400).json({ message: err.message });
     }
 });
 
-router.post('/login', corsWithOptions, passport.authenticate('local', { session: false }), (req, res) => {
-    const token = getToken({ _id: req.user._id });
-    res.status(200).json({
-        success: true,
-        token: token,
-        status: 'You are successfully logged in!',
-        user: req.user.toObject()
-    })
+router.post('/login', corsWithOptions, passport.authenticate('local', { session: false }), (req, res, next) => {
+
+    try {
+        const token = getToken({ _id: req.user._id });
+        res.status(200).json({
+            success: true,
+            token: token,
+            status: 'You are successfully logged in!',
+            user: req.user
+        })
+    } catch (err) {
+        next(err);
+    }
+    
 });
 
 router.get('/auth/google', passport.authenticate('google', {
@@ -85,10 +91,17 @@ router.get('/me', corsWithOptions, verifyUser, async (req, res, next) => {
             return next(err);
         }
 
-        res.status(200).json(user.toObject());
+        res.api(user);
     } catch (err) {
         next(err);
     }
+});
+
+router.get('/logout', corsWithOptions, verifyUser, (req, res) => {
+    res.status(200).json({
+        success: true,
+        status: 'JWT logout handles client-side'
+    })
 });
 
 router.get('/:userId', corsWithOptions, verifyUser, async (req, res, next) => {
@@ -103,7 +116,7 @@ router.get('/:userId', corsWithOptions, verifyUser, async (req, res, next) => {
         }
 
 
-        res.status(200).json(user.toObject());
+        res.api(user);
 
 
     } catch (err) {
@@ -131,11 +144,6 @@ router.delete('/:userId', corsWithOptions, verifyUser, verifyAdmin, async (req, 
     }
 });
 
-router.get('/logout', corsWithOptions, verifyUser, (req, res) => {
-    res.status(200).json({
-        success: true,
-        status: 'JWT logout handles client-side'
-    })
-});
+
 
 export default router;
