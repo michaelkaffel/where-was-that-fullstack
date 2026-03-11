@@ -26,7 +26,7 @@ const PlaceCard = ({ place, detailPath, placeholder }) => {
             <Card.Body>
                 <Card.Title>{title}</Card.Title>
                 <Card.Subtitle className='mb-2 text-muted'>
-                    {location}
+                    {location?.name}
                 </Card.Subtitle>
                 <Card.Text>{description}</Card.Text>
                 <div className='d-flex justify-content-between align-items-center'>

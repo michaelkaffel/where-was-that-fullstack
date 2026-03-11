@@ -36,7 +36,7 @@ const ItemDetails = ({ item }) => {
                 </Card.Text>
                 <div className='d-flex justify-content-between'>
                     <Card.Title className='text-start'>
-                        {location}
+                        {location?.name}
                     </Card.Title>
                     <div className='d-flex'>
                         <Card.Text className='me-2 fw-bold'>First Visit: </Card.Text>

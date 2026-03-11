@@ -49,8 +49,18 @@ const placeSchema = new Schema({
         required: true
     },
     location: {
-        type: String,
-        required: true
+        name: {
+            type: String,
+            default: ''
+        },
+        lat: {
+            type: Number,
+            default: null
+        },
+        lng: {
+            type: Number,
+            default: null
+        }
     },
     dateVisited: {
         type: Date,

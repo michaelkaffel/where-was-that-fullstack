@@ -32,7 +32,7 @@ const PreviewCard = ({ item }) => {
             <Card.Body>
                 <Card.Title tag="h2">{title}</Card.Title>
                 <Card.Subtitle as='h6' className="mb-2 text-muted">
-                    {location}
+                    {location?.name}
                 </Card.Subtitle>
                 <Card.Text>{description}</Card.Text>
             </Card.Body>
