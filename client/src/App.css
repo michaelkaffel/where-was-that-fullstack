@@ -20,13 +20,21 @@
 }
 
 .hero-title {
-    font-size: 5rem;
+    font-size: 6rem;
     color: white;
-    text-shadow: 0 2px 8px rbga(0, 0, 0, 0.3)
+    text-shadow: 0 2px 8px rbga(0, 0, 0, 0.3);
+    /* font-family: 'Playfair Display', serif; */
+    font-family: 'Bebas Neue', sans-serif;
+    /* font-family: 'Josefin Sans', sans-serif; */
 }
 
+
+
 .hero-subtitle {
-    font-size: 2rem;
+    font-size: 1.5rem;
+    font-family: 'Playfair Display', serif;
+    /* font-family: 'Bebas Neue', sans-serif; */
+    /* font-family: 'Josefin Sans', sans-serif; */
 }
 
 .hero-row {
