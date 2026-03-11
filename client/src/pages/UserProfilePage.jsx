@@ -156,7 +156,7 @@ const UserProfilePage = () => {
                     <Button variant='secondary' onClick={() => setShowDeleteModal(false)}>
                         Cancel
                     </Button>
-                    <Button variant='danger' onClick={() => handleDeleteAccount}>
+                    <Button variant='danger' onClick={handleDeleteAccount} disabled={isLoading}>
                         {isLoading ? 'Deleting...' : 'Yes, delete my account'}
                     </Button>
                 </Modal.Footer>
