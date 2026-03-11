@@ -1,38 +1,18 @@
 {
   "project": "Where Was That API",
-  "lastUpdated": "2026-03-10",
+  "lastUpdated": "2026-03-11",
   "tasks": [
     {
-      "id": "multer-upload-improvements",
+      "id": "user-profile-page-extended",
       "priority": "medium",
-      "title": "Improve image upload handling",
-      "goal": "Make file uploads safer and more scalable.",
-      "description": "Enhance multer configuration to better support production environments.",
-      "improvements": [
-        "sanitize uploaded filenames",
-        "validate extensions and MIME types",
-        "optionally create year/month folder structure",
-        "add image compression using sharp",
-        "generate thumbnails"
-      ]
-    },
-    {
-      "id": "user-profile-page",
-      "priority": "medium",
-      "title": "User profile/settings page",
-      "goal": "Allow users to manage their own account.",
-      "description": "Add a profile page accessible from the navbar where users can update their own account details or delete their account.",
+      "title": "User profile/settings page — extended fields",
+      "goal": "Allow users to update username and email in addition to password.",
+      "description": "The profile page currently supports password change and account deletion. Extend it to allow users to update username and email.",
       "features": [
         "Change username",
-        "Change email",
-        "Change password (requires current password confirmation)",
-        "Delete account (with confirmation modal)"
+        "Change email"
       ],
-      "backendRequirements": [
-        "PATCH /users/me — update username, email, or password",
-        "DELETE /users/me — delete own account and all associated places/images"
-      ],
-      "notes": "ObjectId is the source of truth — username and email can change freely. Password change should require the user to confirm their current password before setting a new one."
+      "notes": "Backend PATCH /users/me already supports username and email updates via allowedFields. Only frontend form work needed."
     },
     {
       "id": "admin-panel",
@@ -52,6 +32,28 @@
         "DELETE /users/:userId — admin only, delete user and cascade delete their places and images (already implemented)"
       ],
       "frontendNotes": "Admin button in navbar conditionally rendered based on currentUser.admin === true. Separate AdminPage component with a users table."
+    },
+    {
+      "id": "location-phase-2",
+      "priority": "medium",
+      "title": "Location support (Phase 2) — address autocomplete",
+      "goal": "Let users search for a location by name using Nominatim.",
+      "description": "Add address autocomplete via the free Nominatim API (OpenStreetMap) to the place form location name field. When a user selects a result, auto-populate lat/lng and set the map pin.",
+      "notes": "Nominatim is free and requires no API key but has rate limiting — suitable for low-traffic dev/MVP use. Also consider improving Nominatim reverse geocode result quality in 'Find My Location' — currently only checks city/town/village fields."
+    },
+    {
+      "id": "multer-upload-improvements",
+      "priority": "medium",
+      "title": "Improve image upload handling",
+      "goal": "Make file uploads safer and more scalable.",
+      "description": "Enhance multer configuration to better support production environments.",
+      "improvements": [
+        "sanitize uploaded filenames",
+        "validate extensions and MIME types",
+        "optionally create year/month folder structure",
+        "add image compression using sharp",
+        "generate thumbnails"
+      ]
     },
     {
       "id": "email-flows",
@@ -95,31 +97,6 @@
         "Reset tokens must be single-use — invalidate after use",
         "Reset token should expire after 15-30 minutes"
       ]
-    },
-    {
-      "id": "location-phase-1",
-      "priority": "future",
-      "title": "Location support (Phase 1) — map pin + coordinates",
-      "goal": "Let users attach a geographic location to each place.",
-      "description": "Add a Leaflet map with a draggable pin to AddPlaceForm. Support geolocation via navigator.geolocation. Embed a Google Maps link on PlaceCard/ItemDetails.",
-      "backendRequirements": [
-        "Add location: { name: String, lat: Number, lng: Number } to Place schema on a backend branch first"
-      ],
-      "frontendRequirements": [
-        "Leaflet map with draggable pin in AddPlaceForm",
-        "navigator.geolocation 'Find my location' button",
-        "Google Maps Embed or link on PlaceCard/ItemDetails"
-      ],
-      "privacyConsiderations": "User has expressed preference that raw coordinates never be stored on the server in readable form. Options to evaluate at implementation time: (1) Client-side AES-256 encryption before upload — server stores ciphertext, decryption happens in browser using password-derived key. (2) Browser-only storage (localStorage/IndexedDB) — coordinates never sent to server, lost if browser is cleared. (3) Text-only location description — no coordinates at all. Option 1 is the most complete but complex; decision should be made deliberately before implementation begins.",
-      "displayNotes": "For display cards, use free Google Maps Embed (requires API key) or a static Leaflet map (no API key needed). Leaflet keeps everything free and open source."
-    },
-    {
-      "id": "location-phase-2",
-      "priority": "future",
-      "title": "Location support (Phase 2) — address autocomplete",
-      "goal": "Let users search for a location by name using Nominatim.",
-      "description": "Add address autocomplete via the free Nominatim API (OpenStreetMap) to the place form location field.",
-      "notes": "Nominatim is free and requires no API key but has rate limiting — suitable for low-traffic dev/MVP use."
     },
     {
       "id": "gcs-image-storage",
@@ -179,6 +156,15 @@
     "res.api() responseHelper middleware",
     "Audit and replace all .toObject() calls in routes",
     "try/catch blocks added to all route handlers",
-    "Fixed /logout route ordering (was shadowed by /:userId wildcard)"
+    "Fixed /logout route ordering (was shadowed by /:userId wildcard)",
+    "User profile page — password change and account deletion",
+    "PATCH /users/me and DELETE /users/me routes",
+    "hasPassword field in User toJSON transform",
+    "patchCurrentUser and deleteCurrentUser Redux thunks",
+    "Location support Phase 1 — location object schema { name, lat, lng }",
+    "Leaflet map with draggable pin in AddPlaceForm",
+    "Find My Location via navigator.geolocation with Nominatim reverse geocode",
+    "Leaflet map display on ItemDetails with Open in Google Maps link",
+    "Fullscreen hero background image with liquid glass text overlay on HomePage"
   ]
 }
