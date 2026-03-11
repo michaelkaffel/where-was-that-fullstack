@@ -6,27 +6,27 @@ export const validateForm = (values) => {
     const errors = {}
 
     if (!title) {
-        errors.title = 'Required'
+        errors.title = 'You need a title'
     } else if (title < 2) {
         errors.title = 'Must be 2 or more characters.'
     } else if (title > 50) {
         errors.title = 'Must be less than 50 characters.'
     }
 
-    if (!location) {
-        errors.location = 'Required'
-    } else if (location < 3) {
-        errors.location = 'Please enter a full city and state.'
-    } else if (location > 50) {
-        errors.location = 'Maximum 50 characters'
+    if (!location?.name) {
+        errors['location.name'] = 'Required'
+    } else if (location.name.length < 3) {
+        errors['location.name'] = 'Please enter a full city and state.'
+    } else if (location.name.length > 50) {
+        errors['location.name'] = 'Maximum 50 characters'
     }
 
     if (!image) {
-        errors.image = 'Required'
+        errors.image = 'You are required to upload an image.'
     }
 
     if (!description) {
-        errors.image = 'Required'
+        errors.description = 'You need a description'
     }
 
     
