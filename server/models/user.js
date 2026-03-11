@@ -48,7 +48,7 @@ userSchema.plugin(passportLocalMongoose);
 const transform = (doc, ret) => {
 
     ret.id = ret._id.toString();
-
+    ret.hasPassword = !!doc.hash;
     delete ret._id;
     delete ret.__v;
     delete ret.hash;
@@ -89,7 +89,7 @@ userSchema.pre(
                         if (err.code !== 'ENOENT') console.log('IMage delete error', err.message)
                     }
                 }
-                place.imahgeUrl = null;
+                place.imageUrl = null;
                 await place.deleteOne();
             }
             next();

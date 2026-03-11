@@ -97,6 +97,64 @@ router.get('/me', corsWithOptions, verifyUser, async (req, res, next) => {
     }
 });
 
+router.patch('/me', corsWithOptions, verifyUser, async (req, res, next) => {
+    try {
+        const user = await User.findById(req.user._id).select('+hash +salt');
+
+        if (!user) {
+            const err = new Error('User not found');
+            err.status = 404;
+            return next(err);
+        }
+
+        if (req.body.newPassword) {
+            if (!user.hash) {
+                return res.status(400).json({ message: 'Password change not available for google accounts'})
+            }
+            if (!req.body.currentPassword) {
+                return res.status(400).json({ message: 'Current password is required'})
+            }
+
+            try {
+                await user.changePassword(req.body.currentPassword, req.body.newPassword);
+            } catch (err) {
+                return res.status(401).json({ message: 'Current password is incorrect'})
+            }
+        }
+        
+        const allowedFields = ['username', 'firstname', 'lastname', 'email'];
+        allowedFields.forEach(field => {
+            if (req.body[field] !== undefined) {
+                user[field] = req.body[field];
+            }
+        });
+
+        await user.save();
+
+        res.api(user);
+    } catch (err) {
+        next(err);
+    }
+});
+
+router.delete('/me', corsWithOptions, verifyUser, async (req, res, next) => {
+    try {
+        const user = await User.findById(req.user._id);
+
+        if (!user) {
+            const err = new Error('User not found');
+            err.status = 404;
+            return next(err);
+        }
+
+        await user.deleteOne();
+
+        res.status(200).json({ message: 'Account deleted' });
+    } catch (err) {
+        next(err);
+    }
+})
+
 router.get('/logout', corsWithOptions, verifyUser, (req, res) => {
     res.status(200).json({
         success: true,

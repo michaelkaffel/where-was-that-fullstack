@@ -72,7 +72,7 @@ function Navigationbar() {
                         <Nav>
                             {user ? (
                                 <>
-                                    <Navbar.Text className='me-3'>
+                                    <Navbar.Text as={Link} to='/profile' className='me-3'>
                                         <FontAwesomeIcon icon='fa-solid fa-user' size='lg' /> {user.username}
                                     </Navbar.Text>
                                     <Nav.Link onClick={handleLogout}>
