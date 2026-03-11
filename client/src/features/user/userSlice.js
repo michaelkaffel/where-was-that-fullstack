@@ -60,10 +60,52 @@ export const validateLogin = createAsyncThunk(
 
         return await response.json();
     }
-)
+);
+
+export const patchCurrentUser = createAsyncThunk(
+    'user/patchCurrentUser',
+    async (userData, { getState, rejectWithValue }) => {
+        const token = getState().user.token;
+        const response = await fetch(baseUrl + 'users/me', {
+            method: 'PATCH',
+            body: JSON.stringify(userData),
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: 'Bearer ' + token
+            }
+        });
+
+        if (!response.ok) {
+            const err = await response.json();
+            return rejectWithValue(err.message || 'Update failed');
+        }
+
+        return await response.json();
+    }
+);
+
+export const deleteCurrentUser = createAsyncThunk(
+    'user/deleteCurrentUser',
+    async (_, { getState, rejectWithValue }) => {
+        const token = getState().user.token;
+        const response = await fetch(baseUrl + 'users/me', {
+            method: 'DELETE',
+            headers: {
+                Authorization: 'Bearer ' + token
+            }
+        });
+
+        if (!response.ok) {
+            const err = await response.json();
+            return rejectWithValue(err.message || 'Delete failed');
+        }
+
+        return await response.json();
+    }
+);
 
 const initialState = {
-    isLoading: false,
+    loading: false,
     isAuthenticated: localStorage.getItem('token') ? true : false,
     token: localStorage.getItem('token'),
     currentUser: null,
@@ -85,7 +127,7 @@ const userSlice = createSlice({
         },
         clearCurrentUser: (state) => {
             state.isAuthenticated = false;
-            state.isLoading = false;
+            state.loading = false;
             state.token = null;
             state.currentUser = null;
             state.error = null;
@@ -95,11 +137,11 @@ const userSlice = createSlice({
     extraReducers: (builder) => {
         builder
             .addCase(userSignup.pending, (state) => {
-                state.isLoading = true;
+                state.loading = true;
                 state.error = null;
             })
             .addCase(userSignup.fulfilled, (state, action) => {
-                state.isLoading = false;
+                state.loading = false;
                 state.isAuthenticated = true;
                 state.token = action.payload.token;
                 state.currentUser = action.payload.user;
@@ -107,15 +149,15 @@ const userSlice = createSlice({
                 localStorage.setItem('token', action.payload.token)
             })
             .addCase(userSignup.rejected, (state, action) => {
-                state.isLoading = false;
+                state.loading = false;
                 state.error = action.payload || action.error.message;
             })
             .addCase(userLogin.pending, (state) => {
-                state.isLoading = true;
+                state.loading = true;
                 state.error = null;
             })
             .addCase(userLogin.fulfilled, (state, action) => {
-                state.isLoading = false;
+                state.loading = false;
                 state.isAuthenticated = true;
                 state.token = action.payload.token;
                 state.currentUser = action.payload.user;
@@ -123,26 +165,55 @@ const userSlice = createSlice({
                 localStorage.setItem('token', action.payload.token)
             })
             .addCase(userLogin.rejected, (state, action) => {
-                state.isLoading = false;
+                state.loading = false;
                 state.error = action.payload || action.error.message;
             })
             .addCase(validateLogin.pending, (state) => {
-                state.isLoading = true;
+                state.loading = true;
                 state.error = null;
             })
             .addCase(validateLogin.fulfilled, (state, action) => {
-                state.isLoading = false;
+                state.loading = false;
                 state.isAuthenticated = true;
                 state.currentUser = action.payload;
                 state.error = null;
             })
             .addCase(validateLogin.rejected, (state, action) => {
-                state.isLoading = false;
+                state.loading = false;
                 state.isAuthenticated = false;
                 state.token = null;
                 state.currentUser = null;
                 state.error = action.payload ? action.error.message : null;
                 localStorage.removeItem('token');
+            })
+            .addCase(patchCurrentUser.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(patchCurrentUser.fulfilled, (state, action) => {
+                state.loading = false;
+                state.currentUser = action.payload;
+                state.error = null;
+            })
+            .addCase(patchCurrentUser.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload || action.error.message;
+            })
+            .addCase(deleteCurrentUser.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(deleteCurrentUser.fulfilled, (state, action) => {
+                state.loading = false;
+                state.isAuthenticated = false;
+                state.token = null;
+                state.currentUser = null;
+                state.error = null;
+                localStorage.removeItem('token');
+            })
+            .addCase(deleteCurrentUser.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload || action.error.message;
             })
     }
 });
@@ -153,5 +224,5 @@ export const { setCurrentUser, clearCurrentUser, loginWithOAuthToken } = userSli
 export const selectCurrentUser = (state) => state.user.currentUser;
 export const selectIsAuthenticated = (state) => state.user.isAuthenticated;
 export const selectToken = (state) => state.user.token;
-export const selectUserLoading = (state) => state.user.isLoading;
+export const selectUserLoading = (state) => state.user.loading;
 export const selectUserError = (state) => state.user.error;

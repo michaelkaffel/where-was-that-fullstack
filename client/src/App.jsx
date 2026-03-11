@@ -7,6 +7,7 @@ import { Routes, Route } from 'react-router-dom';
 import NavigationBar from "./components/NavigationBar";
 import Home from './pages/HomePage';
 import OAuthSuccessPage from './pages/OAuthSuccessPage';
+import UserProfilePage from './pages/UserProfilePage';
 import AddLocationsPage from './pages/AddLocationsPage';
 import HikingTrailsPage from './pages/HikingTrailsPage';
 import CampingSpotsPage from './pages/CampingSpotsPage';
@@ -40,12 +41,12 @@ function App() {
             <Routes>
                 <Route path='/' element={<Home />} />
                 <Route path='oauth-success' element={<OAuthSuccessPage />} />
+                <Route path='profile' element={<UserProfilePage />} />
                 <Route path='add-locations' element={<AddLocationsPage />} />
                 <Route path='hiking-trails' element={<HikingTrailsPage />} />
                 <Route path='hiking-trails/:id' element={<HikingDetailPage />} />
                 <Route path='camping-spots' element={<CampingSpotsPage />} />
                 <Route path='camping-spots/:id' element={<CampingDetailPage />} />
-
                 <Route path='scenic-overlooks' element={<OverlooksPage />} />
                 <Route path='scenic-overlooks/:id' element={<OverlookDetailPage />} />
             </Routes>
