@@ -19,7 +19,7 @@ const __dirname = path.dirname(__filename);
 
 let url;
 
-if (process.env.NODE_END === 'development') {
+if (process.env.NODE_ENV === 'development') {
     url = process.env.MONGO_ATLAS
 
 } else {
@@ -48,14 +48,7 @@ mongoose.connection.on('error', err => {
 
 const app = express();
 
-app.all('*', (req, res, next) => {
-    if (req.secure) {
-        return next();
-    } else {
-        console.log(`Redirecting to https://${req.hostname}:${app.get('secPort')}${req.url}`);
-        res.redirect(301, `https://${req.hostname}:${app.get('secPort')}${req.url}`)
-    }
-});
+
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -67,7 +60,6 @@ app.use(express.urlencoded({ extended: false }));
 app.use(responseHelper);
 
 app.use(corsMiddleware);
-app.use('/images', corsMiddleware, express.static(path.join(process.cwd(), 'public/images')))
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(passport.initialize());

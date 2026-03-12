@@ -1,27 +1,13 @@
 import express from 'express';
+import { uploadToGCS, deleteFromGCS } from '../gcs.js';
 import multer from 'multer';
 import path from 'path';
-import fs from 'fs';
-import crypto from 'crypto';
 import Place from '../models/place.js';
 import { verifyUser } from '../authenticate.js';
 import { loadPlace, loadPlaces, verifyPlaceOwner } from '../middleware.js';
 import { corsMiddleware, corsWithOptions } from './cors.js';
 
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        const uploadPath = path.join(process.cwd(), 'public', 'images');
-
-        fs.mkdirSync(uploadPath, { recursive: true })
-
-        cb(null, uploadPath);
-    },
-    filename: function (req, file, cb) {
-        const uniqueSuffix = Date.now() + '-' + crypto.randomBytes(6).toString('hex');
-
-        cb(null, uniqueSuffix + path.extname(file.originalname));
-    }
-});
+const storage = multer.memoryStorage();
 
 const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
 const allowedExtensions = ['.jpg', '.jpeg', '.png', '.webp'];
@@ -86,7 +72,11 @@ placeRouter.route('/')
                 req.body.owner = req.user._id;
 
                 if (req.file) {
-                    req.body.imageUrl = `${req.protocol}://${req.headers.host}/images/${req.file.filename}`;
+                    req.body.imageUrl = await uploadToGCS(
+                        req.file.buffer,
+                        req.file.originalname,
+                        req.file.mimetype
+                    )
                 }
 
                 const place = await Place.create(req.body);
