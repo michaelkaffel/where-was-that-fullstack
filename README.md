@@ -2,41 +2,43 @@
 
 A full-stack MERN application for tracking personal outdoor locations — campsites, hikes, overlooks — and leaving private notes about changing conditions over time.
 
+**Live at:** [where-was-that-place.web.app](https://where-was-that-place.web.app)
+
 Users can:
 
-- Create their own places  
-- Upload images  
-- Add unlimited private notes to each place  
-- Track favorites  
-- Manage their own collection securely  
-
-This project is structured as a full client/server application with clean separation of concerns and modern backend architecture.
+- Create their own places with photos
+- Add unlimited private notes to each place
+- Track favorites
+- Pin locations on an interactive map
+- Sign in with username/password or Google OAuth
+- Manage their own collection securely
 
 ---
 
 ## 🧱 Tech Stack
 
 ### Frontend
-- React  
-- Redux Toolkit  
-- Async Thunks  
-- React Router  
+- React
+- Redux Toolkit (async thunks)
+- React Router
+- Leaflet (interactive maps)
+- Formik (form validation)
+- Firebase Hosting
 
 ### Backend
-- Node.js  
-- Express  
-- MongoDB  
-- Mongoose  
-- JWT Authentication  
-- Multer (image uploads)  
-- CORS (whitelist-based configuration)  
-- HTTPS (self-signed SSL for local development)
+- Node.js + Express
+- MongoDB Atlas + Mongoose
+- JWT authentication
+- Passport Local + Google OAuth
+- Multer (image uploads)
+- Google Cloud Storage (image hosting)
+- Google Cloud Functions (serverless deployment)
 
 ### Development Environment
-- MongoDB (local via Homebrew) 
-- MongoDB Atlas
-- MongoDB Compass  
-- Git + GitHub  
+- macOS + zsh
+- HTTPS local dev server (self-signed SSL)
+- MongoDB local via Homebrew
+- Git + GitHub
 
 ---
 
@@ -45,210 +47,188 @@ This project is structured as a full client/server application with clean separa
 ```
 where-was-that-fullstack/
 │
-├── client/        # React frontend
+├── client/                # React frontend
+│   ├── src/
+│   ├── .env               # Local dev config
+│   ├── .env.production     # Production config
+│   ├── firebase.json       # Firebase Hosting config
+│   └── .firebaserc
 │
-├── server/        # Express backend
-│   ├── bin/       # HTTPS server entry + SSL certs (not tracked)
-│   ├── models/
-│   ├── routes/
-│   ├── public/
-│   └── app.js
+├── server/                # Express backend
+│   ├── bin/               # HTTPS server entry + SSL certs (not tracked)
+│   ├── models/            # Mongoose schemas (User, Place with embedded Notes)
+│   ├── routes/            # Express routers (users, places, cors)
+│   ├── gcs.js             # Google Cloud Storage upload/delete helpers
+│   ├── index.js           # Cloud Functions entry point
+│   ├── app.js             # Express app configuration
+│   ├── authenticate.js    # Passport strategies + JWT helpers
+│   ├── middleware.js       # res.api(), loadPlace, verifyPlaceOwner
+│   └── cors.json          # GCS bucket CORS config
+│
+├── docs/                  # Project reference documents
 │
 └── README.md
 ```
 
 ---
 
-## 🔐 Authentication
+## 🌐 Production Architecture
 
-- JWT-based authentication  
-- Protected backend routes  
-- Ownership enforced at the place level  
-- Users only see and modify their own data  
+```
+Browser → Firebase Hosting (React SPA)
+            ↓ API calls
+       Google Cloud Functions (Express)
+            ↓                ↓
+      MongoDB Atlas    Google Cloud Storage
+      (data)           (images)
+```
+
+- **Frontend:** Firebase Hosting at `where-was-that-place.web.app`
+- **Backend:** Cloud Functions at `us-central1-where-was-that-490000.cloudfunctions.net/whereWasThatServer`
+- **Database:** MongoDB Atlas
+- **Images:** GCS bucket `where-was-that-images` (publicly readable)
 
 ---
 
-## 🗂 Database Structure (High-Level)
+## 🔐 Authentication
+
+- JWT-based authentication with 1-hour token expiry
+- Passport Local for username/password login
+- Google OAuth 2.0 with automatic account linking
+- Ownership enforced server-side — users only see and modify their own data
+- Protected routes require Bearer token in Authorization header
+
+---
+
+## 🗂 Database Structure
 
 ```
 User
  └── owns → Places
-            └── contains → Notes (embedded subdocuments)
+              └── contains → Notes (embedded subdocuments)
 ```
 
-Notes are embedded inside each place document and are not shared between users.
+Notes are embedded inside each place document and are not shared between users. Deleting a user cascades to delete all their places and associated GCS images.
 
 ---
 
-## 🔧 Environment Setup (Required)
+## 🛣 API Routes
 
-Create a `.env` file inside `/server` based on `.env.example`:
+### Auth
+```
+POST    /users/signup
+POST    /users/login
+GET     /users/auth/google
+GET     /users/auth/google/callback
+GET     /users/me
+PATCH   /users/me
+DELETE  /users/me
+GET     /users/logout
+```
+
+### Places
+```
+GET     /places
+POST    /places              (multipart/form-data with image)
+GET     /places/:placeId
+PATCH   /places/:placeId     (favorite toggle)
+DELETE  /places/:placeId
+```
+
+### Notes (embedded in Place)
+```
+GET     /places/:placeId/notes
+POST    /places/:placeId/notes
+GET     /places/:placeId/notes/:noteId
+PATCH   /places/:placeId/notes/:noteId
+DELETE  /places/:placeId/notes/:noteId
+```
+
+All routes except signup, login, and Google OAuth require authentication.
+
+---
+
+## 🔧 Local Development Setup
+
+### Prerequisites
+- Node.js
+- MongoDB (local via Homebrew or Atlas)
+- Google Cloud credentials (for GCS image uploads)
+
+### 1. Environment Variables
+
+Create `server/.env` based on `.env.example`:
 
 ```
-PNODE_ENV=development
-# environments: hotspot, development
-
+NODE_ENV=development
 PORT=3001
-
 MONGO_ATLAS=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/<dbname>
-MONGO_HOTSPOT=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/<dbname>
-
-CLIENT_URL=http://localhost:<port>
-
+CLIENT_URL=http://localhost:3000
 SECRET_KEY=your_jwt_secret_here
-
 SSL_KEY_PATH=./bin/server.key
 SSL_CERT_PATH=./bin/server.cert
-
-GOOGLE_CLIENT_ID=your_google_client_id_here
-GOOGLE_CLIENT_SECRET=your_google_client_secret_here
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+GOOGLE_CALLBACK_URL=https://localhost:3444/users/auth/google/callback
+GCS_BUCKET_NAME=your_gcs_bucket_name
+GOOGLE_APPLICATION_CREDENTIALS=./gcs-key.json
 ```
 
-> SSL files are intentionally excluded from version control.
-
----
-
-## 🔒 Generate SSL Certificate (Required for HTTPS)
-
-From the `/server/bin` directory:
+Create `client/.env`:
 
 ```
+REACT_APP_API_URL=https://localhost:3444
+```
+
+### 2. Generate SSL Certificate
+
+From `server/bin/`:
+
+```bash
 openssl req -nodes -new -x509 -keyout server.key -out server.cert
 ```
 
-Press Enter through prompts and use:
+Use `localhost` as the Common Name. These files are required for HTTPS and are excluded from version control.
 
-```
-Common Name (CN): localhost
-```
+### 3. Start Backend
 
-This generates:
-
-```
-server.key
-server.cert
-```
-
-These files are required for HTTPS and must exist before starting the backend.
-
----
-
-## 🌐 CORS Configuration
-
-The backend uses a whitelist-based CORS configuration.
-
-Allowed origin (local development):
-
-```
-http://localhost:3000
-```
-
-This allows secure communication between:
-
-- Frontend: `http://localhost:3000`
-- Backend: `https://localhost:3444`
-
----
-
-## 🚀 Running Locally
-
-### 1️⃣ Start MongoDB
-
-If using Homebrew:
-
-```
-brew services start mongodb-community@8.0
-```
-
----
-
-### 2️⃣ Start Backend (HTTPS)
-
-```
+```bash
 cd server
 npm install
 npm start
 ```
 
-Backend runs on:
+Runs on `https://localhost:3444`
 
-```
-https://localhost:3444
-```
+### 4. Start Frontend
 
-> You may need to accept the self-signed certificate warning in your browser.
-
----
-
-### 3️⃣ Start Frontend
-
-```
+```bash
 cd client
 npm install
 npm start
 ```
 
-Frontend runs on:
-
-```
-http://localhost:3000
-```
+Runs on `http://localhost:3000`
 
 ---
 
 ## 📸 Image Handling
 
-- Images are stored in `server/public/images`
-- The database stores relative image URLs
-- Images are served statically through Express
-- Uploaded images are automatically deleted when their associated place or user is deleted
-- File upload size limit: 10MB
-
----
-
-## 🛣 API Design
-
-### Places
-```
-GET     /places
-POST    /places
-GET     /places/:placeId
-PATCH   /places/:placeId
-DELETE  /places/:placeId
-```
-
-### Notes (Embedded in Place)
-```
-GET     /places/:placeId/notes
-POST    /places/:placeId/notes
-PATCH   /places/:placeId/notes/:noteId
-DELETE  /places/:placeId/notes/:noteId
-```
-
-All protected routes require authentication.
+- Images uploaded via Multer with memory storage
+- Stored in Google Cloud Storage bucket (publicly readable)
+- Automatic cleanup: deleting a place or user removes associated images from GCS
+- File types: JPEG, PNG, WebP
+- Size limit: 10MB
 
 ---
 
 ## 🧠 Architecture Decisions
 
-- MongoDB runs as a system service (not inside project folder)
-- Notes are embedded in Place documents
-- Ownership is enforced server-side
-- Client never fetches entire database
-- Backend filters data by authenticated user
-- HTTPS enabled for local secure development
-- CORS configured via whitelist for controlled frontend access
-
----
-
-## 📌 Future Improvements
-
-- Cloud image storage (Cloudinary / Firebase Storage)
-- Production-grade SSL termination (Nginx / Render / Fly.io)
-- Deployment pipeline
-- Search + filtering
-- Tagging system
-- Map integration
+- Notes embedded in Place documents (not separate collection)
+- Ownership enforced server-side — client never fetches entire database
+- Cloud Functions required middleware adaptations for pre-parsed request bodies, query strings, and multipart uploads
+- `res.api()` response helper standardizes all JSON responses with `_id` → `id` normalization
+- Google OAuth uses absolute callback URL to handle Cloud Functions path prefix
 
 ---
 
@@ -260,5 +240,4 @@ MIT
 
 ## 👤 Author
 
-Michael Kaffel  
-Full-stack development journey project
+Michael Kaffel

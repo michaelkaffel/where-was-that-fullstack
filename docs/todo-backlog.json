@@ -1,6 +1,6 @@
 {
   "project": "Where Was That API",
-  "lastUpdated": "2026-03-11",
+  "lastUpdated": "2026-03-12",
   "tasks": [
     {
       "id": "user-profile-page-extended",
@@ -46,14 +46,22 @@
       "priority": "medium",
       "title": "Improve image upload handling",
       "goal": "Make file uploads safer and more scalable.",
-      "description": "Enhance multer configuration to better support production environments.",
+      "description": "Enhance image pipeline now that uploads go through GCS.",
       "improvements": [
         "sanitize uploaded filenames",
-        "validate extensions and MIME types",
-        "optionally create year/month folder structure",
-        "add image compression using sharp",
-        "generate thumbnails"
-      ]
+        "add image compression using sharp before GCS upload",
+        "generate thumbnails for card views",
+        "optionally create year/month folder structure in GCS bucket"
+      ],
+      "notes": "Extension and MIME type validation already in place via Multer fileFilter. Filename sanitization and sharp compression are the highest-value next steps."
+    },
+    {
+      "id": "cold-start-resilience",
+      "priority": "low",
+      "title": "Cloud Functions cold start resilience",
+      "goal": "Prevent intermittent 500s on cold starts when MongoDB isn't connected yet.",
+      "description": "Top-level mongoose.connect() runs at module load but requests can arrive before the connection is established. Add a middleware that awaits the connection promise before processing requests, or configure Cloud Functions min instances.",
+      "notes": "Observed one intermittent POST /places 500 during testing that resolved on retry — classic cold start timing issue."
     },
     {
       "id": "email-flows",
@@ -97,14 +105,6 @@
         "Reset tokens must be single-use — invalidate after use",
         "Reset token should expire after 15-30 minutes"
       ]
-    },
-    {
-      "id": "gcs-image-storage",
-      "priority": "future",
-      "title": "Google Cloud Storage for images",
-      "goal": "Move image storage off local disk to GCS bucket for production.",
-      "description": "Replace local Multer disk storage with GCS bucket integration. Update image URLs to point to GCS.",
-      "notes": "Frontend is deploying to Firebase, backend to Google Cloud — GCS fits naturally in this stack."
     },
     {
       "id": "backend-api-hardening",
@@ -165,6 +165,13 @@
     "Leaflet map with draggable pin in AddPlaceForm",
     "Find My Location via navigator.geolocation with Nominatim reverse geocode",
     "Leaflet map display on ItemDetails with Open in Google Maps link",
-    "Fullscreen hero background image with liquid glass text overlay on HomePage"
+    "Fullscreen hero background image with liquid glass text overlay on HomePage",
+    "Production deployment — Cloud Functions backend, Firebase frontend",
+    "Google Cloud Storage image migration (multer.memoryStorage + GCS upload)",
+    "GCS image cleanup on place/user delete via pre-hooks",
+    "Cloud Functions middleware adaptations (body parsing, query parsing, raw body restore for Multer)",
+    "Manual Passport Local authentication bypassing stream reading",
+    "Absolute Google OAuth callback URL for Cloud Functions",
+    "GCS bucket CORS configuration"
   ]
 }
