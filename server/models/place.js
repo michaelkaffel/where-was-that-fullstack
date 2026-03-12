@@ -1,6 +1,5 @@
 import mongoose from 'mongoose';
-import fs from 'fs';
-import path from 'path';
+import { deleteFromGCS } from '../gcs.js';
 
 const Schema = mongoose.Schema;
 
@@ -121,28 +120,18 @@ placeSchema.index({ owner: 1, kindOfPlace: 1 });
 placeSchema.index({ title: 'text', description: 'text' })
 
 placeSchema.pre('deleteOne', { document: true, query: false }, async function (next) {
+    
     try {
         if (this.imageUrl) {
-            try {
-                const filename = path.basename(this.imageUrl);
-                const imagePath = path.join(
-                    process.cwd(),
-                    'public',
-                    'images',
-                    filename
-                );
-
-                fs.unlinkSync(imagePath);
-            } catch (err) {
-                if (err.code !== 'ENOENT') console.log('Image delete error:', err.message);
-            }
+            await deleteFromGCS(this.imageUrl);
+            
         }
         next()
     } catch (err) {
+        
         next(err);
     }
-}
-);
+});
 
 const Place = mongoose.model('Place', placeSchema);
 

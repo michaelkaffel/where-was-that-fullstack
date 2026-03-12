@@ -1,8 +1,6 @@
 import mongoose from 'mongoose';
 import passportLocalMongoose from 'passport-local-mongoose';
 import Place from './place.js';
-import fs from 'fs';
-import path from 'path';
 
 const Schema = mongoose.Schema;
 
@@ -74,22 +72,7 @@ userSchema.pre(
             const places = await Place.find({ owner: this._id });
 
             for (const place of places) {
-                if (place.imageUrl) {
-                    try {
-                        const filename = path.basename(place.imageUrl);
 
-                        const imagePath = path.join(
-                            process.cwd(),
-                            'public',
-                            'images',
-                            filename
-                        );
-                        fs.unlinkSync(imagePath);
-                    } catch (err) {
-                        if (err.code !== 'ENOENT') console.log('IMage delete error', err.message)
-                    }
-                }
-                place.imageUrl = null;
                 await place.deleteOne();
             }
             next();

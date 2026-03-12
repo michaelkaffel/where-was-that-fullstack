@@ -1,27 +1,35 @@
 import express from 'express';
+import { uploadToGCS } from '../gcs.js';
 import multer from 'multer';
 import path from 'path';
-import fs from 'fs';
-import crypto from 'crypto';
 import Place from '../models/place.js';
 import { verifyUser } from '../authenticate.js';
 import { loadPlace, loadPlaces, verifyPlaceOwner } from '../middleware.js';
 import { corsMiddleware, corsWithOptions } from './cors.js';
+import { Readable } from 'stream';
 
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        const uploadPath = path.join(process.cwd(), 'public', 'images');
 
-        fs.mkdirSync(uploadPath, { recursive: true })
+const restoreRawBody = (req, res, next) => {
+    if (req.rawBody) {
+        const readable = new Readable();
+        readable.push(req.rawBody);
+        readable.push(null);
+        readable.headers = req.headers;
+        readable.method = req.method;
+        readable.url = req.url;
 
-        cb(null, uploadPath);
-    },
-    filename: function (req, file, cb) {
-        const uniqueSuffix = Date.now() + '-' + crypto.randomBytes(6).toString('hex');
-
-        cb(null, uniqueSuffix + path.extname(file.originalname));
+        upload.single('image')(readable, res, (err) => {
+            if (readable.file) req.file = readable.file;
+            if (readable.body) req.body = readable.body;
+            if (err) return next (err);
+            next();
+        });
+    } else {
+        upload.single('image')(req, res, next);
     }
-});
+};
+
+const storage = multer.memoryStorage();
 
 const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
 const allowedExtensions = ['.jpg', '.jpeg', '.png', '.webp'];
@@ -67,26 +75,28 @@ placeRouter.route('/')
         corsWithOptions,
         verifyUser,
         (req, res, next) => {
-            upload.single('image')(req, res, function (err) {
+            restoreRawBody(req, res, (err) => {
                 if (err instanceof multer.MulterError) {
                     if (err.code === 'LIMIT_FILE_SIZE') {
-                        return res.status(400).json({
-                            message: 'Image must be under 10MB'
-                        });
+                        return res.status(400).json({ message: 'Image must be under 10MB' });
                     }
                     return res.status(400).json({ message: err.message });
                 } else if (err) {
-                    return res.status(400).json({ message: err.message });
+                    return res.status(400).json({ mesage: err.message });
                 }
                 next();
-            });
+            })
         },
         async (req, res, next) => {
             try {
                 req.body.owner = req.user._id;
 
                 if (req.file) {
-                    req.body.imageUrl = `${req.protocol}://${req.headers.host}/images/${req.file.filename}`;
+                    req.body.imageUrl = await uploadToGCS(
+                        req.file.buffer,
+                        req.file.originalname,
+                        req.file.mimetype
+                    )
                 }
 
                 const place = await Place.create(req.body);
@@ -150,7 +160,7 @@ placeRouter.route('/:placeId')
 placeRouter.route('/:placeId/notes')
     .options(corsWithOptions, (req, res) => res.sendStatus(200))
     .get(corsWithOptions, verifyUser, loadPlace, verifyPlaceOwner, async (req, res, next) => {
-        // const place = req.place.toObject();
+        
         try {
             res.status(200).json(req.place.toJSON().notes);
         } catch (err) {
@@ -200,7 +210,7 @@ placeRouter.route('/:placeId/notes/:noteId')
         } catch (err) {
             next(err)
         }
-        
+
     })
     .post(corsMiddleware, (req, res) => {
         res.status(403).end(`POST operation not supported on /places/${req.params.placeId}/notes/${req.params.noteId}`);

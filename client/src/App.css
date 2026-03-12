@@ -12,7 +12,7 @@
 .hero {
     min-height: 100vh;
     width: 100%;
-    background-image: url('./app//images/IMG_5647.jpeg');
+    background-image: url('./app/images/IMG_5647.jpeg');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
@@ -22,11 +22,19 @@
 .hero-title {
     font-size: 5rem;
     color: white;
-    text-shadow: 0 2px 8px rbga(0, 0, 0, 0.3)
+    text-shadow: 0 2px 8px rbga(0, 0, 0, 0.3);
+    /* font-family: 'Playfair Display', serif; */
+    font-family: 'Bebas Neue', sans-serif;
+    /* font-family: 'Josefin Sans', sans-serif; */
 }
 
+
+
 .hero-subtitle {
-    font-size: 2rem;
+    font-size: 1.5rem;
+    /* font-family: 'Playfair Display', serif; */
+    font-family: 'Bebas Neue', sans-serif;
+    /* font-family: 'Josefin Sans', sans-serif; */
 }
 
 .hero-row {

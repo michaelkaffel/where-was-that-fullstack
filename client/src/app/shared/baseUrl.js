@@ -1,1 +1,1 @@
-export const baseUrl = 'https://localhost:3444/';
+export const baseUrl = process.env.REACT_APP_API_URL + '/';

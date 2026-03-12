@@ -49,20 +49,39 @@ router.post('/signup', corsWithOptions, async (req, res, next) => {
     }
 });
 
-router.post('/login', corsWithOptions, passport.authenticate('local', { session: false }), (req, res, next) => {
 
+
+router.post('/login', corsWithOptions, async (req, res, next) => {
+    
     try {
-        const token = getToken({ _id: req.user._id });
-        res.status(200).json({
-            success: true,
-            token: token,
-            status: 'You are successfully logged in!',
-            user: req.user
-        })
+        const { username, password } = req.body;
+
+        if (!username || !password) {
+            return res.status(400).json({ message: 'Username and password are required ' });
+        }
+
+        const user = await User.findOne({ username: username.toLowerCase() }).select('+hash +salt');
+
+        if (!user) {
+            return res.status(401).json({ message: 'Invalid username or password ' });
+        }
+
+        user.authenticate(password, (err, authenticatedUser, passwordError) => {
+            if (err) return next(err);
+            if (!authenticatedUser) {
+                return res.status(401).json({ message: 'Invalid username or password' });
+            }
+            const token = getToken({ _id: user._id });
+            res.status(200).json({
+                success: true,
+                token,
+                status: 'You are successfully logged in!',
+                user: res.api ? authenticatedUser.toJSON() : authenticatedUser
+            });
+        });
     } catch (err) {
         next(err);
     }
-    
 });
 
 router.get('/auth/google', passport.authenticate('google', {
@@ -109,19 +128,19 @@ router.patch('/me', corsWithOptions, verifyUser, async (req, res, next) => {
 
         if (req.body.newPassword) {
             if (!user.hash) {
-                return res.status(400).json({ message: 'Password change not available for google accounts'})
+                return res.status(400).json({ message: 'Password change not available for google accounts' })
             }
             if (!req.body.currentPassword) {
-                return res.status(400).json({ message: 'Current password is required'})
+                return res.status(400).json({ message: 'Current password is required' })
             }
 
             try {
                 await user.changePassword(req.body.currentPassword, req.body.newPassword);
             } catch (err) {
-                return res.status(401).json({ message: 'Current password is incorrect'})
+                return res.status(401).json({ message: 'Current password is incorrect' })
             }
         }
-        
+
         const allowedFields = ['username', 'firstname', 'lastname', 'email'];
         allowedFields.forEach(field => {
             if (req.body[field] !== undefined) {

@@ -5,7 +5,14 @@ import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt';
 import jwt from 'jsonwebtoken'
 import GoogleStrategy from 'passport-google-oauth20';
 
-passport.use(new LocalStrategy(User.authenticate()));
+passport.use(new LocalStrategy(
+    {
+        usernameField: 'username',
+        passwordField: 'password',
+        passReqToCallback: false
+    },
+    User.authenticate()
+));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
@@ -38,7 +45,7 @@ export const googlePassport = passport.use(
         {
             clientID: process.env.GOOGLE_CLIENT_ID,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-            callbackURL: '/users/auth/google/callback'
+            callbackURL: process.env.GOOGLE_CALLBACK_URL || '/users/auth/google/callback'
         },
         async (accessToken, refreshToken, profile, done) => {
             try {
