@@ -17,8 +17,8 @@ const Home = () => {
     const [showSignup, setShowSignup] = useState(false);
 
     return (
-        <>
-            <div className='hero'>
+        
+            <div className='hero top-padding-adjustment'>
                 <Container>
 
                     <Row className='hero-row'>
@@ -74,7 +74,7 @@ const Home = () => {
 
 
 
-        </>
+        
     );
 };
 
