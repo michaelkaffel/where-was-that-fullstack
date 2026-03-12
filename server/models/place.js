@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { deleteFromGCS } from '../gcs';
+import { deleteFromGCS } from '../gcs.js';
 
 const Schema = mongoose.Schema;
 
@@ -120,12 +120,15 @@ placeSchema.index({ owner: 1, kindOfPlace: 1 });
 placeSchema.index({ title: 'text', description: 'text' })
 
 placeSchema.pre('deleteOne', { document: true, query: false }, async function (next) {
+    
     try {
         if (this.imageUrl) {
             await deleteFromGCS(this.imageUrl);
+            
         }
         next()
     } catch (err) {
+        
         next(err);
     }
 });

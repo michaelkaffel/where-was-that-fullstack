@@ -1,3 +1,5 @@
+import { http } from '@google-cloud/functions-framework';
 import app from './app.js';
 
-export const whereWasThatServer = app;
+
+http('whereWasThatServer', app);
