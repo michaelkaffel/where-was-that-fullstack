@@ -11,7 +11,7 @@ const FavsList = ({ kindOfPlace, detailPath, placeholder, emptyMessage }) => {
         <Row>
             {favs && favs.length > 0 ? (
                 favs.map((place) => (
-                    <Col key={place.id} sm={6} md={6} lg={3}>
+                    <Col className='mt-2' key={place.id} xs={12} sm={12} md={6} lg={6}>
                         <PlaceCard
                             place={place}
                             detailPath={detailPath}
