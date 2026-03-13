@@ -17,23 +17,23 @@ const PlaceCard = ({ place, detailPath, placeholder }) => {
     const imageSrc = imageUrl || placeholder;
 
     return (
-        <Card className='m-3'>
+        <Card className='h-100'>
             <Card.Img 
                 variant='top'
                 alt={title}
                 src={imageSrc}
             />
-            <Card.Body>
+            <Card.Body className='d-flex flex-column'>
                 <Card.Title>{title}</Card.Title>
                 <Card.Subtitle className='mb-2 text-muted'>
                     {location?.name}
                 </Card.Subtitle>
                 <Card.Text>{description}</Card.Text>
-                <div className='d-flex justify-content-between align-items-center'>
+                <div className='d-flex align-items-center mt-auto'>
                     <Link to={`${detailPath}/${id}`}>
                         <Button>Details</Button>
                     </Link>
-                    <div className='d-flex gap-3 align-items-center'>
+                    <div className='d-flex align-items-center ms-auto'>
                         <FontAwesomeIcon 
                             onClick={() => dispatch(patchFavorite({ placeId: id, favorite: !favorite }))}
                             icon={favorite ? 'fa-solid fa-heart' : 'fa-regular fa-heart'}
