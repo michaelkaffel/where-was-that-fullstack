@@ -252,7 +252,7 @@ placeRouter.route('/:placeId/notes/:noteId')
             }
 
             note.deleteOne();
-            const updated = await req.place.save();
+            await req.place.save();
             res.status(200).json({ message: 'Note deleted' });
         } catch (err) {
             next(err);

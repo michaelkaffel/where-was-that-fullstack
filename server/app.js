@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 dotenv.config({ quiet: true });
 import createError from 'http-errors';
-import express, { response } from 'express';
+import express from 'express';
 import path from 'path';
 // import logger from 'morgan';
 import mongoose from 'mongoose';
@@ -98,7 +98,7 @@ app.use(function (req, res, next) {
 
 
 // error handler for production
-app.use(function (err, req, res, next) {
+app.use(function (err, req, res, _next) {
     res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
     res.header('Access-Control-Allow-Credentials', 'true');
     const status = err.status || 500;

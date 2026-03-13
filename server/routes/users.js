@@ -25,7 +25,7 @@ router.options('/login', corsWithOptions);
 router.options('/signup', corsWithOptions);
 router.options('/me', corsWithOptions);
 
-router.post('/signup', corsWithOptions, async (req, res, next) => {
+router.post('/signup', corsWithOptions, async (req, res, _next) => {
     try {
         const user = new User({
             username: req.body.username,
@@ -66,7 +66,7 @@ router.post('/login', corsWithOptions, async (req, res, next) => {
             return res.status(401).json({ message: 'Invalid username or password ' });
         }
 
-        user.authenticate(password, (err, authenticatedUser, passwordError) => {
+        user.authenticate(password, (err, authenticatedUser, _passwordError) => {
             if (err) return next(err);
             if (!authenticatedUser) {
                 return res.status(401).json({ message: 'Invalid username or password' });
@@ -136,7 +136,7 @@ router.patch('/me', corsWithOptions, verifyUser, async (req, res, next) => {
 
             try {
                 await user.changePassword(req.body.currentPassword, req.body.newPassword);
-            } catch (err) {
+            } catch (_err) {
                 return res.status(401).json({ message: 'Current password is incorrect' })
             }
         }
