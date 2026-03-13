@@ -30,3 +30,4 @@ server/public/images/
 # Keys and certs
 server/bin/*
 !server/bin/www
+
