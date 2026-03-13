@@ -2,3 +2,4 @@ node_modules
 .env
 gcs-key.json
 .gcloudignore
+gha-deploy-key-*.json
