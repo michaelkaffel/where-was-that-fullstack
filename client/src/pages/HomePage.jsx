@@ -22,7 +22,7 @@ const Home = () => {
                 <Container>
 
                     <Row className='hero-row'>
-                        <Col lg='6' className='hero-text-box m-auto d-flex flex-column justify-content-between'>
+                        <Col xs={10} lg='6' className='hero-text-box m-auto d-flex flex-column justify-content-between'>
                             <h1 className='hero-title text-center'>WHERE WAS THAT</h1>
                             <h3 className='hero-subtitle text-center'>Keep track of all your favorite hiking trails, camping spots, and scenic overlooks.</h3>
                         </Col>
@@ -58,7 +58,7 @@ const Home = () => {
 
                 <Container>
                     <Row className='preview-display-row'>
-                        <Col className='mx-auto preview-display-background'>
+                        <Col xs={10} className='mx-auto preview-display-background'>
                             <PreviewDisplay
                                 onShowLogin={() => setShowLogin(true)}
                                 onShowSignup={() => setShowSignup(true)}
