@@ -21,7 +21,7 @@
 
 .hero-title {
     font-size: 5rem;
-    color: white;
+    color: black;
     text-shadow: 0 2px 8px rbga(0, 0, 0, 0.3);
     /* font-family: 'Playfair Display', serif; */
     font-family: 'Bebas Neue', sans-serif;
