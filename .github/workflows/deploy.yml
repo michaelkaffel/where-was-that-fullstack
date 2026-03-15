@@ -101,5 +101,6 @@ jobs:
             --allow-unauthenticated \
             --source . \
             --entry-point whereWasThatServer \
-            --project where-was-that-490000
+            --project where-was-that-490000 \
+            --update-env-vars MONGODB_URI=${{ secrets.MONGODB_URI }},GOOGLE_CALLBACK_URL=${{ secrets.GOOGLE_CALLBACK_URL }}
         working-directory: server
