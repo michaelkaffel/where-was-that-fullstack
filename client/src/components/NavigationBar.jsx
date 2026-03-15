@@ -44,7 +44,7 @@ function Navigationbar() {
                         <Nav className="me-auto">
                             <Nav.Link as={Link} to="/">
                                 <FontAwesomeIcon icon="fa-solid fa-house" size="lg" />
-                                Home
+                                HOME
                             </Nav.Link>
 
                             {user && (
@@ -76,16 +76,16 @@ function Navigationbar() {
                                         <FontAwesomeIcon icon='fa-solid fa-user' size='lg' /> {user.username}
                                     </Navbar.Text>
                                     <Nav.Link onClick={handleLogout}>
-                                        <FontAwesomeIcon icon='fa-solid fa-right-from-bracket' size='lg' /> Log Out
+                                        <FontAwesomeIcon icon='fa-solid fa-right-from-bracket' size='lg' /> LOG OUT
                                     </Nav.Link>
                                 </>
                             ) : (
                                 <>
                                     <Nav.Link onClick={() => setShowLogin(true)}>
-                                        <FontAwesomeIcon icon='fa-solid fa-user' size='lg' /> Log In
+                                        <FontAwesomeIcon icon='fa-solid fa-user' size='lg' /> LOG IN
                                     </Nav.Link>
                                     <Nav.Link onClick={() => setShowSignup(true)}>
-                                        <FontAwesomeIcon icon='fa-solid fa-user-plus' size='lg' /> Sign Up
+                                        <FontAwesomeIcon icon='fa-solid fa-user-plus' size='lg' /> SIGN UP
                                     </Nav.Link>
                                 </>
                             )}
