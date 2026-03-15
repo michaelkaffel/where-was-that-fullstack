@@ -16,6 +16,7 @@ import HikingDetailPage from './pages/HikingDetailPage';
 import CampingDetailPage from './pages/CampingDetailPage';
 import OverlookDetailPage from './pages/OverlookDetailPage';
 import Footer from './components/Footer';
+import ScrollToTop from './utils/scrollToTop';
 
 import './App.css';
 
@@ -38,6 +39,7 @@ function App() {
         <>
 
             <NavigationBar />
+            <ScrollToTop />
             <Routes>
                 <Route path='/' element={<Home />} />
                 <Route path='oauth-success' element={<OAuthSuccessPage />} />
