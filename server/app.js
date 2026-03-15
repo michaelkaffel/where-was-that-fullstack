@@ -19,28 +19,7 @@ const __dirname = path.dirname(__filename);
 
 let url = process.env.MONGO_ATLAS
 
-const connect = mongoose.connect(url, {
-    serverSelectionTimeoutMS: 5000,
-    socketTimeoutMS: 45000
-});
-
-connect.then(() => {
-    console.log('Connected correctly to server');
-    console.log(`MongoDB: ${mongoose.connection.host}/${mongoose.connection.name}`);
-},
-    err => console.log(err)
-);
-
-mongoose.connection.on('error', err => {
-    console.error('MongoDB connection error:', err);
-})
-
-
-
-
 const app = express();
-
-
 
 // view engine setup only for dev
 // app.set('views', path.join(__dirname, 'views'));
