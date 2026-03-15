@@ -183,7 +183,7 @@ const userSlice = createSlice({
                 state.isAuthenticated = false;
                 state.token = null;
                 state.currentUser = null;
-                state.error = action.payload ? action.error.message : null;
+                state.error = null;
                 localStorage.removeItem('token');
             })
             .addCase(patchCurrentUser.pending, (state) => {
