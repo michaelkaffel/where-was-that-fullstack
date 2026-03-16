@@ -1,7 +1,21 @@
 {
   "project": "Where Was That API",
-  "lastUpdated": "2026-03-12",
+  "lastUpdated": "2026-03-15",
   "tasks": [
+    {
+      "id": "multer-upload-improvements",
+      "priority": "high",
+      "title": "Improve image upload handling",
+      "goal": "Make file uploads safer and more scalable.",
+      "description": "Enhance image pipeline now that uploads go through GCS.",
+      "improvements": [
+        "sanitize uploaded filenames",
+        "add image compression using sharp before GCS upload",
+        "generate thumbnails for card views",
+        "optionally create year/month folder structure in GCS bucket"
+      ],
+      "notes": "Extension and MIME type validation already in place via Multer fileFilter. Filename sanitization and sharp compression are the highest-value next steps."
+    },
     {
       "id": "user-profile-page-extended",
       "priority": "medium",
@@ -42,26 +56,18 @@
       "notes": "Nominatim is free and requires no API key but has rate limiting — suitable for low-traffic dev/MVP use. Also consider improving Nominatim reverse geocode result quality in 'Find My Location' — currently only checks city/town/village fields."
     },
     {
-      "id": "multer-upload-improvements",
+      "id": "playwright-testing",
       "priority": "medium",
-      "title": "Improve image upload handling",
-      "goal": "Make file uploads safer and more scalable.",
-      "description": "Enhance image pipeline now that uploads go through GCS.",
-      "improvements": [
-        "sanitize uploaded filenames",
-        "add image compression using sharp before GCS upload",
-        "generate thumbnails for card views",
-        "optionally create year/month folder structure in GCS bucket"
+      "title": "Playwright end-to-end testing",
+      "goal": "Cover critical user flows with automated tests.",
+      "description": "Set up Playwright at the project root. Write e2e tests for auth, places, and notes flows. Currently in progress.",
+      "status": "in-progress",
+      "testFiles": [
+        "tests/auth.spec.js",
+        "tests/places.spec.js",
+        "tests/notes.spec.js"
       ],
-      "notes": "Extension and MIME type validation already in place via Multer fileFilter. Filename sanitization and sharp compression are the highest-value next steps."
-    },
-    {
-      "id": "cold-start-resilience",
-      "priority": "low",
-      "title": "Cloud Functions cold start resilience",
-      "goal": "Prevent intermittent 500s on cold starts when MongoDB isn't connected yet.",
-      "description": "Top-level mongoose.connect() runs at module load but requests can arrive before the connection is established. Add a middleware that awaits the connection promise before processing requests, or configure Cloud Functions min instances.",
-      "notes": "Observed one intermittent POST /places 500 during testing that resolved on retry — classic cold start timing issue."
+      "branch": "feature/playwright-setup"
     },
     {
       "id": "email-flows",
@@ -117,19 +123,6 @@
         { "tool": "helmet", "purpose": "add security headers" },
         { "tool": "pino", "purpose": "structured production logging" }
       ]
-    },
-    {
-      "id": "cypress-testing",
-      "priority": "future",
-      "title": "Cypress end-to-end testing",
-      "goal": "Cover critical user flows with automated tests.",
-      "description": "Set up Cypress at the project root. Write e2e tests for auth, places, and notes flows.",
-      "testFiles": [
-        "cypress/e2e/auth.cy.js",
-        "cypress/e2e/places.cy.js",
-        "cypress/e2e/notes.cy.js"
-      ],
-      "branch": "feature/cypress-setup"
     }
   ],
   "completedFeatures": [
@@ -172,6 +165,9 @@
     "Cloud Functions middleware adaptations (body parsing, query parsing, raw body restore for Multer)",
     "Manual Passport Local authentication bypassing stream reading",
     "Absolute Google OAuth callback URL for Cloud Functions",
-    "GCS bucket CORS configuration"
+    "GCS bucket CORS configuration",
+    "Cloud Functions cold start resilience (connection await middleware)",
+    "Scroll view reset on navigation",
+    "Navbar collapse on link press"
   ]
 }
