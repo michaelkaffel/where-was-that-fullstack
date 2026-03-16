@@ -18,7 +18,7 @@ const PlaceCard = ({ place, detailPath, placeholder }) => {
 
     return (
         <Card className='h-100'>
-            <Card.Img 
+            <Card.Img
                 variant='top'
                 alt={title}
                 src={imageSrc}
@@ -34,14 +34,15 @@ const PlaceCard = ({ place, detailPath, placeholder }) => {
                         <Button>Details</Button>
                     </Link>
                     <div className='d-flex align-items-center ms-auto'>
-                        <FontAwesomeIcon 
+                        <FontAwesomeIcon
                             onClick={() => dispatch(patchFavorite({ placeId: id, favorite: !favorite }))}
                             icon={favorite ? 'fa-solid fa-heart' : 'fa-regular fa-heart'}
                             size='xl'
                             color='red'
                             style={{ cursor: 'pointer' }}
                         />
-                        <FontAwesomeIcon 
+                        <FontAwesomeIcon
+                            data-testid='delete-place-btn'
                             icon='fa-solid fa-trash-can'
                             size='xl'
                             style={{ cursor: 'pointer' }}

@@ -22,8 +22,8 @@ const PreviewDisplay = ({ onShowLogin, onShowSignup }) => {
                     Save your hiking trails, camping spots, and scenic overlooks - complete with photos and notes.
                 </p>
                 <div className='d-flex justify-content-center gap-3 mt-3'>
-                    <Button variant='primary' onClick={onShowLogin} >Log In</Button>
-                    <Button variant='outline-primary' onClick={onShowSignup} >Sign Up</Button>
+                    <Button data-testid='hero-login-btn' variant='primary' onClick={onShowLogin} >Log In</Button>
+                    <Button data-testid='hero-signup-btn' variant='outline-primary' onClick={onShowSignup} >Sign Up</Button>
                 </div>
             </Container>
         )
