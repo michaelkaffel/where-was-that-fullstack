@@ -1,3 +1,4 @@
+import path from 'path';
 import { test, expect } from '@playwright/test';
 
 const TEST_USER = {
@@ -8,6 +9,15 @@ const TEST_USER = {
     email: process.env.TEST_USER_EMAIL
 };
 
+async function openNav(page) {
+    const hamburger = page.locator('.navbar-toggler');
+    if (await hamburger.isVisible()) {
+        const expanded = await hamburger.getAttribute('aria-expanded');
+        if (expanded !== 'true') {
+            await hamburger.click();
+        }
+    }
+}
 
 
 test('app loads', async ({ page }) => {
@@ -46,12 +56,15 @@ test.describe('user journey', () => {
 
         await page.getByRole('dialog').getByRole('button', { name: 'Sign Up' }).click();
 
-        const hamburger = page.locator('.navbar-toggler');
-        if (await hamburger.isVisible()) {
-            await hamburger.click()
-        }
-
+        // Confirm registration succeeded — username visible in nav
+        await openNav(page);
         await expect(page.getByText(username)).toBeVisible();
+
+        // Log out so the login test starts from a clean state
+        await page.getByText('Log Out').click();
+
+        // Wait for the hero login button to confirm we're logged out
+        await expect(page.getByTestId('hero-login-btn')).toBeVisible();
     });
 
     test('user can log in', async () => {
@@ -68,8 +81,44 @@ test.describe('user journey', () => {
         await page.locator('input[name="username"]').fill(username);
         await page.locator('input[name="password"]').fill(password);
 
-        await page.getByRole('dialog').getByRole('button', { name: /log in/i }).click()
-    })
+        await page.getByRole('dialog').getByRole('button', { name: /log in/i }).click();
+
+         // Confirm login succeeded — username visible in nav
+        await openNav(page);
+        await expect(page.getByText(username)).toBeVisible();
+    });
+
+    // test('user can add a place', async () => {
+        
+    //     // ── 1. Navigate to Hiking Trails
+    //     await openNav(page);
+    //     await page.getByText('Hiking Trails').click();
+    //     await page.waitForURL('**/hiking-trails');
+
+    //     // ── 2. Open the Add Hikes accordion
+    //     await page.getByTestId('add-place-toggle').click();
+
+    //     // ── 3. Fill the form
+    //     const placeTitle = `Playwright Hike ${Date.now()}`;
+
+    //     await page.locator('input[name="title"]').fill(placeTitle);
+    //     await page.locator('input[name="location.name"]').fill('Seattle, WA');
+    //     await page.locator('input[name="dateVisited"]').fill('2025-06-01');
+    //     await page.locator('textarea[name="description"]').fill('Added by Playwright automation');
+
+    //     // ── 4. Upload image
+    //     const fixturePath = path.join(__dirname, '../fixtures/test-image.jpeg');
+    //     await page.locator('input[type="file"]').setInputFiles(fixturePath);
+
+    //     // ── 5. Wait display image to appear
+    //     await expect(page.locator('img[alt="Preview"]')).toBeVisible({ timeout: 10_000});
+
+    //     // ── 6. Submit
+    //     await page.getByRole('button', {name: 'Add Hike!'}).click();
+
+    //     // ── 7. Assert the new card appears below the form
+    //     await expect(page.getByText(placeTitle)).toBeVisible({ timeout: 10_000})
+    // })
 });
 
 

@@ -5,7 +5,10 @@ const AccordionForPlaceForm = ({ kindOfPlace, headerLabel, titlePlaceholder, des
     return (
         <Accordion>
             <Accordion.Item eventKey='0'>
-                <Accordion.Header>{headerLabel}</Accordion.Header>
+                <Accordion.Header
+                    data-testid='add-place-toggle'
+                >
+                    {headerLabel}</Accordion.Header>
                 <Accordion.Body>
                     <AddPlaceForm 
                         kindOfPlace={kindOfPlace}
