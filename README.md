@@ -1,4 +1,4 @@
-# 🏔 Where Was That?
+# Where Was That?
 
 A full-stack MERN application for tracking personal outdoor locations — campsites, hikes, overlooks — and leaving private notes about changing conditions over time.
 
@@ -15,7 +15,7 @@ Users can:
 
 ---
 
-## 🧱 Tech Stack
+## Tech Stack
 
 ### Frontend
 - React
@@ -42,7 +42,7 @@ Users can:
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 where-was-that-fullstack/
@@ -65,6 +65,7 @@ where-was-that-fullstack/
 │   ├── middleware.js       # res.api(), loadPlace, verifyPlaceOwner
 │   └── cors.json          # GCS bucket CORS config
 │
+├── e2e/                   # Playwright end-to-end tests — see e2e/README.md
 ├── docs/                  # Project reference documents
 │
 └── README.md
@@ -72,7 +73,7 @@ where-was-that-fullstack/
 
 ---
 
-## 🌐 Production Architecture
+## Production Architecture
 
 ```
 Browser → Firebase Hosting (React SPA)
@@ -90,7 +91,7 @@ Browser → Firebase Hosting (React SPA)
 
 ---
 
-## 🔐 Authentication
+## Authentication
 
 - JWT-based authentication with 1-hour token expiry
 - Passport Local for username/password login
@@ -100,7 +101,7 @@ Browser → Firebase Hosting (React SPA)
 
 ---
 
-## 🗂 Database Structure
+## Database Structure
 
 ```
 User
@@ -112,7 +113,7 @@ Notes are embedded inside each place document and are not shared between users. 
 
 ---
 
-## 🛣 API Routes
+## API Routes
 
 ### Auth
 ```
@@ -148,7 +149,7 @@ All routes except signup, login, and Google OAuth require authentication.
 
 ---
 
-## 🔧 Local Development Setup
+## Local Development Setup
 
 ### Prerequisites
 - Node.js
@@ -212,7 +213,7 @@ Runs on `http://localhost:3000`
 
 ---
 
-## 📸 Image Handling
+## Image Handling
 
 - Images uploaded via Multer with memory storage
 - Stored in Google Cloud Storage bucket (publicly readable)
@@ -222,7 +223,23 @@ Runs on `http://localhost:3000`
 
 ---
 
-## 🧠 Architecture Decisions
+## Testing
+
+End-to-end tests are located in [`e2e/`](./e2e). The suite covers the full user lifecycle — registration, login, adding a place with image upload, deleting a place, and deleting an account.
+
+Tests run against the local dev server using Playwright with a mobile Safari viewport.
+
+```bash
+cd e2e
+npm install
+npx playwright test
+```
+
+See [e2e/README.md](./e2e/README.md) for setup instructions and suite details.
+
+---
+
+## Architecture Decisions
 
 - Notes embedded in Place documents (not separate collection)
 - Ownership enforced server-side — client never fetches entire database
@@ -232,12 +249,12 @@ Runs on `http://localhost:3000`
 
 ---
 
-## 📄 License
+## License
 
 MIT
 
 ---
 
-## 👤 Author
+## Author
 
 Michael Kaffel
