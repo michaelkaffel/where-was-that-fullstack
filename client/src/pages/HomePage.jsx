@@ -29,31 +29,31 @@ const Home = () => {
                         <Col xs={10} lg={10} className='hero-text-box m-auto d-flex flex-column justify-content-between'>
                             <h1 className='hero-title text-center'>WHERE WAS THAT</h1>
                             <HomeMap />
-                            <Container>
-                                <Row className='mt-5'>
-                                    <Col className='text-center'>
+                            
+                                <div className='d-flex justify-content-evenly flex-wrap gap-3 mt-4'>
+                                    
                                         <Link to='/hiking-trails'>
                                             <Button style={{ backgroundColor: '#2d6a4f', borderColor: '#2d6a4f' }} className='home-page-row-btns'>
                                                 Hikes
                                             </Button>
                                         </Link>
-                                    </Col>
-                                    <Col className='text-center'>
+                                    
+                                    
                                         <Link to='/camping-spots'>
                                             <Button style={{ backgroundColor: '#e76f51', borderColor: '#e76f51' }} className='home-page-row-btns'>
                                                 Campsites
                                             </Button>
                                         </Link>
-                                    </Col>
-                                    <Col className='text-center'>
+                                    
+                                    
                                         <Link to='/scenic-overlooks'>
                                             <Button style={{ backgroundColor: '#457b9d', borderColor: '#457b9d' }} className='home-page-row-btns'>
                                                 Overlooks
                                             </Button>
                                         </Link>
-                                    </Col>
-                                </Row>
-                            </Container>
+                                    
+                                </div>
+                            
                         </Col>
                     </Row>
 
