@@ -2,7 +2,8 @@ import Container from 'react-bootstrap/Container';
 import SubHeader from '../components/SubHeader';
 import AccordionForPlaceForm from '../features/places/AccordionForPlaceForm';
 import PlacesDisplay from '../features/places/PlacesDisplay';
-import hikesPlaceholder from '../app/images/hikesPlaceholder.png'
+import hikesPlaceholder from '../app/images/hikesPlaceholder.png';
+
 
 
 
@@ -21,6 +22,7 @@ const HikingTrailsPage = () => {
                     descriptionPlaceholder='Describe your hike...'
                     submitLabel='Add Hike!'
                 />
+                
                 <PlacesDisplay
                     kindOfPlace='hike'
                     allLabel='All Hikes'
