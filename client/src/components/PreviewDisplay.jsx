@@ -4,7 +4,8 @@ import Col from 'react-bootstrap/Col';
 import Button from 'react-bootstrap/Button';
 import { useSelector } from 'react-redux';
 import { selectRandomPlaceByType } from '../features/places/placesSlice';
-import { selectIsAuthenticated } from '../features/user/userSlice'
+import { selectIsAuthenticated } from '../features/user/userSlice';
+import { Link } from 'react-router-dom';
 import PreviewCard from './PreviewCard';
 
 const PreviewDisplay = ({ onShowLogin, onShowSignup }) => {
@@ -13,6 +14,12 @@ const PreviewDisplay = ({ onShowLogin, onShowSignup }) => {
     const campsite = useSelector(selectRandomPlaceByType('campsite'));
     const hike = useSelector(selectRandomPlaceByType('hike'));
     const overlook = useSelector(selectRandomPlaceByType('overlook'));
+
+    const detailPaths = {
+        hike: '/hiking-trails',
+        campsite: '/camping-spots',
+        overlook: '/scenic-overlooks'
+    }
 
     if (!isAuthenticated) {
         return (
@@ -34,20 +41,39 @@ const PreviewDisplay = ({ onShowLogin, onShowSignup }) => {
 
         <Container>
 
-            <Row>
-                <Col md='4'>
-                    {hike ? <PreviewCard item={hike} /> : <h4 className='text-center mt-3 text-white'>Add some hikes!</h4>}
+            <Row className='justify-content-center'>
+                <Col md={10} lg={4}>
+                    {hike ? (
+                        <Link to={`${detailPaths.hike}/${hike.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                            <PreviewCard item={hike} />
+                        </Link>
+
+                    ) : (
+                        <h4 className='text-center mt-3 text-white'>Add some hikes!</h4>
+                    )}
 
                 </Col>
 
-                <Col md='4'>
+                <Col md={10} lg={4}>
 
-                    {campsite ? <PreviewCard item={campsite} /> : <h4 className='text-center mt-3 text-white'>Add some campsites!</h4>}
+                    {campsite ? (
+                        <Link to={`${detailPaths.campsite}/${campsite.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                            <PreviewCard item={campsite} />
+                        </Link>
+                    ) : (
+                        <h4 className='text-center mt-3 text-white'>Add some campsites!</h4>
+                    )}
                 </Col>
 
-                <Col md='4'>
+                <Col md={10} lg={4}>
 
-                    {overlook ? <PreviewCard item={overlook} /> : <h4 className='text-center mt-3 text-white'>Add some overlooks!</h4>}
+                    {overlook ? (
+                         <Link to={`${detailPaths.overlook}/${overlook.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                            <PreviewCard item={overlook} />
+                        </Link>
+                    ) : (
+                        <h4 className='text-center mt-3 text-white'>Add some overlooks!</h4>
+                    )}
                 </Col>
 
             </Row>

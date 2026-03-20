@@ -1,13 +1,11 @@
-import { useEffect } from 'react';
+
 import { useSelector } from 'react-redux';
 import { selectPlacesByType, selectFavoritePlacesByType } from '../features/places/placesSlice';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import { Link } from 'react-router-dom';
-
-
-
+import FitBounds from '../utils/fitBounds';
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -15,17 +13,6 @@ L.Icon.Default.mergeOptions({
     iconUrl: require('leaflet/dist/images/marker-icon.png'),
     shadowUrl: require('leaflet/dist/images/marker-shadow.png')
 });
-
-const FitBounds = ({ places }) => {
-    const map = useMap();
-    useEffect(() => {
-        if (places.length > 0) {
-            const bounds = L.latLngBounds(places.map(p => [p.location.lat, p.location.lng]));
-            map.fitBounds(bounds, { padding: [30, 30] });
-        }
-    }, [places, map])
-    return null;
-}
 
 const CategoryMap = ({ kindOfPlace, detailPath, favoritesOnly = false  }) => {
 
