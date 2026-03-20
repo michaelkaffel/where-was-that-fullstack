@@ -24,14 +24,39 @@ const Home = () => {
 
 
                 {isAuthenticated ? (
-                
+
                     <Row className='hero-row'>
                         <Col xs={10} lg={10} className='hero-text-box m-auto d-flex flex-column justify-content-between'>
                             <h1 className='hero-title text-center'>WHERE WAS THAT</h1>
                             <HomeMap />
+                            <Container>
+                                <Row className='mt-5'>
+                                    <Col className='text-center'>
+                                        <Link to='/hiking-trails'>
+                                            <Button style={{ backgroundColor: '#2d6a4f', borderColor: '#2d6a4f' }} className='home-page-row-btns'>
+                                                Hikes
+                                            </Button>
+                                        </Link>
+                                    </Col>
+                                    <Col className='text-center'>
+                                        <Link to='/camping-spots'>
+                                            <Button style={{ backgroundColor: '#e76f51', borderColor: '#e76f51' }} className='home-page-row-btns'>
+                                                Campsites
+                                            </Button>
+                                        </Link>
+                                    </Col>
+                                    <Col className='text-center'>
+                                        <Link to='/scenic-overlooks'>
+                                            <Button style={{ backgroundColor: '#457b9d', borderColor: '#457b9d' }} className='home-page-row-btns'>
+                                                Overlooks
+                                            </Button>
+                                        </Link>
+                                    </Col>
+                                </Row>
+                            </Container>
                         </Col>
                     </Row>
-                    
+
                 ) : (
                     <Row className='hero-row'>
                         <Col xs={10} lg={6} className='hero-text-box m-auto d-flex flex-column justify-content-between'>
@@ -42,31 +67,7 @@ const Home = () => {
                 )}
 
 
-                {isAuthenticated && (
-                    <Row className='mt-5'>
-                        <Col className='text-center mb-2'>
-                            <Link to='/hiking-trails'>
-                                <Button variant="primary" className='home-page-row-btns'>
-                                    Hikes
-                                </Button>
-                            </Link>
-                        </Col>
-                        <Col className='text-center mb-2'>
-                            <Link to='/camping-spots'>
-                                <Button variant="primary" className='home-page-row-btns'>
-                                    Campsites
-                                </Button>
-                            </Link>
-                        </Col>
-                        <Col className='text-center mb-2'>
-                            <Link to='/scenic-overlooks'>
-                                <Button variant="primary" className='home-page-row-btns'>
-                                    Overlooks
-                                </Button>
-                            </Link>
-                        </Col>
-                    </Row>
-                )}
+                
 
             </Container>
 
