@@ -27,14 +27,22 @@ const PreviewCard = ({ item }) => {
     } else imageSrc = imageUrl
 
     return (
-        <Card className='m-3'>
+        <Card className='m-3' style={{ minHeight: '300px'}}>
             <Card.Img variant='top' alt={title} src={imageSrc}/>
             <Card.Body>
                 <Card.Title tag="h2">{title}</Card.Title>
                 <Card.Subtitle as='h6' className="mb-2 text-muted">
                     {location?.name}
                 </Card.Subtitle>
-                <Card.Text>{description}</Card.Text>
+                <Card.Text style={{
+                    display: '-webkit-box',
+                    WebkitLineClamp: 3,
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden'
+                }}
+                >
+                    {description}
+                </Card.Text>
             </Card.Body>
         </Card>
     )
