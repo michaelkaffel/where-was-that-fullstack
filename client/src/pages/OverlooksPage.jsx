@@ -2,7 +2,8 @@ import Container from 'react-bootstrap/Container';
 import SubHeader from '../components/SubHeader';
 import AccordionForPlaceForm from '../features/places/AccordionForPlaceForm';
 import PlacesDisplay from '../features/places/PlacesDisplay';
-import overlookPlaceholder from '../app/images/overlookPlaceholder.png'
+import overlookPlaceholder from '../app/images/overlookPlaceholder.png';
+
 
 const OverlooksPage = () => {
     return (
@@ -16,6 +17,7 @@ const OverlooksPage = () => {
                     descriptionPlaceholder='Describe your overlook...'
                     submitLabel='Add Overlook!'
                 />
+                
                 <PlacesDisplay 
                     kindOfPlace='overlook'
                     allLabel='All Overlooks'

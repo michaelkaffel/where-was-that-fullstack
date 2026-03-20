@@ -2,7 +2,8 @@ import Container from 'react-bootstrap/Container';
 import SubHeader from '../components/SubHeader';
 import AccordionForPlaceForm from '../features/places/AccordionForPlaceForm';
 import PlacesDisplay from '../features/places/PlacesDisplay';
-import campsitesPlaceholder from '../app/images/campsitesPlaceholder.png'
+import campsitesPlaceholder from '../app/images/campsitesPlaceholder.png';
+
 
 
 const CampingSpotsPage = () => {
@@ -18,6 +19,8 @@ const CampingSpotsPage = () => {
                     descriptionPlaceholder='Describe your campsite...'
                     submitLabel='Add Campsite!'
                 />
+
+
                 <PlacesDisplay 
                     kindOfPlace='campsite'
                     allLabel='All Campsites'

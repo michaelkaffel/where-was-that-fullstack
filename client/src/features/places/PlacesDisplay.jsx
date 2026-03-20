@@ -1,13 +1,22 @@
+import { useState } from 'react'
 import Col from 'react-bootstrap/Col';
 import Nav from 'react-bootstrap/Nav';
 import Row from 'react-bootstrap/Row';
 import Tab from 'react-bootstrap/Tab';
 import PlacesList from './PlacesList';
 import FavsList from './FavsList';
+import CategoryMap from '../../components/CategoryMap';
 
 const PlacesDisplay = ({ kindOfPlace, allLabel, detailPath, placeholder, emptyMessage, emptyFavsMessage}) => {
+    const [activeTab, setActiveTab ] = useState('first');
+    
     return (
-        <Tab.Container defaultActiveKey='first'>
+        <Tab.Container defaultActiveKey='first' onSelect={(key) => setActiveTab(key)}>
+            <CategoryMap 
+                kindOfPlace={kindOfPlace}
+                detailPath={detailPath}
+                favoritesOnly={activeTab === 'second'}
+            />
             <Row>
                 <Col className='mt-3' sm={3}>
                     <Nav variant='pills' className='flex-column'>

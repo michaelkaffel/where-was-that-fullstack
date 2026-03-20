@@ -23,7 +23,7 @@ const LocationPicker = ({ position, setPosition }) => {
             setPosition([e.latlng.lat, e.latlng.lng])
         }
     });
-    return position ? <Marker position={position}/> : null;
+    return position ? <Marker position={position} /> : null;
 }
 
 const AddPlaceForm = ({ kindOfPlace, titlePlaceholder, descriptionPlaceholder, submitLabel }) => {
@@ -75,7 +75,7 @@ const AddPlaceForm = ({ kindOfPlace, titlePlaceholder, descriptionPlaceholder, s
                         const name = data.address?.city || data.address?.town || data.address?.village;
                         if (name) setFieldValue('location.name', name);
                     } catch {
-                        
+
                     }
                 }
             },
@@ -101,7 +101,7 @@ const AddPlaceForm = ({ kindOfPlace, titlePlaceholder, descriptionPlaceholder, s
             onSubmit={handleSubmit}
             validate={validateForm}
         >
-            {({ setFieldValue, values }) => (
+            {({ setFieldValue, values, errors, submitCount }) => (
                 <FForm>
                     <Form.Group>
                         <Form.Label htmlFor='title'>Title</Form.Label>
@@ -129,6 +129,11 @@ const AddPlaceForm = ({ kindOfPlace, titlePlaceholder, descriptionPlaceholder, s
                         >
                             {showMap ? 'Hide Map' : 'Add Location Pin'}
                         </Button>
+                      
+                        {submitCount > 0 && errors.location?.lat && (
+                            <p className='text-danger'>{errors.location.lat}</p>
+                        )}
+
 
                         {showMap && (
                             <div className='my-2'>
@@ -150,13 +155,13 @@ const AddPlaceForm = ({ kindOfPlace, titlePlaceholder, descriptionPlaceholder, s
                                 <MapContainer
                                     center={mapPosition || [47.5, -120.5]}
                                     zoom={mapPosition ? 12 : 6}
-                                    style={{height: '300px', width: '100%', borderRadius: '8px'}}
+                                    style={{ height: '300px', width: '100%', borderRadius: '8px' }}
                                 >
-                                    <TileLayer 
+                                    <TileLayer
                                         url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
                                         attribution='© OpenStreetMap contributors'
                                     />
-                                    <LocationPicker 
+                                    <LocationPicker
                                         position={mapPosition}
                                         setPosition={(coords) => handleMapClick(coords, setFieldValue)}
                                     />
@@ -172,16 +177,16 @@ const AddPlaceForm = ({ kindOfPlace, titlePlaceholder, descriptionPlaceholder, s
                     </Form.Group>
 
                     <Form.Group>
+                        <Form.Label htmlFor='description'>Description</Form.Label>
                         <ErrorMessage name='description'>
                             {(msg) => <p className='text-danger'>{msg}</p>}
                         </ErrorMessage>
-                        <Form.Label htmlFor='description'>Description</Form.Label>
                         <Field name='description' as='textarea' placeholder={descriptionPlaceholder} className='form-control' />
                     </Form.Group>
 
                     <Form.Group className='mt-2'>
                         <Form.Label htmlFor='image'>Image</Form.Label>
-                        <input 
+                        <input
                             type='file'
                             accept='image/*'
                             onChange={async (e) => {
@@ -192,7 +197,7 @@ const AddPlaceForm = ({ kindOfPlace, titlePlaceholder, descriptionPlaceholder, s
                             }}
                         />
                         {values.image && (
-                            <img 
+                            <img
                                 src={URL.createObjectURL(values.image)}
                                 alt='Preview'
                                 style={{ width: '50%', objectFit: 'cover', marginTop: 10 }}
