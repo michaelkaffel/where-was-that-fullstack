@@ -3,3 +3,4 @@ node_modules
 gcs-key.json
 .gcloudignore
 gha-deploy-key-*.json
+temp-set-password.js

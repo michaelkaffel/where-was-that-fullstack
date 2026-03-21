@@ -11,6 +11,7 @@ import { fileURLToPath } from 'url';
 import { responseHelper } from './middleware.js';
 
 import indexRouter from './routes/index.js';
+import authRouter from './routes/authRouter.js'
 import usersRouter from './routes/users.js';
 import placeRouter from './routes/placeRouter.js';
 
@@ -56,6 +57,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(passport.initialize());
 
 app.use('/', indexRouter);
+app.use('/auth', authRouter);
 app.use('/users', usersRouter);
 app.use('/places', placeRouter);
 

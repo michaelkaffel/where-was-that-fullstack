@@ -7,6 +7,8 @@ import { Routes, Route } from 'react-router-dom';
 import NavigationBar from "./components/NavigationBar";
 import Home from './pages/HomePage';
 import OAuthSuccessPage from './pages/OAuthSuccessPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 import UserProfilePage from './pages/UserProfilePage';
 import AddLocationsPage from './pages/AddLocationsPage';
 import HikingTrailsPage from './pages/HikingTrailsPage';
@@ -42,6 +44,8 @@ function App() {
             <main className='flex-grow-1 top-padding-adjustment'>
                 <Routes>
                 <Route path='/' element={<Home />} />
+                <Route path='forgot-password' element={<ForgotPasswordPage />} />
+                <Route path='reset-password/:token' element={<ResetPasswordPage />} />
                 <Route path='oauth-success' element={<OAuthSuccessPage />} />
                 <Route path='profile' element={<UserProfilePage />} />
                 <Route path='add-locations' element={<AddLocationsPage />} />

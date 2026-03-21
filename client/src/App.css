@@ -9,6 +9,14 @@
     padding-top: 70px;
 }
 
+.font-setting {
+    font-family: 'Bebas Neue', sans-serif;
+}
+
+.font-setting-second {
+    font-family: 'Josefin Sans', sans-serif;
+}
+
 .hero {
     min-height: 100vh;
     width: 100%;
@@ -89,6 +97,3 @@
     cursor: pointer
 }
 
-.font-setting {
-    font-family: 'Bebas Neue', sans-serif;
-}

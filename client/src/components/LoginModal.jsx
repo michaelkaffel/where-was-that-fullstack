@@ -1,5 +1,6 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
@@ -19,6 +20,8 @@ const LoginModal = ({ show, onHide }) => {
     const error = useSelector(selectUserError);
     const isLoading = useSelector(selectUserLoading);
     const [showPassword, setShowPassword] = useState(false);
+
+    const navigate = useNavigate();
 
     const handleSubmit = async (values, { resetForm }) => {
         const result = await dispatch(userLogin(values));
@@ -72,6 +75,19 @@ const LoginModal = ({ show, onHide }) => {
                                 {(msg) => <p className='text-danger'>{msg}</p>}
                             </ErrorMessage>
                         </Form.Group>
+                        <div className='text-end mb-3'>
+                            <Button
+                                variant='link'
+                                size='sm'
+                                className='p-0 text-decoration-none'
+                                onClick={() => {
+                                    onHide();
+                                    navigate('/forgot-password');
+                                }}
+                            >
+                                Forgot password or username?
+                            </Button>
+                        </div>
                         <div className='d-grid gap-2'>
                             <Button type='submit' variant='primary' disabled={isLoading}>
                                 {isLoading ? 'Logging in...' : 'Log In'}
