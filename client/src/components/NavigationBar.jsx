@@ -12,6 +12,7 @@ import { fas } from '@fortawesome/free-solid-svg-icons';
 import { selectCurrentUser, clearCurrentUser } from '../features/user/userSlice';
 import LoginModal from './LoginModal';
 import SignupModal from './SignupModal';
+import wwtLogo from '../app/images/wwt-logo.png'
 
 library.add(fas)
 
@@ -60,7 +61,15 @@ function Navigationbar() {
                 onToggle={setExpanded}
             >
                 <Container>
-                    <Navbar.Brand to='/' as={Link} >Where Was That?</Navbar.Brand>
+                    <Navbar.Brand to='/' as={Link}>
+                        <img 
+                            src={wwtLogo}
+                            alt='Where Was That'
+                            height='30'
+                            className='d-inline-block align-middle me-2'
+                        />
+                        Where Was That?
+                    </Navbar.Brand>
                     <Navbar.Toggle aria-controls="basic-navbar-nav" />
                     <Navbar.Collapse id="basic-navbar-nav">
                         <Nav className="me-auto">
