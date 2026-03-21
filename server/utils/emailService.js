@@ -1,11 +1,21 @@
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+let resend = null;
+
+const getResend = () => {
+    if (!resend) {
+        if (!process.env.RESEND_API_KEY) {
+            throw new Error('RESEND_API_KEY environment variable is not set');
+        }
+        resend = new Resend(process.env.RESEND_API_KEY);
+    }
+    return resend;
+}
 
 const FROM_ADDRESS = process.env.EMAIL_FROM || 'Where Was That <noreply@where-was-that.com>';
 
 export const sendPasswordResetEmail = async (email, username, resetUrl) => {
-    const { data, error } = await resend.emails.send({
+    const { data, error } = await getResend().emails.send({
         from: FROM_ADDRESS,
         to: email,
         subject: 'Where Was That — Password Reset',
@@ -34,7 +44,7 @@ export const sendPasswordResetEmail = async (email, username, resetUrl) => {
 };
 
 export const sendUsernameRecoveryEmail = async (email, username) => {
-    const { data, error } = await resend.emails.send({
+    const { data, error } = await getResend().emails.send({
         from: FROM_ADDRESS,
         to: email,
         subject: 'Where Was That — Username Recovery',

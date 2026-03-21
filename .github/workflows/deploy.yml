@@ -102,5 +102,5 @@ jobs:
             --source . \
             --entry-point whereWasThatServer \
             --project where-was-that-490000 \
-            --update-env-vars MONGODB_URI=${{ secrets.MONGODB_URI }},GOOGLE_CALLBACK_URL=${{ secrets.GOOGLE_CALLBACK_URL }}
+            --update-env-vars MONGODB_URI=${{ secrets.MONGODB_URI }},GOOGLE_CALLBACK_URL=${{ secrets.GOOGLE_CALLBACK_URL }},RESEND_API_KEY=${{ secrets.RESEND_API_KEY }},CLIENT_URL=${{ secrets.CLIENT_URL }}
         working-directory: server
