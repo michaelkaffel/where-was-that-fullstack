@@ -9,7 +9,7 @@ import campsitesPlaceholder from '../app/images/campsitesPlaceholder.png';
 const CampingSpotsPage = () => {
     return (
         
-            <Container className='top-padding-adjustment'>
+            <Container>
                 <SubHeader current='Camping Spots' listPath='/camping-spots' listLabel='Camping Spots'/>
                 <h2 className='text-center'>Camping Spots</h2>
                 <AccordionForPlaceForm 

@@ -7,7 +7,7 @@ import overlookPlaceholder from '../app/images/overlookPlaceholder.png';
 
 const OverlooksPage = () => {
     return (
-            <Container className='top-padding-adjustment'>
+            <Container>
                 <SubHeader current='Scenic Overlooks' listPath='/scenic-overlooks' listLabel='Scenic Overlooks'/>
                 <h2 className='text-center'>Scenic Overlooks</h2>
                 <AccordionForPlaceForm 

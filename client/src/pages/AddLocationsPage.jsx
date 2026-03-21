@@ -11,7 +11,7 @@ const AddLocationsPage = () => {
 
     return (
 
-        <Container className='top-padding-adjustment'>
+        <Container>
             <Row>
                 <Col>
                     <h2 className='mt-3 text-center font-setting'>
