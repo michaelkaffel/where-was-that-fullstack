@@ -43,7 +43,7 @@ const CampingDetailPage = () => {
     return (
         
 
-            <Container className='top-padding-adjustment'>
+            <Container>
                 <Row>
                     <Col>
                         {campsite && (

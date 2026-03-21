@@ -12,7 +12,7 @@ const HikingTrailsPage = () => {
 
     return (
         <>
-            <Container className='top-padding-adjustment'>
+            <Container>
                 <SubHeader current='Hiking Trails' listPath='/hiking-trails' listLabel='Hiking Trails'/>
                 <h2 className='text-center'>Hiking Trails</h2>
                 <AccordionForPlaceForm
