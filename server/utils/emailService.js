@@ -2,7 +2,7 @@ import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-const FROM_ADDRESS = process.env.EMAIL_FROM || 'Where Was That <onboarding@resend.dev>';
+const FROM_ADDRESS = process.env.EMAIL_FROM || 'Where Was That <noreply@where-was-that.com>';
 
 export const sendPasswordResetEmail = async (email, username, resetUrl) => {
     const { data, error } = await resend.emails.send({
