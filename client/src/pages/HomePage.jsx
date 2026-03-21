@@ -19,7 +19,7 @@ const Home = () => {
 
     return (
 
-        <div className='hero top-padding-adjustment'>
+        <div className='hero'>
             <Container>
 
 

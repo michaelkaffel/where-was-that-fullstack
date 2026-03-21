@@ -38,11 +38,11 @@ function App() {
     }, [dispatch]);
 
     return (
-        <>
-
+        <div className='d-flex flex-column min-vh-100'>
             <NavigationBar />
             <ScrollToTop />
-            <Routes>
+            <main className='flex-grow-1 top-padding-adjustment'>
+                <Routes>
                 <Route path='/' element={<Home />} />
                 <Route path='forgot-password' element={<ForgotPasswordPage />} />
                 <Route path='reset-password/:token' element={<ResetPasswordPage />} />
@@ -56,8 +56,9 @@ function App() {
                 <Route path='scenic-overlooks' element={<OverlooksPage />} />
                 <Route path='scenic-overlooks/:id' element={<OverlookDetailPage />} />
             </Routes>
+            </main>
             <Footer fixed="bottom" />
-        </>
+        </div>
 
     );
 }

@@ -54,8 +54,8 @@ const UserProfilePage = () => {
     };
 
     return (
-        <div className='top-padding-adjustment'>
-            <Container className='top-padding-adjustment py-5'>
+        <div>
+            <Container className='py-5'>
                 <Row className='justify-content-center'>
                     <Col md={6}>
                         <Card className='text-center mb-4 shadow-sm'>
