@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState,useRef } from 'react';
 import { useDispatch } from 'react-redux';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
@@ -31,6 +31,7 @@ const AddPlaceForm = ({ kindOfPlace, titlePlaceholder, descriptionPlaceholder, s
     const [showMap, setShowMap] = useState(false);
     const [mapPosition, setMapPosition] = useState(null);
     const [geoError, setGeoError] = useState(null);
+    const fileInputRef = useRef(null);
 
     const handleSubmit = async (values, { resetForm }) => {
         const formData = new FormData();
@@ -185,10 +186,20 @@ const AddPlaceForm = ({ kindOfPlace, titlePlaceholder, descriptionPlaceholder, s
                     </Form.Group>
 
                     <Form.Group className='mt-2'>
-                        <Form.Label htmlFor='image'>Image</Form.Label>
+                        <Form.Label htmlFor='image' className='me-1'>Image:</Form.Label>
+                        <Button
+                            variant='outline-secondary'
+                            size='sm'
+                            className='me-1'
+                            onClick={() => fileInputRef.current.click()}
+                        >
+                            Choose File
+                        </Button>
                         <input
+                            ref={fileInputRef}
                             type='file'
                             accept='image/*'
+                            hidden
                             onChange={async (e) => {
                                 const file = e.currentTarget.files[0];
                                 if (!file) return;
