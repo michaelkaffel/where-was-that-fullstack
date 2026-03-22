@@ -23,9 +23,9 @@ const PreviewDisplay = ({ onShowLogin, onShowSignup }) => {
 
     if (!isAuthenticated) {
         return (
-            <Container className='text-center mt-4'>
+            <Container className='text-center'>
                 <h3 className='text-white'>LOG IN OR CREATE YOUR ACCOUNT</h3>
-                <p className='text-muted'>
+                <p className='text-white font-setting-secondary'>
                     Save your hiking trails, camping spots, and scenic overlooks - complete with photos and notes.
                 </p>
                 <div className='d-flex justify-content-center gap-3 mt-3'>
@@ -40,6 +40,11 @@ const PreviewDisplay = ({ onShowLogin, onShowSignup }) => {
 
 
         <Container>
+            <Row className='justify-content-center'>
+                <Col>
+                    <h2 className='text-center font-setting-second'>Revisit Your Locations</h2>
+                </Col>
+            </Row>
 
             <Row className='justify-content-center'>
                 <Col md={10} lg={4}>

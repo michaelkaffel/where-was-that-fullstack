@@ -21,6 +21,7 @@ function Navigationbar() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const user = useSelector(selectCurrentUser);
+    
 
     const [showLogin, setShowLogin] = useState(false);
     const [showSignup, setShowSignup] = useState(false);
@@ -74,8 +75,10 @@ function Navigationbar() {
                     <Navbar.Collapse id="basic-navbar-nav">
                         <Nav className="me-auto">
                             <Nav.Link as={Link} to="/" onClick={() => setExpanded(false)}>
-                                <FontAwesomeIcon icon="fa-solid fa-house" size="lg" />
-                                Home
+                                <FontAwesomeIcon icon={user ? ("fa-solid fa-gauge-high") : ("fa-solid fa-house")} size="lg" />
+                                {user ? (
+                                    'Dashboard'
+                                ) : ('Home')}
                             </Nav.Link>
 
                             {user && (

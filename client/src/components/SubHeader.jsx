@@ -9,7 +9,7 @@ const SubHeader = ({ current, listPath, listLabel, detail }) => {
             <Col>
                 <Breadcrumb>
                     <Breadcrumb.Item linkAs={Link} linkProps={{ to: '/'}}>
-                        Home
+                        Dashboard
                     </Breadcrumb.Item>
                     {detail && (
                         <Breadcrumb.Item linkAs={Link} linkProps={{ to: listPath }}> 
