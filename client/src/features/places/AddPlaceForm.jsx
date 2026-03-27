@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
@@ -7,7 +7,7 @@ import { Formik, Field, Form as FForm, ErrorMessage } from 'formik';
 import { validateForm } from '../../utils/validateForm';
 import { processImage16x9 } from '../../utils/processImage16x9';
 import { postPlace, selectPlacesLoading } from './placesSlice';
-import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css'
 
@@ -27,12 +27,35 @@ const LocationPicker = ({ position, setPosition }) => {
     return position ? <Marker position={position} /> : null;
 }
 
+const MapController = ({ flyTo }) => {
+    const map = useMap();
+
+    useEffect(() => {
+        const container = map.getContainer();
+        const observer = new ResizeObserver(() => {
+            map.invalidateSize();
+        });
+        observer.observe(container);
+        return () => observer.disconnect();
+    }, [map]);
+
+    useEffect(() => {
+        if (flyTo) {
+            map.invalidateSize();
+            map.flyTo(flyTo, 12);
+        }
+    }, [flyTo, map]);
+    return null;
+}
+
 const AddPlaceForm = ({ kindOfPlace, titlePlaceholder, descriptionPlaceholder, submitLabel }) => {
     const dispatch = useDispatch();
     const loading = useSelector(selectPlacesLoading);
-    const [showMap, setShowMap] = useState(false);
     const [mapPosition, setMapPosition] = useState(null);
     const [geoError, setGeoError] = useState(null);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [searchLoading, setSearchLoading] = useState(false);
+    const [searchError, setSearchError] = useState(null);
     const fileInputRef = useRef(null);
 
     const handleSubmit = async (values, { resetForm }) => {
@@ -53,8 +76,13 @@ const AddPlaceForm = ({ kindOfPlace, titlePlaceholder, descriptionPlaceholder, s
         dispatch(postPlace(formData));
         resetForm();
         setMapPosition(null);
-        setShowMap(false);
     };
+
+    const handleMapClick = (coords, setFieldValue) => {
+        setMapPosition(coords);
+        setFieldValue('location.lat', coords[0]);
+        setFieldValue('location.lng', coords[1]);
+    }
 
     const handleFindMyLocation = (setFieldValue, values) => {
         setGeoError(null);
@@ -86,11 +114,38 @@ const AddPlaceForm = ({ kindOfPlace, titlePlaceholder, descriptionPlaceholder, s
         );
     };
 
-    const handleMapClick = (coords, setFieldValue) => {
-        setMapPosition(coords);
-        setFieldValue('location.lat', coords[0]);
-        setFieldValue('location.lng', coords[1]);
-    }
+    const handleSearch = async (setFieldValue, values) => {
+        if (!searchQuery.trim()) return;
+        setSearchLoading(true);
+        setSearchError(null);
+
+        try {
+            const response = await fetch(
+                `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(searchQuery)}&format=json&limit=1`
+            );
+            const data = await response.json();
+            if (!data.length) {
+                setSearchError('No results found. Try a different search');
+                return;
+            }
+            const { lat, lon, address } = data[0];
+            const coords = [parseFloat(lat), parseFloat(lon)];
+            setMapPosition(coords);
+            setFieldValue('location.lat', coords[0]);
+            setFieldValue('location.lng', coords[1]);
+
+            if (!values.location.name) {
+                const name = address?.city || address?.town || address?.village || data[0].display_name.split(',')[0];
+                if (name) setFieldValue('location.name', name);
+            }
+        } catch {
+            setSearchError('Search failed. Please try again or drop a pin manually');
+        } finally {
+            setSearchLoading(false);
+        }
+    };
+
+
 
     return (
         <Formik
@@ -124,54 +179,69 @@ const AddPlaceForm = ({ kindOfPlace, titlePlaceholder, descriptionPlaceholder, s
 
                     {/* Map Toggle */}
                     <Form.Group className='my-3'>
+                        <Form.Label>Pin Location</Form.Label>
+                        <div className='d-flex gap-2 my-2'>
+                            <Form.Control
+                                size='sm'
+                                type='text'
+                                placeholder='Search for a place...'
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        e.preventDefault();
+                                        handleSearch(setFieldValue, values)
+                                    }
+                                }}
+                            />
+                            <Button
+                                variant='outline-secondary'
+                                size='sm'
+                                type='button'
+                                className='mb-2'
+                                onClick={() => handleSearch(setFieldValue, values)}
+                                disabled={searchLoading}
+                            >
+                                {searchLoading ? <Spinner as='span' animation='border' size='sm' /> : 'Search'}
+                            </Button>
+                        </div>
+                        {searchError && <p className='text-danger small'>{searchError}</p>}
+
                         <Button
-                            variant='outline-secondary'
-                            size='sm'
-                            type='button'
-                            onClick={() => setShowMap(!showMap)}
-                        >
-                            {showMap ? 'Hide Map' : 'Add Location Pin'}
-                        </Button>
+                                variant='outline-primary'
+                                size='sm'
+                                type='button'
+                                className='mb-2'
+                                onClick={() => handleFindMyLocation(setFieldValue, values)}
+                            >
+                                Find My Location
+                            </Button>
+                        {geoError && <p className='text-danger small'>{geoError}</p>}
+                        {mapPosition && (
+                            <p className='text-muted small'>
+                                Pin: {mapPosition[0].toFixed(4)}, {mapPosition[1].toFixed(4)}
+                            </p>
+                        )}
 
                         {submitCount > 0 && errors.location?.lat && (
                             <p className='text-danger'>{errors.location.lat}</p>
                         )}
 
-
-                        {showMap && (
-                            <div className='my-2'>
-                                <Button
-                                    variant='outline-primary'
-                                    size='sm'
-                                    type='button'
-                                    className='mb-2'
-                                    onClick={() => handleFindMyLocation(setFieldValue, values)}
-                                >
-                                    Find My Location
-                                </Button>
-                                {geoError && <p className='text-danger small'>{geoError}</p>}
-                                {mapPosition && (
-                                    <p className='text-muted small'>
-                                        Pin: {mapPosition[0].toFixed(4)}, {mapPosition[1].toFixed(4)}
-                                    </p>
-                                )}
-                                <MapContainer
-                                    center={mapPosition || [47.5, -120.5]}
-                                    zoom={mapPosition ? 12 : 6}
-                                    style={{ height: '300px', width: '100%', borderRadius: '8px' }}
-                                >
-                                    <TileLayer
-                                        url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-                                        attribution='© OpenStreetMap contributors'
-                                    />
-                                    <LocationPicker
-                                        position={mapPosition}
-                                        setPosition={(coords) => handleMapClick(coords, setFieldValue)}
-                                    />
-
-                                </MapContainer>
-                            </div>
-                        )}
+                        <MapContainer
+                            center={mapPosition || [47.5, -120.5]}
+                            zoom={mapPosition ? 12 : 6}
+                            style={{ height: '300px', width: '100%', borderRadius: '8px' }}
+                        >
+                            <TileLayer
+                                url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+                                attribution='© OpenStreetMap contributors'
+                            />
+                            <MapController flyTo={mapPosition} />
+                            <LocationPicker
+                                position={mapPosition}
+                                setPosition={(coords) => handleMapClick(coords, setFieldValue)}
+                            />
+                        </MapContainer>
                     </Form.Group>
 
                     <Form.Group>
