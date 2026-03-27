@@ -7,14 +7,35 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import { Link } from 'react-router-dom';
 import FitBounds from '../utils/fitBounds';
 
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-    iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
-    iconUrl: require('leaflet/dist/images/marker-icon.png'),
-    shadowUrl: require('leaflet/dist/images/marker-shadow.png')
-});
+const markerSvg = (color) => encodeURIComponent(`
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 36">
+        <path d="M12 0C5.4 0 0 5.4 0 12c0 9 12 24 12 24s12-15 12-24C24 5.4 18.6 0 12 0z" fill="${color}" stroke="#333" stroke-width="1"/>
+        <circle cx="12" cy="12" r="5" fill="white"/>
+    </svg>
+    `);
 
-const CategoryMap = ({ kindOfPlace, detailPath, favoritesOnly = false  }) => {
+const icons = {
+    hike: L.icon({
+        iconUrl: `data:image/svg+xml,${markerSvg('#2d6a4f')}`,
+        iconSize: [28, 42],
+        iconAnchor: [14, 42],
+        popupAnchor: [0, -42]
+    }),
+    campsite: L.icon({
+        iconUrl: `data:image/svg+xml,${markerSvg('#e76f51')}`,
+        iconSize: [28, 42],
+        iconAnchor: [14, 42],
+        popupAnchor: [0, -42]
+    }),
+    overlook: L.icon({
+        iconUrl: `data:image/svg+xml,${markerSvg('#457b9d')}`,
+        iconSize: [28, 42],
+        iconAnchor: [14, 42],
+        popupAnchor: [0, -42]
+    })
+}
+
+const CategoryMap = ({ kindOfPlace, detailPath, favoritesOnly = false }) => {
 
     const allPlaces = useSelector(selectPlacesByType(kindOfPlace));
     const favPlaces = useSelector(selectFavoritePlacesByType(kindOfPlace))
@@ -33,13 +54,13 @@ const CategoryMap = ({ kindOfPlace, detailPath, favoritesOnly = false  }) => {
             zoom={9}
             style={{ height: '350px', width: '100%' }}
         >
-            <TileLayer 
+            <TileLayer
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
                 url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
             />
-            <FitBounds places ={validPlaces} />
+            <FitBounds places={validPlaces} />
             {validPlaces.map(place => (
-                <Marker key={place.id} position={[place.location.lat, place.location.lng]}>
+                <Marker key={place.id} position={[place.location.lat, place.location.lng]} icon={icons[kindOfPlace]}>
                     <Popup>
                         <strong>{place.title}</strong>
                         <br />
