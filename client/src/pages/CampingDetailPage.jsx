@@ -29,7 +29,7 @@ const CampingDetailPage = () => {
         content = (
             <>
                 <h2 className='text-center'>{campsite.title}</h2>
-                <Card>
+                <Card className='mb-3'>
                     <ItemDetails item={campsite} />
                     <Card.Footer>
                         <NotesList placeId={id} />

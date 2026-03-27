@@ -28,7 +28,7 @@ const HikingDetailPage = () => {
         content = (
             <>
                 <h2 className='text-center'>{hike.title}</h2>
-                <Card>
+                <Card className='mb-3'>
                     <ItemDetails item={hike} />
                     <Card.Footer>
                         <NotesList placeId={id} />

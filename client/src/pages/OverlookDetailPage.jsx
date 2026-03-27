@@ -28,7 +28,7 @@ const OverlookDetailPage = () => {
         content = (
             <>
                 <h2 className='text-center'>{overlook.title}</h2>
-                <Card>
+                <Card className='mb-3'>
                     <ItemDetails item={overlook} />
                     <Card.Footer>
                         <NotesList placeId={id} />
