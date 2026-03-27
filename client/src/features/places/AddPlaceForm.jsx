@@ -1,11 +1,12 @@
-import { useState,useRef } from 'react';
-import { useDispatch } from 'react-redux';
+import { useState, useRef } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
+import Spinner from 'react-bootstrap/Spinner';
 import { Formik, Field, Form as FForm, ErrorMessage } from 'formik';
 import { validateForm } from '../../utils/validateForm';
 import { processImage16x9 } from '../../utils/processImage16x9';
-import { postPlace } from './placesSlice';
+import { postPlace, selectPlacesLoading } from './placesSlice';
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css'
@@ -28,6 +29,7 @@ const LocationPicker = ({ position, setPosition }) => {
 
 const AddPlaceForm = ({ kindOfPlace, titlePlaceholder, descriptionPlaceholder, submitLabel }) => {
     const dispatch = useDispatch();
+    const loading = useSelector(selectPlacesLoading);
     const [showMap, setShowMap] = useState(false);
     const [mapPosition, setMapPosition] = useState(null);
     const [geoError, setGeoError] = useState(null);
@@ -130,7 +132,7 @@ const AddPlaceForm = ({ kindOfPlace, titlePlaceholder, descriptionPlaceholder, s
                         >
                             {showMap ? 'Hide Map' : 'Add Location Pin'}
                         </Button>
-                      
+
                         {submitCount > 0 && errors.location?.lat && (
                             <p className='text-danger'>{errors.location.lat}</p>
                         )}
@@ -218,7 +220,21 @@ const AddPlaceForm = ({ kindOfPlace, titlePlaceholder, descriptionPlaceholder, s
                             {(msg) => <p className='text-danger'>{msg}</p>}
                         </ErrorMessage>
                     </Form.Group>
-                    <Button className='mt-3' type='submit'>{submitLabel}</Button>
+                    <Button className='mt-3' type='submit' disabled={loading}>
+                        {loading ? (
+                            <>
+                                <Spinner
+                                    as='span'
+                                    animation='border'
+                                    size='sm'
+                                    role='status'
+                                    aria-hidden='true'
+                                    className='me-2'
+                                />
+                                Uploading...
+                            </>
+                        ) : submitLabel}
+                    </Button>
                 </FForm>
             )}
         </Formik>
