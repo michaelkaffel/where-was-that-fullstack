@@ -43,6 +43,8 @@ const MapController = ({ flyTo }) => {
         if (flyTo) {
             map.invalidateSize();
             map.flyTo(flyTo, 12);
+        } else {
+            map.flyTo([47.5, -120.5], 6)
         }
     }, [flyTo, map]);
     return null;
