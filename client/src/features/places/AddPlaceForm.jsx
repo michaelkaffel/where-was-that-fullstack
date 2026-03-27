@@ -163,7 +163,7 @@ const AddPlaceForm = ({ kindOfPlace, titlePlaceholder, descriptionPlaceholder, s
         >
             {({ setFieldValue, values, errors, submitCount }) => (
                 <FForm>
-                    <Form.Group>
+                    <Form.Group className='my-2'>
                         <Form.Label htmlFor='title'>Title</Form.Label>
                         <Field name='title' placeholder={titlePlaceholder} className='form-control' />
                         <ErrorMessage name='title'>
@@ -171,7 +171,7 @@ const AddPlaceForm = ({ kindOfPlace, titlePlaceholder, descriptionPlaceholder, s
                         </ErrorMessage>
                     </Form.Group>
 
-                    <Form.Group>
+                    <Form.Group className='my-2'>
                         <Form.Label htmlFor='location.name'>Location</Form.Label>
                         <Field name='location.name' placeholder='Ex: City, State' className='form-control' />
                         <ErrorMessage name='location.name'>
@@ -180,9 +180,9 @@ const AddPlaceForm = ({ kindOfPlace, titlePlaceholder, descriptionPlaceholder, s
                     </Form.Group>
 
                     {/* Map Toggle */}
-                    <Form.Group className='my-3'>
+                    <Form.Group className='my-2'>
                         <Form.Label>Pin Location</Form.Label>
-                        <div className='d-flex gap-2 my-2'>
+                        <div className='d-flex gap-2 align-items-center'>
                             <Form.Control
                                 size='sm'
                                 type='text'
@@ -200,7 +200,7 @@ const AddPlaceForm = ({ kindOfPlace, titlePlaceholder, descriptionPlaceholder, s
                                 variant='outline-secondary'
                                 size='sm'
                                 type='button'
-                                className='mb-2'
+                                
                                 onClick={() => handleSearch(setFieldValue, values)}
                                 disabled={searchLoading}
                             >
@@ -208,16 +208,18 @@ const AddPlaceForm = ({ kindOfPlace, titlePlaceholder, descriptionPlaceholder, s
                             </Button>
                         </div>
                         {searchError && <p className='text-danger small'>{searchError}</p>}
-
+                        
+                        <div className='d-flex gap-2 my-2 align-items-center'>
                         <Button
-                                variant='outline-primary'
-                                size='sm'
-                                type='button'
-                                className='mb-2'
-                                onClick={() => handleFindMyLocation(setFieldValue, values)}
-                            >
-                                Find My Location
-                            </Button>
+                            variant='outline-primary'
+                            size='sm'
+                            type='button'
+                            onClick={() => handleFindMyLocation(setFieldValue, values)}
+                        >
+                            Find My Location
+                        </Button>
+                        <span>or drop a pin manually 📍</span>
+                        </div>
                         {geoError && <p className='text-danger small'>{geoError}</p>}
                         {mapPosition && (
                             <p className='text-muted small'>
@@ -246,12 +248,12 @@ const AddPlaceForm = ({ kindOfPlace, titlePlaceholder, descriptionPlaceholder, s
                         </MapContainer>
                     </Form.Group>
 
-                    <Form.Group>
+                    <Form.Group className='my-2'>
                         <Form.Label htmlFor='dateVisited'>Date Visited</Form.Label>
                         <Field name='dateVisited' type='date' className='form-control' />
                     </Form.Group>
 
-                    <Form.Group>
+                    <Form.Group className='my-2'>
                         <Form.Label htmlFor='description'>Description</Form.Label>
                         <ErrorMessage name='description'>
                             {(msg) => <p className='text-danger'>{msg}</p>}
