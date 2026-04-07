@@ -15,7 +15,7 @@ const Footer = () => {
                         <small>
                             © 2026 Where Was That · Built by{' '}
                             <a
-                                href='https://michaelkaffel.vercel.app'
+                                href='https://michaelkaffel.com'
                                 target='_blank'
                                 rel='noopener noreferrer'
                                 className='text-light'
