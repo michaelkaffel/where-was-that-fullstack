@@ -2,7 +2,7 @@
 
 A full-stack MERN application for tracking personal outdoor locations — campsites, hikes, overlooks — and leaving private notes about changing conditions over time.
 
-**Live at:** [where-was-that-place.web.app](https://where-was-that-place.web.app)
+**Live at:** [where-was-that.com](https://where-was-that.com)
 
 Users can:
 
@@ -257,4 +257,4 @@ MIT
 
 ## Author
 
-Michael Kaffel
+[Michael Kaffel](https://michaelkaffel.com)
