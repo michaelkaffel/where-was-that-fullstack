@@ -35,7 +35,7 @@ const Footer = () => {
                             <FontAwesomeIcon icon={faGithub} size='lg'/>
                         </a>
                         <a
-                            href='https://michaelkaffel.vercel.app'
+                            href='https://michaelkaffel.com'
                             target='_blank'
                             rel='noopener noreferrer'
                             className='text-light me-3'
