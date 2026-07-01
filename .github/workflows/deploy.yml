@@ -93,7 +93,7 @@ jobs:
           credentials_json: ${{ secrets.GCP_SA_KEY_FRONTEND }}
 
       - name: Deploy to Firebase Hosting
-        run: npx firebase-tools@13.29.1 deploy --only hosting --project where-was-that-place --json
+        run: npx firebase-tools@13.29.1 deploy --only hosting --project where-was-that-place --json --debug
         working-directory: client
 
   deploy-backend:
