@@ -74,15 +74,22 @@ function Navigationbar() {
                     <Navbar.Toggle aria-controls="basic-navbar-nav" />
                     <Navbar.Collapse id="basic-navbar-nav">
                         <Nav className="me-auto">
-                            <Nav.Link as={Link} to="/" onClick={() => setExpanded(false)}>
+                            {/* <Nav.Link as={Link} to="/" onClick={() => setExpanded(false)}>
                                 <FontAwesomeIcon icon={user ? ("fa-solid fa-gauge-high") : ("fa-solid fa-house")} size="lg" />
                                 {user ? (
                                     'Dashboard'
                                 ) : ('Home')}
-                            </Nav.Link>
+                            </Nav.Link> */}
+
+                            
 
                             {user && (
                                 <>
+                                    <Nav.Link as={Link} to="/" onClick={() => setExpanded(false)}>
+                                        <FontAwesomeIcon icon='fa-solid fa-house' size='lg'/>
+                                        Dashboard
+                                    </Nav.Link>
+
                                     <Nav.Link as={Link} to="/add-locations" onClick={() => setExpanded(false)}>
                                         <FontAwesomeIcon icon='fa-solid fa-file' size='lg' />
                                         Add Locations
