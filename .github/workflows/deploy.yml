@@ -93,13 +93,8 @@ jobs:
           credentials_json: ${{ secrets.GCP_SA_KEY_FRONTEND }}
 
       - name: Deploy to Firebase Hosting
-        uses: FirebaseExtended/action-hosting-deploy@v0
-        with:
-          repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.GCP_SA_KEY_FRONTEND }}
-          projectId: where-was-that-place
-          channelId: live
-          entryPoint: client
+        run: npx firebase-tools@13.29.1 deploy --only hosting --project where-was-that-place --json
+        working-directory: client
 
   deploy-backend:
     name: Deploy Backend
