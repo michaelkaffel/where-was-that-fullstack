@@ -53,7 +53,6 @@ jobs:
               .then(() => { console.log('app.js loaded successfully'); process.exit(0); })
               .catch((err) => { console.error('app.js failed to load:', err); process.exit(1); });
           "
-
         working-directory: server
         env:
           MONGODB_URI: mongodb://localhost:27017/smoketest
@@ -72,8 +71,8 @@ jobs:
           name: client-build
           path: client/build
 
-  deploy:
-    name: Deploy
+  deploy-frontend:
+    name: Deploy Frontend
     runs-on: ubuntu-latest
     needs: ci
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -82,7 +81,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # ── Deploy Frontend ──
       - name: Download client build
         uses: actions/download-artifact@v4
         with:
@@ -103,7 +101,16 @@ jobs:
           channelId: live
           entryPoint: client
 
-      # ── Deploy Backend ──
+  deploy-backend:
+    name: Deploy Backend
+    runs-on: ubuntu-latest
+    needs: ci
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Authenticate to GCP (backend)
         uses: google-github-actions/auth@v2
         id: auth-backend
