@@ -21,7 +21,7 @@ const restoreRawBody = (req, res, next) => {
         upload.single('image')(readable, res, (err) => {
             if (readable.file) req.file = readable.file;
             if (readable.body) req.body = readable.body;
-            if (err) return next (err);
+            if (err) return next(err);
             next();
         });
     } else {
@@ -82,10 +82,28 @@ placeRouter.route('/')
                     }
                     return res.status(400).json({ message: err.message });
                 } else if (err) {
-                    return res.status(400).json({ mesage: err.message });
+                    console.error('[POST /places] restoreRawBody/multer error:', {
+                        message: err.message,
+                        stack: err.stack,
+                        contentType: req.headers['content-type'],
+                        contentLength: req.headers['content-length'],
+                    });
+                    return res.status(400).json({ message: err.message });
                 }
+
+                // Diagnostic: flag if a multipart request came through without a file/body
+                // restored — points at hypotheses 1/2 (restoreRawBody not firing correctly)
+                const isMultipart = req.headers['content-type']?.includes('multipart/form-data');
+                if (isMultipart && !req.file && Object.keys(req.body || {}).length === 0) {
+                    console.warn('[POST /places] multipart request but no file/body restored', {
+                        hasRawBody: !!req.rawBody,
+                        rawBodyLength: req.rawBody?.length,
+                        contentLength: req.headers['content-length'],
+                    });
+                }
+
                 next();
-            })
+            });
         },
         async (req, res, next) => {
             try {
@@ -96,7 +114,7 @@ placeRouter.route('/')
                         req.file.buffer,
                         req.file.originalname,
                         req.file.mimetype
-                    )
+                    );
                 }
 
                 const place = await Place.create(req.body);
@@ -106,6 +124,35 @@ placeRouter.route('/')
 
                 res.api(populated, 201);
             } catch (err) {
+                // Classify known Mongoose failure modes instead of a blind 500
+                if (err.name === 'ValidationError') {
+                    console.error('[POST /places] validation error:', {
+                        message: err.message,
+                        errors: err.errors,
+                        bodyKeys: Object.keys(req.body || {}),
+                    });
+                    return res.status(400).json({ message: err.message });
+                }
+
+                if (err.code === 11000) {
+                    console.error('[POST /places] duplicate key error:', {
+                        keyValue: err.keyValue,
+                    });
+                    return res.status(409).json({ message: 'A place with that title already exists' });
+                }
+
+                // Genuinely unexpected failure — full context for Cloud Logging
+                console.error('[POST /places] unhandled error:', {
+                    message: err.message,
+                    stack: err.stack,
+                    name: err.name,
+                    hasFile: !!req.file,
+                    bodyKeys: Object.keys(req.body || {}),
+                    contentType: req.headers['content-type'],
+                    contentLength: req.headers['content-length'],
+                    userAgent: req.headers['user-agent'],
+                });
+
                 next(err);
             }
         }
@@ -160,7 +207,7 @@ placeRouter.route('/:placeId')
 placeRouter.route('/:placeId/notes')
     .options(corsWithOptions, (req, res) => res.sendStatus(200))
     .get(corsWithOptions, verifyUser, loadPlace, verifyPlaceOwner, async (req, res, next) => {
-        
+
         try {
             res.status(200).json(req.place.toJSON().notes);
         } catch (err) {

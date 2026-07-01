@@ -81,6 +81,28 @@ app.use(function (err, req, res, _next) {
     res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
     res.header('Access-Control-Allow-Credentials', 'true');
     const status = err.status || 500;
+
+    // Log every error that reaches this handler — server errors get full detail,
+    // client errors (4xx) get a lighter log since they're expected/routine
+    if (status >= 500) {
+        console.error('[unhandled error]', {
+            message: err.message,
+            stack: err.stack,
+            name: err.name,
+            method: req.method,
+            url: req.originalUrl,
+            status,
+            userId: req.user?._id?.toString(),
+        });
+    } else {
+        console.warn('[client error]', {
+            message: err.message,
+            method: req.method,
+            url: req.originalUrl,
+            status,
+        });
+    }
+
     res.status(status).json({
         message: err.message || 'Internal server error'
     });
