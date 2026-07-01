@@ -46,6 +46,25 @@ jobs:
         run: npm run lint
         working-directory: server
 
+      - name: Smoke test server entry point
+        run: |
+          node -e "
+            import('./app.js')
+              .then(() => { console.log('app.js loaded successfully'); process.exit(0); })
+              .catch((err) => { console.error('app.js failed to load:', err); process.exit(1); });
+          "
+
+        working-directory: server
+        env:
+          MONGODB_URI: mongodb://localhost:27017/smoketest
+          SECRET_KEY: ci-dummy-jwt-secret
+          GOOGLE_CLIENT_ID: ci-dummy-client-id
+          GOOGLE_CLIENT_SECRET: ci-dummy-client-secret
+          GOOGLE_CALLBACK_URL: http://localhost:3000/users/auth/google/callback
+          RESEND_API_KEY: ci-dummy-resend-key
+          CLIENT_URL: http://localhost:3000
+          GCS_BUCKET_NAME: ci-dummy-bucket
+
       # Upload build artifact for deploy job
       - name: Upload client build
         uses: actions/upload-artifact@v4
