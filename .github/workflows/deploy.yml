@@ -81,6 +81,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
       - name: Download client build
         uses: actions/download-artifact@v4
         with:
@@ -93,7 +98,8 @@ jobs:
           credentials_json: ${{ secrets.GCP_SA_KEY_FRONTEND }}
 
       - name: Deploy to Firebase Hosting
-        run: npx firebase-tools@13.29.1 deploy --only hosting --project where-was-that-place --json --debug
+        run: |
+          npx firebase-tools@13.29.1 deploy --only hosting --project where-was-that-place --json --debug --non-interactive
         working-directory: client
 
   deploy-backend:
