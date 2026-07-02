@@ -1,6 +1,6 @@
 {
   "project": "Where Was That API",
-  "lastUpdated": "2026-03-15",
+  "lastUpdated": "2026-07-01",
   "tasks": [
     {
       "id": "multer-upload-improvements",
@@ -68,6 +68,14 @@
         "tests/notes.spec.js"
       ],
       "branch": "feature/playwright-setup"
+    },
+    {
+      "id": "title-duplicate-key-handler-cleanup",
+      "priority": "low",
+      "title": "Remove or repurpose dead duplicate-key (409) handler in placeRouter.js",
+      "goal": "Clean up now-unreachable error handling code.",
+      "description": "The POST /places route has a MongoDB duplicate-key (code: 11000) → 409 handler that was added specifically to catch title collisions when title had a unique index. Since the unique constraint on title was removed (2026-07-01), this branch can no longer be triggered by title conflicts. Decide whether to delete it or leave it as a generic fallback for any future unique index.",
+      "notes": "Not urgent — harmless dead code either way. Related to the title-uniqueness removal (see completedFeatures)."
     },
     {
       "id": "email-flows",
@@ -168,6 +176,9 @@
     "GCS bucket CORS configuration",
     "Cloud Functions cold start resilience (connection await middleware)",
     "Scroll view reset on navigation",
-    "Navbar collapse on link press"
+    "Navbar collapse on link press",
+    "Error logging infrastructure — dedicated 90-day GCS log bucket + Log Router sink for severity>=ERROR, classified error handling in POST /places (ValidationError → 400, duplicate-key → 409, unexpected → logged stack trace), production error handler logs stack + request context on 5xx",
+    "GCP billing budget alerts for where-was-that-490000 and wherewasthat-auth projects (50/90/100% thresholds)",
+    "Removed global unique constraint on Place.title — titles no longer required to be unique across users or within a single user's own places; old title_1 index dropped via one-off migration script (server/scripts/drop-title-index.js)"
   ]
 }

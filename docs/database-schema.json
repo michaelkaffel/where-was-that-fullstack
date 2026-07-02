@@ -3,7 +3,7 @@
   "type": "database-schema",
   "database": "MongoDB Atlas",
   "databaseName": "wwtdb",
-  "lastUpdated": "2026-03-05",
+  "lastUpdated": "2026-07-01",
 
   "collections": {
 
@@ -44,7 +44,7 @@
       "description": "User-owned locations including campsites, hikes, and overlooks.",
       "fields": {
         "id": "ObjectId (normalized to id in API responses)",
-        "title": "String (unique)",
+        "title": "String (not unique — same title can exist across different users, or multiple times for the same user)",
         "description": "String",
         "imageUrl": "String",
         "location": "String",
@@ -125,5 +125,12 @@
     "directory": "public/images",
     "urlFormat": "https://host/images/<filename>",
     "cleanup": "Images removed when place or user is deleted"
-  }
+  },
+
+  "changeLog": [
+    {
+      "date": "2026-07-01",
+      "change": "Removed unique constraint on places.title. Previously title had a global unique index, which incorrectly prevented different users from creating places with the same title and was the likely root cause of a POST /places 500/duplicate-key bug. A per-owner compound unique index ({owner, title}) was considered but rejected — decided titles don't need to be unique at all, even for the same user. The old single-field unique index (title_1) was dropped via a one-off migration script (server/scripts/drop-title-index.js). No replacement index was created."
+    }
+  ]
 }
