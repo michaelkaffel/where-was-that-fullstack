@@ -62,7 +62,7 @@ const PreviewDisplay = ({ onShowLogin, onShowSignup }) => {
                         <div className='orientation-slide p-4 text-start mx-auto' style={{ maxWidth: 750 }}>
                             <h2 className='text-white mb-3'>Use the Dashboard for quick access</h2>
                             <p className='text-white'>
-                                Once logged this page becomes your Dashboard where you can quickly find all your saved locations.
+                                Once logged in this page becomes your Dashboard where you can quickly find all your saved locations.
                                 Use the navbar to access the Account Details page, all your Saved Places grouped by category pages, and the Add Locations page.
                             </p>
 
@@ -151,7 +151,7 @@ const PreviewDisplay = ({ onShowLogin, onShowSignup }) => {
                         <div className='orientation-slide p-4 text-start mx-auto' style={{ maxWidth: 750 }}>
                             <h2 className='text-white mb-3'>Places grouped by categories</h2>
                             <p className='text-white'>
-                                Each category has their own Saved Locations page where you can view your all (or just your favorite) places in a map and list view.
+                                Each category has their own Saved Locations page where you can view all (or just your favorite) places in a map and list view.
                             </p>
                             <small className='text-white d-block mb-2'>dashboard / hiking trails</small>
 
@@ -189,7 +189,7 @@ const PreviewDisplay = ({ onShowLogin, onShowSignup }) => {
                         <div className='orientation-slide p-4 text-start mx-auto' style={{ maxWidth: 740 }}>
                             <h2 className='text-white mb-3'>Each place gets its own 'card'</h2>
                             <p className='text-white'>
-                                Every saved place has its own unique page that is generated when you save a new location. Use that places page to quickly get directions or use the 'notepad' to keep track changes at your spot.
+                                Every saved place has its own unique page that is generated when you save a new location. Use that places page to quickly get directions or use the 'notepad' to keep track of changes at your spot.
                             </p>
 
                             <small className='text-white d-block mb-2'>dashboard / hiking trails / ruby beach</small>
@@ -233,7 +233,7 @@ const PreviewDisplay = ({ onShowLogin, onShowSignup }) => {
                                 Where Was That is a passion project — built to make getting outside, and remembering where you've been, a little easier and a lot more fun.
                             </p>
                             <p className='text-white' style={{ fontSize: '0.9rem', lineHeight: 1.6 }}>
-                                It also doubles as a working example of what I build. If you want a custom site of your own, that's what Down By The River Development is for.
+                                It also doubles as a working example of what I build. If you want a custom site of your own, check out Down By The River Development.
                             </p>
                             {/* <div style={{ ...wf, height: 40 }} className='d-flex align-items-center justify-content-center'>
                                 <small className='text-white'>Down By The River Development — get in touch</small>
@@ -245,7 +245,7 @@ const PreviewDisplay = ({ onShowLogin, onShowSignup }) => {
                                 className='orientation-cta d-flex align-items-center justify-content-center'
                                 style={{ ...wf, height: 40, textDecoration: 'none' }}
                             >
-                                <small className='text-white'>Down By The River Development — get in touch</small>
+                                <small className='text-white'>Get in touch!</small>
                             </a>
                             <p className='text-white mt-3' style={{ fontSize: '0.9rem', lineHeight: 1.6 }}>
                                 Run into a bug, or have an idea for this app? I read every message — reach out any time.
