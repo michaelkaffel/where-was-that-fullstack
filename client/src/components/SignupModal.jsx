@@ -35,7 +35,7 @@ const SignupModal = ({ show, onHide }) => {
     return (
         <Modal show={show} onHide={onHide} centered>
             <Modal.Header closeButton>
-                <Modal.Title>Sign Up</Modal.Title>
+                <Modal.Title >Sign Up</Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 {error && <p className='text-danger text-center'>{error}</p>}
