@@ -28,7 +28,7 @@ const Home = () => {
                     <Row className='hero-row'>
                         <Col xs={10} lg={10} className='hero-text-box m-auto d-flex flex-column justify-content-between pt-2 pb-3'>
                             <h1 className='font-setting text-center'>DASHBOARD</h1>
-                            
+
                             <HomeMap />
 
                             <div className='d-flex justify-content-evenly flex-wrap gap-3 mt-4'>
@@ -60,9 +60,16 @@ const Home = () => {
 
                 ) : (
                     <Row className='hero-row'>
-                        <Col xs={10} lg={6} className='hero-text-box m-auto d-flex flex-column justify-content-between p-4'>
+                        <Col xs={10} lg={8} className='hero-text-box m-auto d-flex flex-column justify-content-between p-4'>
                             <h1 className='hero-title text-center'>WHERE WAS THAT</h1>
-                            <h3 className='hero-subtitle text-center'>Keep track of all your favorite hiking trails, camping spots, and scenic overlooks.</h3>
+                            <h2 className='hero-subtitle text-center'>Keep track of all your favorite hiking trails, camping spots, and scenic overlooks.</h2>
+                            <div className='d-flex justify-content-center gap-3 mt-3'>
+                                <Button data-testid='hero-login-btn' variant='primary' onClick={setShowLogin} >Log In</Button>
+                                <Button data-testid='hero-signup-btn' variant='outline-primary text-black' onClick={setShowSignup} >Sign Up</Button>
+                            </div>
+                            <h3 className='hero-subtitle text-center mt-5 fs-2'>Create an account or learn more below.</h3>
+                            <LoginModal show={showLogin} onHide={() => setShowLogin(false)} />
+                            <SignupModal show={showSignup} onHide={() => setShowSignup(false)} />
                         </Col>
                     </Row>
                 )}
@@ -74,14 +81,11 @@ const Home = () => {
 
             <Container>
                 <Row className='preview-display-row'>
-                    <Col xs={10} className='mx-auto preview-display-background'>
+                    <Col xs={10} lg={10} className='mx-auto preview-display-background'>
                         <PreviewDisplay
                             onShowLogin={() => setShowLogin(true)}
                             onShowSignup={() => setShowSignup(true)}
                         />
-
-                        <LoginModal show={showLogin} onHide={() => setShowLogin(false)} />
-                        <SignupModal show={showSignup} onHide={() => setShowSignup(false)} />
                     </Col>
                 </Row>
 
