@@ -109,7 +109,8 @@ const PreviewDisplay = ({ onShowLogin, onShowSignup }) => {
                             </div>
                             <div style={{ ...wf, padding: 8, marginTop: 2 }} className='d-flex flex-column gap-2'>
                                 <div style={{ ...wf, height: 24 }} className='d-flex align-items-center px-2'><small className='text-white'>title</small></div>
-                                <div style={{ ...wf, height: 24 }} className='d-flex align-items-center px-2'><small className='text-white'>location (auto-fills from pin, or type your own)</small></div>
+                                <div style={{ ...wf, height: 24 }} className='d-flex align-items-center px-2'><small className='text-white'>location</small></div>
+                                <Callout>↑ Auto-fills from pin, or type your own</Callout>
                                 <div className='d-flex gap-2'>
                                     <div style={{ ...wf, flex: 1, height: 22 }} className='d-flex align-items-center px-2'><small className='text-white'>search for a place</small></div>
                                     <div style={{ ...wf, width: 70, height: 22 }} className='d-flex align-items-center justify-content-center'><small className='text-white'>locate me</small></div>
