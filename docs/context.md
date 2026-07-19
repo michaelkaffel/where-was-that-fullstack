@@ -44,6 +44,7 @@ This was a full refactor from scratch against the API contract — old/unneeded 
 - `server/models/place.js` — Place schema, GCS cleanup hook
 - `server/models/user.js` — User schema, cascade delete hook
 - `server/authenticate.js` — Passport strategies
+- `server/utils/imageProcessing.js` — sharp-based compression (resize/rotate re-encode) called from placeRouter.js before GCS upload
 - `server/scripts/drop-title-index.js` — one-off migration script; drops the legacy unique index on `Place.title`
 - `client/src/components/CategoryMap.js` — reusable Leaflet map for category pages
 - `client/src/app/shared/baseUrl.js` — API base URL (env-switched)
@@ -53,9 +54,10 @@ This was a full refactor from scratch against the API contract — old/unneeded 
 - **Multipart form fields** get lost the same way — fixed with a `restoreRawBody` helper that reconstructs a Readable stream from `req.rawBody` and reattaches both `file` and `body` to `req`.
 - **Google OAuth** required an absolute `callbackURL` (via `GOOGLE_CALLBACK_URL` env var) because of the Cloud Functions path prefix, plus middleware to parse `req.query` from `req.url` since it arrived undefined.
 - **GCS CORS** handled via a `cors.json` policy applied with `gsutil`.
-- Sharp (for image compression) needs the `linux/amd64` binary target since Cloud Functions runs Linux even though local dev is Apple Silicon — this hasn't been implemented yet, see backlog.
+Sharp (for image compression) needs the `linux/amd64` binary target since Cloud Functions runs Linux even though local dev is Apple Silicon. Implemented 2026-07-18 — package-lock.json was regenerated with `npm install --os=linux --cpu=x64 --include=optional` to capture both platform binaries; CI's `npm ci` on ubuntu-latest validates this on every push.
 ## Decisions Log
 - **2026-07-01 — Place titles are not unique.** `title` originally had a global `unique: true` constraint, which silently blocked any two users from ever using the same title anywhere in the app — the likely cause of a POST /places 500 a friend hit. Considered scoping uniqueness per-owner via a compound `{owner, title}` index, but decided against enforcing uniqueness at all; titles can now repeat freely, both across users and within one user's own places. The old `title_1` index was dropped directly against MongoDB Atlas via `server/scripts/drop-title-index.js` (run locally with `MONGODB_URI` from `.env`, before deploying the schema change). The `code: 11000` duplicate-key → 409 handler added to `placeRouter.js` during the earlier debugging session is now dead code for `title` specifically and can be removed or left as a harmless fallback for other future unique indexes.
+- **2026-07-18 — Node runtime bumped to 22; server dependencies patched; image compression shipped.** Node 20 reached EOL (2026-04-30); CI and Cloud Functions both moved to Node 22. `npm audit fix` resolved 21 of 28 vulnerabilities (including a critical Mongoose NoSQL-injection issue); the remaining 7 moderate `uuid` findings are deferred since the only fix path forces a breaking `@google-cloud/storage` downgrade. Image compression via `sharp` (resize to 1600px max width, EXIF auto-rotate, format-specific re-encode) added to `POST /places`, tested locally with portrait/landscape/oversized images; GCS `Cache-Control` (already set to 1yr) confirmed intact on compressed uploads.
 ## What's Built & Working
 - Local login + Google OAuth (production-verified)
 - JWT auth on all protected routes
@@ -68,7 +70,7 @@ This was a full refactor from scratch against the API contract — old/unneeded 
 - Full CI/CD pipeline via GitHub Actions
 ## Current Backlog
 **🔴 High Priority**
-- Image compression via Sharp (server-side, before GCS upload) — top pending item, GCS free-tier egress is a concern. Sharp not yet installed; Cloud Functions Linux binary target needs to be addressed before implementation. Also on the list: filename sanitization, thumbnail generation (lower priority), year/month folder structure in GCS (lower priority)
+- Filename sanitization for uploaded images (compression shipped 2026-07-18 — see Decisions Log)
 **🟡 Medium Priority**
 - `res.api()` response helper — standardize route responses, prevent serialization bugs
 - Project-wide `.toObject()` audit — ensure routes use `.toJSON()`-aware patterns everywhere (follow-up to the notes `_id`/`id` bug)
