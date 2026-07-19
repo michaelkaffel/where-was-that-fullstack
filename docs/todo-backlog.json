@@ -5,16 +5,15 @@
     {
       "id": "multer-upload-improvements",
       "priority": "high",
-      "title": "Improve image upload handling",
+      "title": "Improve image upload handling — remaining items",
       "goal": "Make file uploads safer and more scalable.",
-      "description": "Enhance image pipeline now that uploads go through GCS.",
+      "description": "Enhance image pipeline now that uploads go through GCS. Compression shipped 2026-07-18.",
       "improvements": [
         "sanitize uploaded filenames",
-        "add image compression using sharp before GCS upload",
         "generate thumbnails for card views",
         "optionally create year/month folder structure in GCS bucket"
       ],
-      "notes": "Extension and MIME type validation already in place via Multer fileFilter. Filename sanitization and sharp compression are the highest-value next steps."
+      "notes": "Extension and MIME type validation already in place via Multer fileFilter. Image compression (sharp: resize to 1600px max width, EXIF auto-rotate + strip, format-specific quality settings, GCS Cache-Control already set to 1yr) shipped 2026-07-18 in server/utils/imageProcessing.js. Filename sanitization is now the highest-value remaining item."
     },
     {
       "id": "user-profile-page-extended",
@@ -76,6 +75,14 @@
       "goal": "Clean up now-unreachable error handling code.",
       "description": "The POST /places route has a MongoDB duplicate-key (code: 11000) → 409 handler that was added specifically to catch title collisions when title had a unique index. Since the unique constraint on title was removed (2026-07-01), this branch can no longer be triggered by title conflicts. Decide whether to delete it or leave it as a generic fallback for any future unique index.",
       "notes": "Not urgent — harmless dead code either way. Related to the title-uniqueness removal (see completedFeatures)."
+    },
+    {
+      "id": "sharp-linux-lockfile-fragility",
+      "priority": "low",
+      "title": "Document/automate sharp Linux binary lockfile step",
+      "goal": "Prevent future breakage if sharp gets bumped without re-running the platform-specific install.",
+      "description": "package-lock.json only captures optional platform binaries for platforms npm install was run on. sharp's linux-x64 + linux-x64 libvips entries were added manually via `npm install --os=linux --cpu=x64 --include=optional` on 2026-07-18. Any future `npm update sharp` on macOS risks silently dropping the Linux entries again unless this step is repeated.",
+      "notes": "Low priority since CI (npm ci on ubuntu-latest) will catch it immediately if it breaks — not a silent failure. Could eventually be scripted as a package.json postinstall check, but not worth the complexity yet."
     },
     {
       "id": "email-flows",
