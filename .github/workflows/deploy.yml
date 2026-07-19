@@ -19,7 +19,7 @@ jobs:
       - name: Setup Node (client)
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
           cache-dependency-path: client/package-lock.json
 
@@ -38,6 +38,13 @@ jobs:
           REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
 
       # ── Server ──
+      - name: Setup Node (server)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: server/package-lock.json
+
       - name: Install server dependencies
         run: npm ci
         working-directory: server
@@ -84,7 +91,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Download client build
         uses: actions/download-artifact@v4
@@ -126,7 +133,7 @@ jobs:
       - name: Deploy Cloud Function
         run: |
           gcloud functions deploy whereWasThatServer \
-            --runtime nodejs20 \
+            --runtime nodejs22 \
             --trigger-http \
             --allow-unauthenticated \
             --source . \
