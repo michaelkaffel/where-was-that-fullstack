@@ -1,5 +1,6 @@
 import express from 'express';
 import { uploadToGCS } from '../gcs.js';
+import { compressImage } from '../utils/imageProcessing.js';
 import multer from 'multer';
 import path from 'path';
 import Place from '../models/place.js';
@@ -110,8 +111,25 @@ placeRouter.route('/')
                 req.body.owner = req.user._id;
 
                 if (req.file) {
+                    
+                    let processedBuffer;
+                    try {
+                        processedBuffer = await compressImage(req.file.buffer, req.file.mimetype);
+                    } catch (err) {
+                        console.error('[POST /places] image compression error:', {
+                            message: err.message,
+                            stack: err.stack,
+                            name: err.name,
+                            mimetype: req.file.mimetype,
+                            originalname: req.file.originalname,
+                            size: req.file.buffer?.length,
+                            userId: req.user?._id?.toString(),
+                        });
+                        return res.status(400).json({ message: 'Could not process image' });
+                    }
+
                     req.body.imageUrl = await uploadToGCS(
-                        req.file.buffer,
+                        processedBuffer,
                         req.file.originalname,
                         req.file.mimetype
                     );
