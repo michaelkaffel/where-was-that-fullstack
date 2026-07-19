@@ -26,7 +26,7 @@ Users can:
 - Firebase Hosting
 
 ### Backend
-- Node.js + Express
+- Node.js 22 + Express
 - MongoDB Atlas + Mongoose
 - JWT authentication
 - Passport Local + Google OAuth
@@ -84,7 +84,7 @@ Browser → Firebase Hosting (React SPA)
       (data)           (images)
 ```
 
-- **Frontend:** Firebase Hosting at `where-was-that-place.web.app`
+- **Frontend:** Firebase Hosting at `where-was-that.com`
 - **Backend:** Cloud Functions at `us-central1-where-was-that-490000.cloudfunctions.net/whereWasThatServer`
 - **Database:** MongoDB Atlas
 - **Images:** GCS bucket `where-was-that-images` (publicly readable)
@@ -152,7 +152,7 @@ All routes except signup, login, and Google OAuth require authentication.
 ## Local Development Setup
 
 ### Prerequisites
-- Node.js
+- Node.js 22 (pinned in CI/CD — see `.github/workflows/deploy.yml`)
 - MongoDB (local via Homebrew or Atlas)
 - Google Cloud credentials (for GCS image uploads)
 
