@@ -3,7 +3,7 @@
   "type": "database-schema",
   "database": "MongoDB Atlas",
   "databaseName": "wwtdb",
-  "lastUpdated": "2026-07-01",
+  "lastUpdated": "2026-09-14",
 
   "collections": {
 
@@ -20,7 +20,9 @@
         "createdAt": "Date",
         "updatedAt": "Date",
         "hash": "String (passport-local-mongoose)",
-        "salt": "String (passport-local-mongoose)"
+        "salt": "String (passport-local-mongoose)",
+        "resetPasswordToken": "String, select: false — schema field already added, not yet used by any route (see todo-backlog.json email-flows task)",
+        "resetPasswordExpires": "Date, select: false — schema field already added, not yet used by any route"
       },
       "indexes": [
         "email unique",
@@ -44,14 +46,18 @@
       "description": "User-owned locations including campsites, hikes, and overlooks.",
       "fields": {
         "id": "ObjectId (normalized to id in API responses)",
-        "title": "String (not unique — same title can exist across different users, or multiple times for the same user)",
-        "description": "String",
-        "imageUrl": "String",
-        "location": "String",
-        "dateVisited": "Date",
-        "favorite": "Boolean",
-        "kindOfPlace": "Enum [campsite, hike, overlook]",
-        "owner": "ObjectId reference to users",
+        "title": "String, required, trimmed (not unique — same title can exist across different users, or multiple times for the same user)",
+        "description": "String, required",
+        "imageUrl": "String, required (GCS object URL)",
+        "location": {
+          "name": "String, default ''",
+          "lat": "Number, default null",
+          "lng": "Number, default null"
+        },
+        "dateVisited": "Date, required",
+        "favorite": "Boolean, required, default false",
+        "kindOfPlace": "Enum [campsite, hike, overlook], required",
+        "owner": "ObjectId reference to users, required",
         "notes": "Embedded note documents",
         "createdAt": "Date",
         "updatedAt": "Date"
@@ -72,8 +78,8 @@
         }
       },
       "cascadeDeletes": {
-        "description": "Deleting a place removes its associated image file.",
-        "implementation": "placeSchema.pre('deleteOne')"
+        "description": "Deleting a place removes its associated image from Google Cloud Storage.",
+        "implementation": "placeSchema.pre('deleteOne', { document: true, query: false }) — calls deleteFromGCS(this.imageUrl) before proceeding"
       }
     },
 
@@ -83,8 +89,8 @@
       "description": "User notes attached to a place.",
       "fields": {
         "id": "ObjectId (auto-generated)",
-        "text": "String",
-        "date": "String",
+        "text": "String, required",
+        "date": "String, required",
         "createdAt": "Date",
         "updatedAt": "Date"
       },
@@ -111,26 +117,36 @@
   ],
 
   "normalizationRules": {
-    "description": "API responses normalize MongoDB documents.",
+    "description": "API responses normalize MongoDB documents via toJSON/toObject transforms.",
     "rules": [
       "_id converted to id",
       "__v removed",
       "password hash and salt removed",
-      "nested note ids normalized"
+      "nested owner._id and note._id normalized to id"
     ]
   },
 
   "fileStorage": {
-    "type": "local filesystem",
-    "directory": "public/images",
-    "urlFormat": "https://host/images/<filename>",
-    "cleanup": "Images removed when place or user is deleted"
+    "type": "Google Cloud Storage",
+    "bucket": "where-was-that-images",
+    "processing": "Sharp compression (server/utils/imageProcessing.js) applied before upload: EXIF auto-rotate + strip, resize to 1600px max width (withoutEnlargement), format-specific quality",
+    "cacheControl": "1yr",
+    "urlFormat": "https://storage.googleapis.com/where-was-that-images/<filename>",
+    "cleanup": "Images removed when place or user is deleted via pre('deleteOne') hooks calling deleteFromGCS"
   },
 
   "changeLog": [
     {
+      "date": "2026-09-14",
+      "change": "Restricted GET /users/:userId to admins (verifyAdmin added). Previously any authenticated user could fetch any other user's full document by id with no ownership or admin check — leaked email, admin flag, googleId, hasPassword to any logged-in user. No client code called this route."
+    },
+    {
       "date": "2026-07-01",
       "change": "Removed unique constraint on places.title. Previously title had a global unique index, which incorrectly prevented different users from creating places with the same title and was the likely root cause of a POST /places 500/duplicate-key bug. A per-owner compound unique index ({owner, title}) was considered but rejected — decided titles don't need to be unique at all, even for the same user. The old single-field unique index (title_1) was dropped via a one-off migration script (server/scripts/drop-title-index.js). No replacement index was created."
+    },
+    {
+      "date": "2026-07-18",
+      "change": "Shipped Sharp-based image compression pipeline (server/utils/imageProcessing.js) sitting in front of GCS upload: resize to 1600px max width, EXIF auto-rotate + strip, format-specific quality. GCS Cache-Control set to 1yr on uploaded objects."
     }
   ]
 }

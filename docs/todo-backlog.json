@@ -1,6 +1,6 @@
 {
   "project": "Where Was That API",
-  "lastUpdated": "2026-07-01",
+  "lastUpdated": "2026-09-14",
   "tasks": [
     {
       "id": "multer-upload-improvements",
@@ -16,6 +16,14 @@
       "notes": "Extension and MIME type validation already in place via Multer fileFilter. Image compression (sharp: resize to 1600px max width, EXIF auto-rotate + strip, format-specific quality settings, GCS Cache-Control already set to 1yr) shipped 2026-07-18 in server/utils/imageProcessing.js. Filename sanitization is now the highest-value remaining item."
     },
     {
+      "id": "nosql-injection-middleware-review",
+      "priority": "low",
+      "title": "Optional: whitelist fields on Place.create(req.body)",
+      "goal": "Defense-in-depth hardening beyond the already-patched Mongoose CVE.",
+      "description": "Reviewed 2026-09-14: middleware.js (loadPlace, loadPlaces) and placeRouter.js build queries from JWT-derived req.user._id and route params (findById, findOne), not from raw req.query/req.body spread into filter objects — no active NoSQL injection path found there. The one soft spot is placeRouter.js's `Place.create(req.body)`, which relies on Mongoose's default strict-mode field-stripping rather than an explicit field whitelist.",
+      "notes": "Downgraded from medium to low — this is optional hardening, not a known vulnerability. Distinct from the future backend-api-hardening task (zod/express-rate-limit/helmet/pino)."
+    },
+    {
       "id": "user-profile-page-extended",
       "priority": "medium",
       "title": "User profile/settings page — extended fields",
@@ -25,7 +33,7 @@
         "Change username",
         "Change email"
       ],
-      "notes": "Backend PATCH /users/me already supports username and email updates via allowedFields. Only frontend form work needed."
+      "notes": "Backend PATCH /users/me already supports username, firstname, lastname, and email updates via allowedFields (plus password change via currentPassword/newPassword). Only frontend form work needed."
     },
     {
       "id": "admin-panel",
@@ -118,8 +126,8 @@
         "Token should be a short-lived signed JWT (15-30 min expiry) or a hashed random token stored in DB"
       ],
       "userModelAdditions": [
-        "passwordResetToken: String",
-        "passwordResetExpires: Date"
+        "resetPasswordToken: String, select: false — already added to server/models/user.js, not yet used by any route",
+        "resetPasswordExpires: Date, select: false — already added to server/models/user.js, not yet used by any route"
       ],
       "securityNotes": [
         "Never confirm whether an email exists in forgot-password or forgot-username responses",
@@ -128,15 +136,43 @@
       ]
     },
     {
+      "id": "align-owner-populate-fields",
+      "priority": "low",
+      "title": "Align owner populate fields across place routes",
+      "goal": "Consistent, minimal response shape for the owner field.",
+      "description": "GET /places and GET /places/:placeId populate the full owner document (middleware.js loadPlaces; placeRouter.js :placeId GET), while POST /places limits it to .populate('owner', 'username'). Not a cross-user leak today since owner is always the requesting user, but responses carry the owner's email/admin/timestamps instead of the documented {id, username} shape, and it's inconsistent.",
+      "notes": "Found during 2026-09-14 docs review. Recommend limiting all three to .populate('owner', 'username')."
+    },
+    {
+      "id": "remove-debug-console-logs",
+      "priority": "low",
+      "title": "Remove leftover debug console.log/warn statements",
+      "goal": "Keep production logs limited to the intentional structured error logging.",
+      "description": "middleware.js loadPlaces logs req.user._id and place count on every GET /places request; authenticate.js logs the full JWT payload on every authenticated request. These predate the structured error-logging work in POST /places and app.js's production error handler and aren't part of it.",
+      "notes": "Found during 2026-09-14 docs review. Low priority — not a security issue (server-side stdout in Cloud Logging), just noise/cost."
+    },
+    {
       "id": "backend-api-hardening",
       "priority": "future",
       "title": "Backend API hardening",
       "goal": "Improve security and reliability for production deployment.",
       "improvements": [
-        { "tool": "zod", "purpose": "validate request bodies and inputs" },
-        { "tool": "express-rate-limit", "purpose": "prevent brute-force attacks and API abuse" },
-        { "tool": "helmet", "purpose": "add security headers" },
-        { "tool": "pino", "purpose": "structured production logging" }
+        {
+          "tool": "zod",
+          "purpose": "validate request bodies and inputs"
+        },
+        {
+          "tool": "express-rate-limit",
+          "purpose": "prevent brute-force attacks and API abuse"
+        },
+        {
+          "tool": "helmet",
+          "purpose": "add security headers"
+        },
+        {
+          "tool": "pino",
+          "purpose": "structured production logging"
+        }
       ]
     }
   ],
@@ -186,6 +222,12 @@
     "Navbar collapse on link press",
     "Error logging infrastructure — dedicated 90-day GCS log bucket + Log Router sink for severity>=ERROR, classified error handling in POST /places (ValidationError → 400, duplicate-key → 409, unexpected → logged stack trace), production error handler logs stack + request context on 5xx",
     "GCP billing budget alerts for where-was-that-490000 and wherewasthat-auth projects (50/90/100% thresholds)",
-    "Removed global unique constraint on Place.title — titles no longer required to be unique across users or within a single user's own places; old title_1 index dropped via one-off migration script (server/scripts/drop-title-index.js)"
+    "Removed global unique constraint on Place.title — titles no longer required to be unique across users or within a single user's own places; old title_1 index dropped via one-off migration script (server/scripts/drop-title-index.js)",
+    "Node.js EOL v20 → v22 upgrade (CI/CD, Cloud Functions runtime, package.json engines, README)",
+    "Mongoose NoSQL injection CVE patched (dependency audit)",
+    "CI/CD hardening: PR-gating branch protection, backend smoke test step, deploy-frontend/deploy-backend as independent parallel jobs, Firebase pinned to firebase-tools@13.29.1 via direct npx call",
+    "Onboarding carousel on HomePage for logged-out users (five slides, custom nav, Bootstrap indicators fixed via flexbox ordering)",
+    "contact@where-was-that.com email routing via Cloudflare → Gmail forwarding",
+    "Restricted GET /users/:userId to admins — previously any authenticated user could fetch any other user's full profile (email, admin flag, googleId, hasPassword) by id with no ownership or admin check; no client code called the route (fixed 2026-09-14)"
   ]
 }

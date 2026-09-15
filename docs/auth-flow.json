@@ -1,7 +1,7 @@
 {
   "project": "Where Was That API",
   "type": "authentication-flow",
-  "lastUpdated": "2026-03-05",
+  "lastUpdated": "2026-09-14",
 
   "authenticationMethods": [
     "JWT",
@@ -24,9 +24,9 @@
       "description": "User creates an account using username, email, and password.",
       "steps": [
         "Client sends POST /users/signup",
-        "Express route validates request body",
-        "passport-local-mongoose hashes password",
-        "User document created in MongoDB",
+        "Express route builds a new User doc from req.body",
+        "User.register(user, password) called directly — passport-local-mongoose's built-in helper, no workaround needed (unlike login, which bypasses passport.authenticate('local') — see platformQuirks)",
+        "Password hashed and User document created in MongoDB",
         "JWT token generated with getToken()",
         "Server returns token and normalized user object",
         "Frontend stores token in localStorage"
@@ -37,8 +37,9 @@
       "description": "User logs in with username and password.",
       "steps": [
         "Client sends POST /users/login",
-        "passport.authenticate('local') verifies credentials",
-        "User document loaded from database",
+        "Cloud Functions pre-parses the request body, breaking passport-local-mongoose's stream-based authenticate() — passport.authenticate('local') is bypassed",
+        "User manually fetched from MongoDB with .select('+hash +salt')",
+        "Password verified by calling the instance method user.authenticate(password, callback) directly",
         "JWT token generated",
         "Server returns token and normalized user object",
         "Frontend stores token in localStorage"
@@ -64,9 +65,18 @@
         "profile.name.givenName",
         "profile.name.familyName",
         "profile.emails[0].value"
+      ],
+      "platformNotes": [
+        "Requires an absolute callbackURL via the GOOGLE_CALLBACK_URL env var, because of the Cloud Functions path prefix",
+        "Requires middleware to parse req.query from req.url, since req.query otherwise arrives undefined on Cloud Functions"
       ]
     }
 
+  },
+
+  "platformQuirks": {
+    "description": "Cloud Functions pre-parses incoming HTTP bodies before Express/Passport middleware runs, which would consume the request stream that passport.authenticate('local') needs to read itself.",
+    "mitigation": "Login bypasses the affected stream-based Passport helper: it manually loads the user (.select('+hash +salt')) and calls user.authenticate(password, callback) directly instead of passport.authenticate('local'). Signup does not need a workaround — User.register() doesn't depend on reading the request stream the way passport.authenticate('local') does, so it's called directly."
   },
 
   "protectedRouteAccess": {
@@ -119,6 +129,9 @@
     "JWT stored client-side",
     "HTTPS required for production",
     "Owner-based access control for places",
-    "Admin-only access for user management routes"
+    "Admin-only access for user management routes",
+    "Mongoose NoSQL injection CVE patched (dependency audit)",
+    "middleware.js/placeRouter.js query construction reviewed 2026-09-14 — low risk (see architecture-map.json stack.security)",
+    "GET /users/:userId restricted to admins (fixed 2026-09-14 — previously any authenticated user could look up any other user's full profile)"
   ]
 }

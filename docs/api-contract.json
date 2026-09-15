@@ -2,6 +2,7 @@
   "project": "Where Was That API",
   "type": "api-contract",
   "version": "1.0",
+  "lastUpdated": "2026-09-14",
   "baseUrl": "/",
   "authentication": {
     "method": "JWT",
@@ -59,6 +60,38 @@
         "statusCodes": [200, 401]
       },
 
+      "PATCH /users/me": {
+        "description": "Update the current user's own username, firstname, lastname, email, and/or password",
+        "authRequired": true,
+        "requestBody": {
+          "username": "string, optional",
+          "firstname": "string, optional",
+          "lastname": "string, optional",
+          "email": "string, optional",
+          "currentPassword": "string, required if newPassword is present",
+          "newPassword": "string, optional — rejected with 400 for Google-only accounts (no hash) or if currentPassword is missing/wrong"
+        },
+        "response": {
+          "success": true,
+          "user": {
+            "id": "string",
+            "username": "string",
+            "firstname": "string",
+            "lastname": "string",
+            "email": "string",
+            "admin": false,
+            "hasPassword": "boolean"
+          }
+        },
+        "statusCodes": [200, 400, 401, 404]
+      },
+
+      "DELETE /users/me": {
+        "description": "Delete the current user's own account, cascading to their places and images",
+        "authRequired": true,
+        "statusCodes": [200, 404]
+      },
+
       "GET /users": {
         "description": "List all users (admin only)",
         "authRequired": true,
@@ -73,6 +106,22 @@
           }
         ],
         "statusCodes": [200, 403]
+      },
+
+      "GET /users/:userId": {
+        "description": "Look up any user by id (admin only)",
+        "authRequired": true,
+        "adminRequired": true,
+        "statusCodes": [200, 403, 404],
+        "notes": "Previously gated by verifyUser only (no admin/ownership check), letting any authenticated user fetch any other user's full profile by id — fixed 2026-09-14 by adding verifyAdmin. No client code calls this route."
+      },
+
+      "PATCH /users/:userId": {
+        "description": "Admin update of another user's username/email/admin role",
+        "authRequired": true,
+        "adminRequired": true,
+        "status": "planned, not yet implemented",
+        "needsReview": "Listed as a backend requirement for the admin-panel task in todo-backlog.json but not yet in completedFeatures — confirm current implementation status before treating this route as live."
       },
 
       "DELETE /users/:userId": {
@@ -110,7 +159,11 @@
             "title": "string",
             "description": "string",
             "imageUrl": "string",
-            "location": "string",
+            "location": {
+              "name": "string",
+              "lat": "number | null",
+              "lng": "number | null"
+            },
             "dateVisited": "date",
             "favorite": "boolean",
             "kindOfPlace": "campsite | hike | overlook",
@@ -131,7 +184,11 @@
         "requestBody": {
           "title": "string",
           "description": "string",
-          "location": "string",
+          "location": {
+            "name": "string",
+            "lat": "number",
+            "lng": "number"
+          },
           "dateVisited": "date",
           "kindOfPlace": "campsite | hike | overlook",
           "image": "file"
