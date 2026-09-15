@@ -1,7 +1,7 @@
 {
   "project": "Where Was That",
   "type": "system-diagram",
-  "lastUpdated": "2026-03-05",
+  "lastUpdated": "2026-09-14",
 
   "nodes": [
     {
@@ -14,7 +14,7 @@
       "id": "express_api",
       "label": "Express API",
       "type": "server",
-      "description": "Node.js backend handling routes, authentication, and database interactions."
+      "description": "Node.js 22 backend handling routes, authentication, and database interactions. Deployed as Cloud Functions gen2 (whereWasThatServer)."
     },
     {
       "id": "passport_auth",
@@ -35,16 +35,28 @@
       "description": "Primary data store containing users and places collections."
     },
     {
-      "id": "image_storage",
-      "label": "Image Storage",
+      "id": "sharp_processing",
+      "label": "Sharp Image Processing",
+      "type": "processing",
+      "description": "In-memory image compression pipeline (server/utils/imageProcessing.js) run on uploads before they reach storage: EXIF auto-rotation and strip, resize to 1600px max width (withoutEnlargement), format-specific quality settings."
+    },
+    {
+      "id": "google_cloud_storage",
+      "label": "Google Cloud Storage",
       "type": "storage",
-      "description": "Local filesystem storage in public/images for uploaded place photos."
+      "description": "GCS bucket (where-was-that-images) storing uploaded place photos after Sharp compression. Cache-Control set to 1yr. CORS configured via cors.json/gsutil. Images cleaned up automatically on place/user delete via Mongoose pre('deleteOne') hooks."
     },
     {
       "id": "google_oauth",
       "label": "Google OAuth",
       "type": "external_service",
       "description": "Third-party authentication provider."
+    },
+    {
+      "id": "cloud_logging",
+      "label": "Cloud Logging",
+      "type": "observability",
+      "description": "error-logs bucket with 90-day retention; Log Router sink for severity>=ERROR. Classified error handling in POST /places (ValidationError → 400, duplicate-key → 409, unexpected → logged stack trace); production error handler logs stack + request context on 5xx."
     }
   ],
 
@@ -87,9 +99,30 @@
 
     {
       "from": "express_api",
-      "to": "image_storage",
+      "to": "sharp_processing",
+      "type": "image_processing",
+      "description": "Uploaded images (held in memory via Multer) are compressed before storage."
+    },
+
+    {
+      "from": "sharp_processing",
+      "to": "google_cloud_storage",
       "type": "file_upload",
-      "description": "Uploaded images saved to local filesystem via Multer."
+      "description": "Compressed images uploaded to GCS bucket."
+    },
+
+    {
+      "from": "express_api",
+      "to": "google_cloud_storage",
+      "type": "file_delete",
+      "description": "Associated images removed from GCS when a place or user is deleted (pre('deleteOne') hooks)."
+    },
+
+    {
+      "from": "express_api",
+      "to": "cloud_logging",
+      "type": "logging",
+      "description": "Structured error logs (severity>=ERROR) routed to the error-logs bucket."
     },
 
     {
@@ -130,10 +163,18 @@
 
     "image_upload_flow": [
       "User submits form with image",
-      "Multer processes multipart/form-data",
-      "Image saved to public/images",
+      "Multer processes multipart/form-data into memory (memoryStorage)",
+      "Sharp compresses image: EXIF auto-rotate + strip, resize to 1600px max width, format-specific quality",
+      "Compressed image uploaded to Google Cloud Storage bucket (where-was-that-images) with 1yr Cache-Control",
       "Image URL stored in MongoDB",
       "API response returns image URL"
+    ],
+
+    "image_cleanup_flow": [
+      "Place or user deleteOne triggered",
+      "Mongoose pre('deleteOne') hook fires",
+      "Associated image(s) removed from GCS bucket",
+      "Document deletion proceeds"
     ]
   },
 
@@ -142,6 +183,11 @@
     "JWT authentication",
     "Owner-based access control for places",
     "Admin-only routes for user management",
-    "File type and size validation for uploads"
+    "File type and size validation for uploads (Multer fileFilter)",
+    "GCS bucket CORS policy",
+    "Automatic image cleanup on place/user delete",
+    "Mongoose NoSQL injection CVE patched (dependency audit)",
+    "middleware.js/placeRouter.js query construction reviewed 2026-09-14 — low risk (see architecture-map.json stack.security)",
+    "GET /users/:userId restricted to admins (fixed 2026-09-14)"
   ]
 }

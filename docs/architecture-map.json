@@ -1,10 +1,10 @@
 {
   "project": "Where Was That API",
   "type": "architecture-map",
-  "lastUpdated": "2026-03-05",
+  "lastUpdated": "2026-09-14",
 
   "stack": {
-    "runtime": "Node.js",
+    "runtime": "Node.js 22",
     "framework": "Express",
     "database": "MongoDB Atlas",
     "orm": "Mongoose",
@@ -13,11 +13,15 @@
       "Passport Local",
       "Passport Google OAuth"
     ],
-    "fileUploads": "Multer",
+    "fileUploads": "Multer (memory storage) + Sharp compression before GCS upload",
     "security": [
       "HTTPS local dev server",
       "JWT authentication",
-      "Owner-based resource protection"
+      "Owner-based resource protection",
+      "GCS bucket CORS policy",
+      "Mongoose NoSQL injection CVE patched (dependency audit)",
+      "middleware.js/placeRouter.js query construction reviewed 2026-09-14 — queries are built from JWT-derived _id and route params, not raw req.query/req.body operator objects; low risk. Place.create(req.body) in placeRouter.js relies on Mongoose strict-mode field-stripping rather than an explicit whitelist — optional hardening, not an active vulnerability",
+      "GET /users/:userId restricted to admins (fixed 2026-09-14 — previously any authenticated user could fetch any other user's full profile by id)"
     ]
   },
 
@@ -28,6 +32,7 @@
     },
     "server": {
       "app.js": "Main Express configuration",
+      "index.js": "Cloud Functions entry point",
       "bin/www": "HTTP + HTTPS server bootstrap",
       "routes": [
         "index.js",
@@ -43,9 +48,9 @@
         "middleware.js",
         "authenticate.js"
       ],
-      "public": {
-        "images": "Uploaded place images"
-      }
+      "gcs.js": "GCS storage layer (pure upload/delete)",
+      "utils/imageProcessing.js": "Sharp compression pipeline run before GCS upload",
+      "scripts": "Standalone maintenance scripts (e.g. drop-title-index.js) — avoid importing Mongoose models directly, use mongoose.connection.collection() instead"
     }
   },
 
@@ -63,7 +68,9 @@
         "passportLocalMongoose"
       ],
       "indexes": [
-        "email unique"
+        "email unique",
+        "username unique",
+        "googleId"
       ],
       "timestamps": true,
       "relationships": {
@@ -106,16 +113,21 @@
   },
 
   "authenticationFlow": {
-    "localSignup": [
-      "POST /users/signup",
-      "User.register() hashes password",
-      "JWT token generated",
-      "token returned to client"
-    ],
+    "localSignup": {
+      "steps": [
+        "POST /users/signup",
+        "User.register(user, password) — passport-local-mongoose's built-in helper, called directly, no workaround needed",
+        "Password hashed, User document created",
+        "JWT token generated",
+        "token returned to client"
+      ]
+    },
 
     "localLogin": [
       "POST /users/login",
-      "passport.authenticate('local')",
+      "Cloud Functions pre-parses the request body, breaking passport-local-mongoose's stream-based authenticate() — passport.authenticate('local') is bypassed",
+      "User manually fetched with .select('+hash +salt')",
+      "Password verified via user.authenticate(password, callback) called directly",
       "JWT token generated",
       "token returned to client"
     ],
@@ -143,6 +155,21 @@
     "verifyPlaceOwner": "Ensures user owns the requested place"
   },
 
+  "userApi": {
+    "baseRoute": "/users",
+    "routes": {
+      "POST /users/signup": "Create local account",
+      "POST /users/login": "Local login",
+      "GET /users/auth/google": "Start Google OAuth flow",
+      "GET /users/auth/google/callback": "Google OAuth callback, redirects to frontend with JWT",
+      "PATCH /users/me": "Update current user — supports username, firstname, lastname, email, and password (currentPassword + newPassword) changes via allowedFields",
+      "DELETE /users/me": "Delete current user's own account",
+      "GET /users": "List all users — admin only",
+      "GET /users/:userId": "Look up a user by id — admin only (fixed 2026-09-14; previously had no admin/ownership check)",
+      "DELETE /users/:userId": "Delete a user and cascade-delete their places/images — admin only"
+    }
+  },
+
   "placeApi": {
     "baseRoute": "/places",
 
@@ -155,7 +182,8 @@
       "PATCH /places/:placeId": "Update favorite status",
 
       "DELETE /places/:placeId": "Delete place and associated image"
-    }
+    },
+    "needsReview": "GET /places and GET /places/:placeId populate the full owner document (middleware.js loadPlaces, placeRouter.js :placeId GET), while POST /places limits it to .populate('owner', 'username'). Not a cross-user leak (owner is always the requesting user), but responses carry the owner's email/admin/timestamps instead of the documented {id, username} shape. Recommend aligning all three to the minimal populate."
   },
 
   "notesApi": {
@@ -176,14 +204,16 @@
 
   "fileUploadFlow": {
     "library": "multer",
-    "storage": "diskStorage",
-    "uploadPath": "public/images",
+    "storage": "memoryStorage",
+    "processing": "sharp (server/utils/imageProcessing.js) — EXIF auto-rotate + strip, resize to 1600px max width (withoutEnlargement), format-specific quality — runs before upload",
+    "destination": "Google Cloud Storage bucket: where-was-that-images",
+    "cacheControl": "1yr",
     "securityChecks": [
       "file extension whitelist",
       "mime type whitelist",
       "10MB size limit"
     ],
-    "imageUrlFormat": "https://host/images/filename"
+    "imageUrlFormat": "https://storage.googleapis.com/where-was-that-images/<filename>"
   },
 
   "dataNormalization": {
@@ -192,7 +222,7 @@
       "_id converted to id",
       "__v removed",
       "password hash and salt removed",
-      "nested note ids normalized"
+      "nested owner._id and note ids normalized"
     ]
   },
 
@@ -211,6 +241,10 @@
     "JWT-based authentication",
     "Owner-only data access",
     "Image upload validation",
-    "Automatic image cleanup on deletion"
+    "Automatic image cleanup on deletion",
+    "GCS bucket CORS policy",
+    "Mongoose NoSQL injection CVE patched (dependency audit)",
+    "middleware.js/placeRouter.js query construction reviewed 2026-09-14 — low risk, see stack.security",
+    "GET /users/:userId restricted to admins (fixed 2026-09-14)"
   ]
 }
