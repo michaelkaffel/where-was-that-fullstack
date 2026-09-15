@@ -181,7 +181,7 @@ router.get('/logout', corsWithOptions, verifyUser, (req, res) => {
     })
 });
 
-router.get('/:userId', corsWithOptions, verifyUser, async (req, res, next) => {
+router.get('/:userId', corsWithOptions, verifyUser, verifyAdmin, async (req, res, next) => {
 
     try {
         const user = await User.findById(req.params.userId);
